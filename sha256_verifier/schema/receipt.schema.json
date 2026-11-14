@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sha256.fail/schema/receipt.schema.json",
+  "title": "Verification receipt",
+  "description": "The result of verifying one circuit against one problem. Everything except `run` is reproduced exactly by re-running with the same circuit, problem, salt and number of random shots.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["receipt_version", "problem", "status", "failure", "circuit", "cost", "verification", "verifier", "submission", "run"],
+  "properties": {
+    "receipt_version": {"const": 1},
+    "problem": {"type": "string", "description": "Problem name, e.g. sha256-compress-v1."},
+    "status": {"enum": ["PASS", "FAIL"]},
+    "failure": {
+      "description": "Null when status is PASS.",
+      "oneOf": [{"type": "null"}, {"$ref": "#/$defs/failure"}]
+    },
+    "circuit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file_sha256", "sha256", "qubits", "bits", "operations", "toffoli_static", "instruction_counts", "reaction_depth"],
+      "properties": {
+        "file_sha256": {"$ref": "#/$defs/sha256", "description": "SHA-256 of the submitted file."},
+        "sha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}], "description": "SHA-256 of the circuit's canonical .kmb form; identifies the circuit. Null if the file did not load."},
+        "qubits": {"type": ["integer", "null"], "minimum": 0, "description": "Highest qubit index plus one."},
+        "bits": {"type": ["integer", "null"], "minimum": 0},
+        "operations": {"type": ["integer", "null"], "minimum": 0},
+        "toffoli_static": {"type": ["integer", "null"], "minimum": 0, "description": "CCX, CCZ and CSWAP instructions present in the circuit."},
+        "instruction_counts": {"type": ["object", "null"], "additionalProperties": {"type": "integer", "minimum": 1}},
+        "reaction_depth": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "cost": {
+      "description": "Null unless status is PASS.",
+      "oneOf": [{"type": "null"}, {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["qubits", "toffoli", "score", "toffoli_executed_total", "shots"],
+        "properties": {
+          "qubits": {"type": "integer", "minimum": 1, "description": "Q."},
+          "toffoli": {"type": "number", "minimum": 0, "description": "C: mean Toffoli-like instructions executed per random shot."},
+          "score": {"type": "number", "minimum": 0, "description": "Q times C."},
+          "toffoli_executed_total": {"type": "integer", "minimum": 0, "description": "Exact numerator of C."},
+          "shots": {"type": "integer", "minimum": 1, "description": "Exact denominator of C."}
+        }
+      }]
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sampling", "salt", "seed", "directed_shots", "random_shots", "full_strength", "batch_size", "chunk_shots", "limits"],
+      "properties": {
+        "sampling": {"const": "v1"},
+        "salt": {"type": "string"},
+        "seed": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}], "description": "Null if the circuit was rejected before any test was chosen."},
+        "directed_shots": {"type": ["integer", "null"], "minimum": 0, "description": "Number of directed tests. Null if they were not reached."},
+        "random_shots": {"type": "integer", "minimum": 1, "description": "Random tests requested."},
+        "full_strength": {"type": "boolean", "description": "True when random_shots is at least the problem's official count."},
+        "batch_size": {"type": "integer"},
+        "chunk_shots": {"type": "integer"},
+        "limits": {"type": "object", "additionalProperties": {"type": "integer"}}
+      }
+    },
+    "verifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha_verifier_version", "kickmix_version"],
+      "properties": {
+        "sha_verifier_version": {"type": "string"},
+        "kickmix_version": {"type": "string"}
+      }
+    },
+    "submission": {"type": ["object", "null"], "description": "Metadata supplied with the circuit, carried unchanged."},
+    "run": {
+      "type": "object",
+      "description": "Facts about this particular run. Not reproducible.",
+      "additionalProperties": false,
+      "required": ["started_at", "elapsed_seconds", "workers", "kickmix_binary_sha256", "python_version", "numpy_version", "platform", "machine"],
+      "properties": {
+        "started_at": {"type": "string"},
+        "elapsed_seconds": {"type": "number", "minimum": 0},
+        "workers": {"type": "integer", "minimum": 1},
+        "kickmix_binary_sha256": {"$ref": "#/$defs/sha256"},
+        "python_version": {"type": "string"},
+        "numpy_version": {"type": "string"},
+        "platform": {"type": "string"},
+        "machine": {"type": "string"}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stage", "code", "message", "shot", "inputs", "failing_shots"],
+      "properties": {
+        "stage": {"enum": ["load", "structure", "directed", "random", "accounting"]},
+        "code": {"type": "string", "description": "Short machine-readable reason."},
+        "message": {"type": "string"},
+        "shot": {"type": ["integer", "null"], "minimum": 0, "description": "Index of the first failing shot within its stage."},
+        "inputs": {"type": ["object", "null"], "additionalProperties": {"type": "string", "pattern": "^([0-9a-f]{2})*$"}, "description": "Input registers of the failing shot: register bits packed eight per byte, offset 0 in the least significant bit of the first byte."},
+        "failing_shots": {"type": ["object", "null"], "additionalProperties": {"type": "integer", "minimum": 0}, "description": "Per check, how many shots in the failing batch of 256 failed it."}
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 [project]
 name = "sha-verifier"
-version = "0.0.1"
+version = "0.1.0"
 description = "Verifier for quantum circuits that compute SHA-2/SHA-3 hash functions, built on Google's Kickmix simulator."
 readme = "README.md"
 license = "Apache-2.0"
@@ -14,7 +14,10 @@ dependencies = [
 sha-verify = "sha_verifier.cli:main"
 
 [dependency-groups]
-dev = ["pytest>=8"]
+dev = [
+    "jsonschema>=4.26.0",
+    "pytest>=8",
+]
 
 [build-system]
 requires = ["hatchling"]

@@ -87,9 +87,18 @@ scratch at zero, and phase not flipped.
    every message length from 0 to 55 bytes.
 2. **Random tests**: 2^20 = 1,048,576 uniformly random blocks, one shot each.
 
+The random blocks are derived from `SHA-256(problem name, circuit hash, salt)`, so they
+depend on the circuit and cannot be known before it is fixed. A run with the same circuit and
+salt always uses the same blocks and the same measurement outcomes.
+
 Passing is evidence, not proof. Zero failures in 2^20 random shots bounds the failure rate
 below 8.5 × 10^-5 at confidence 1 − 2^-128. A circuit that is wrong on one input in ten
 million would pass nine times in ten.
+
+## Limits
+
+A submission may be at most 512 MiB, 20,000,000 operations, 65,536 qubits and 1,048,576
+classical bits. These are resource limits of the verifier, set far above what the task needs.
 
 ## Test vectors
 

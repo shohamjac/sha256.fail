@@ -2,6 +2,8 @@
 
 Date: 2026-11-14. Supersedes `preplan_codex.md` (see §10 for what I kept and what I changed).
 
+Status: M0, M1 and M2 are done. Next is M3, the baseline circuit.
+
 Goal: a public benchmark for quantum circuits that compute SHA-256, verified with Google's
 Kickmix simulator, with a qubit–Toffoli Pareto front and leaderboard in the style of ecdsa.fail.
 
@@ -102,12 +104,13 @@ sha256_verifier/
     problems.py     # registry: name -> ProblemSpec(registers, reference fn, directed tests)
     sha2.py         # vectorized numpy SHA-2 compression (SHA-256 and SHA-512 parameters)
     bits.py         # words <-> register bit arrays
-    validate.py     # allowlist, register schema, independent op walk
-    simulate.py     # batched Kickmix runs, multiprocess, checks
+    kmx.py          # independent parser for Kickmix circuit text
+    circuits.py     # loading, cross-check against Kickmix, register and instruction checks, limits
+    simulate.py     # batched Kickmix runs, multiprocess, per-shot checks
     sampling.py     # seed derivation, input generation
-    receipt.py      # result JSON + schema
+    verify.py       # verify(bytes, problem, salt) -> receipt
     cli.py          # sha-verify run | collect | selftest
-  schema/result.schema.json
+  schema/receipt.schema.json
   tests/
 ```
 
@@ -129,16 +132,19 @@ agree.
 2. **Structural.** Register names/sizes/distinctness; gate allowlist (reject `Z_POW`); size
    limits (ops, qubits, file bytes). An independent pure-Python walk of the `.kmx` text
    recomputes qubit count and static gate counts and must agree with Kickmix's own numbers —
-   this is the defence against a crafted file fooling the counter.
+   this is the defence against a crafted file fooling the counter. Only a circuit rebuilt
+   from that text is simulated, so nothing runs that the walk did not see.
 3. **Directed tests** (1,179 shots, frozen in M1): constant patterns, each single bit set
    and clear, carry-heavy words, and padded messages of every length 0–55.
-4. **Random tests.** 2^20 uniform 512-bit blocks, one shot each, batch 256, chunks spread over
-   cores. Each shot uses a fresh input and fresh measurement outcomes, which is exactly the
+4. **Random tests.** 2^20 uniform 512-bit blocks, one shot each, batch 256, in chunks of
+   4,096 shots spread over cores. Measured: 2.2 s on 32 cores, about 40 s on one, for a
+   300,000-gate circuit on 1,300 qubits. Each shot uses a fresh input and fresh measurement outcomes, which is exactly the
    joint sample Google's bound is stated for. No "repeats per input".
 5. **Per shot:** `digest` equals reference; `block` restored; all scratch zero; phase not
    flipped (vector read via `read_phase_flipped_across_shots`).
 6. **Counts.** Mean executed Toffoli-like per shot from the simulator; static counts,
-   reaction depth, op count.
+   reaction depth, op count. The executed total must be possible given the static count and
+   how many Toffolis are under a classical condition, or the run fails.
 
 ### 4.3 What passing means, and seeds
 
@@ -155,15 +161,18 @@ agree.
 
 ### 4.4 Receipt (the only interface to the frontend)
 
-One JSON per run, validated against `schema/result.schema.json`:
+One JSON per run, described by `schema/receipt.schema.json`:
 problem id, status, failure detail, circuit SHA-256, Q, C (mean executed), static Toffoli,
 reaction depth, op count, shots, directed-test count, salt, seed, verifier version, Kickmix
 version/hash, timestamp, and submission metadata (name, authors, description, links).
+Everything except the `run` section (timing, platform) is reproduced exactly by a replay.
 `sha-verify collect` concatenates receipts into `results/index.json`. No ranking logic here.
 
 ### 4.5 Verifier self-tests (mutation tests)
 
-A fixed set of deliberately broken circuits that must all be rejected: one wrong output bit,
+Implemented in `tests/test_verify.py` on a small 4-bit adder problem, since no SHA-256
+circuit exists before M3: about thirty broken circuits, each rejected at a specific stage for
+a specific reason. The original list was: one wrong output bit,
 block not restored, dirty scratch, dirty `HMR` without fixup, stray `NEG`, extra register,
 wrong register size, `Z_POW` present, conditional `R` leaving dirt, a rare-failure circuit
 (wrong on ~1% of inputs), aliased operands. Runs in CI on every change to the verifier.

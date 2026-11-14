@@ -58,6 +58,7 @@ class ProblemSpec:
         reference: Maps input register bits to the expected output register bits.
         directed_inputs: Returns the fixed directed test inputs, as input register bits.
         allowed_instructions: Kickmix instruction names a circuit may contain.
+        random_shots: Random test inputs in a full-strength verification run.
     """
     name: str
     title: str
@@ -65,6 +66,7 @@ class ProblemSpec:
     reference: Callable[[RegisterBits], RegisterBits]
     directed_inputs: Callable[[], RegisterBits]
     allowed_instructions: frozenset[str] = INSTRUCTIONS_WITHOUT_ROTATIONS
+    random_shots: int = 1 << 20
 
     @property
     def inputs(self) -> tuple[RegisterSpec, ...]:

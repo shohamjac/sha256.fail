@@ -1,30 +1,79 @@
 # sha-verifier
 
 The backend of sha256.fail: checks that a Kickmix circuit computes a hash function and
-measures its cost. It knows nothing about leaderboards or the website.
+measures its cost. It knows nothing about leaderboards or the website; its only output is
+a receipt.
 
-Currently implemented:
+## Verify a circuit
 
-- `sha-verify selftest` — runs a 4-bit adder on every input and a set of deliberately broken
-  circuits (wrong output, changed input, dirty scratch, missing phase fixup, stray global
-  phase), each of which must be detected.
-- `sha-verify version` — verifier, Kickmix and platform versions.
+```bash
+uv sync --locked
+uv run sha-verify run circuit.kmb
+```
 
-- The problem `sha256-compress-v1`: its registers, bit order, reference function, allowed
-  instructions and directed tests. The contract is [docs/sha256-compress-v1.md](docs/sha256-compress-v1.md).
+This checks the circuit against `sha256-compress-v1` (the contract is
+[docs/sha256-compress-v1.md](docs/sha256-compress-v1.md)), prints a receipt as JSON, and
+exits 0 if the circuit passed and 1 if it did not. A full run is 1,179 directed tests and
+2^20 random ones; on a 300,000-gate circuit that takes about 40 s on one core.
 
-Not yet implemented: checking a circuit against a problem (`sha-verify run`), random
-sampling, and receipts. That is milestone M2 in `../PLAN.md`.
+| Option | Meaning |
+|---|---|
+| `--shots N` | Fewer random tests, for development. The receipt is marked `full_strength: false`. |
+| `--salt S` | Salt mixed into the seed that picks the random tests. Default: empty. |
+| `--random-salt` | Draw a fresh salt and record it. Use this when others must trust the result. |
+| `--workers N` | Worker processes. Does not change the result. |
+| `--meta FILE` | JSON object with submission metadata, carried in the receipt unchanged. |
+| `--results-dir DIR` | Also write the receipt to `DIR/<problem>/<circuit sha256>.json`. |
+
+`sha-verify collect DIR` gathers every receipt under `DIR` into `DIR/index.json`, which is
+what the frontend reads. `sha-verify selftest` checks the simulator stack itself.
+
+## What is checked
+
+1. **Load.** The file is parsed by Kickmix, written back out as text, and that text is read
+   again by an independent parser (`kmx.py`). The two must agree on every count, and only
+   a circuit rebuilt from the text is simulated.
+2. **Structure.** Exactly the problem's registers, of the right sizes, made of distinct
+   qubits; only allowed instructions; within the size limits.
+3. **Directed tests**, then **random tests.** Every shot must end with the right output,
+   inputs unchanged, scratch at zero and phase not flipped.
+4. **Accounting.** The executed Toffoli count must be possible for the circuit's static count.
+
+The first failure stops the run. The receipt names the stage, the check, and the failing
+input, so a failure can be reproduced.
+
+## Receipts
+
+Described by [schema/receipt.schema.json](schema/receipt.schema.json). Everything except the
+`run` section depends only on the circuit, the problem, the salt and the number of random
+shots: re-running with the same four gives the same receipt, on any machine and with any
+number of workers. The random tests are derived from
+`SHA-256(problem, circuit hash, salt)`; see `sampling.py`.
+
+## Limits
+
+A submission may be at most 512 MiB, 20,000,000 operations, 65,536 qubits and 1,048,576
+classical bits.
+
+## Running on untrusted files
+
+The verifier never executes submitted code, only parses circuit files. Parsing is done by
+Kickmix's C++ loader, so run the verifier where a crash or a large allocation costs nothing
+but the run: a throwaway CI job with no secrets, as the workflow here does.
 
 ## Modules
 
 | Module | What |
 |---|---|
+| `verify.py` | `verify(bytes, problem, salt, ...) -> receipt`: the whole verifier as one function |
+| `circuits.py` | Loading a file, the cross-check against Kickmix, structural checks, limits |
+| `kmx.py` | Independent parser for Kickmix circuit text |
+| `sampling.py` | Seed derivation and random inputs |
+| `simulate.py` | Batched simulation and the per-shot checks |
 | `problems.py` | Registry of benchmark problems. Adding a hash function is one entry here. |
-| `sha2.py` | Reference SHA-2 compression, vectorized over inputs. Circuit generators must not import it. |
+| `sha2.py` | Reference SHA-2 compression. Circuit generators must not import it. |
 | `bits.py` | Conversion between words and register bit arrays |
-| `selftest.py` | Simulator and fault-detection self-test |
-| `environment.py` | Kickmix version and binary hash, for receipts |
+| `selftest.py`, `environment.py` | Simulator self-test; Kickmix version and binary hash |
 
 ## Simulator
 
@@ -38,3 +87,6 @@ corresponds to the signed tag `v1.0.0-kickmix` (commit `e8e4971bf44a`) in
 uv sync
 uv run pytest
 ```
+
+The tests include a small 4-bit adder problem (`tests/toy.py`) and about thirty broken
+circuits that must each be rejected at a specific stage for a specific reason.

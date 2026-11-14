@@ -5,8 +5,8 @@ a verifier built on Google's [Kickmix](https://github.com/quantumlib/Qualtran/tr
 simulator checks each one on about a million random inputs and reports its qubit count and
 Toffoli count. Verified circuits are shown on a qubit–Toffoli Pareto front.
 
-Status: early. The simulator stack and its self-test work; the SHA-256 verifier, the baseline
-circuit and the website are not built yet. See [PLAN.md](PLAN.md) for the design and milestones.
+Status: early. The verifier works and the problem contract is frozen; the baseline SHA-256
+circuit and the website are not built yet, so nothing has passed verification so far. See [PLAN.md](PLAN.md) for the design and milestones.
 
 ## Layout
 
