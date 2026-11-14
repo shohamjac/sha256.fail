@@ -1,0 +1,76 @@
+{
+  "receipt_version": 1,
+  "problem": "sha256-compress-v1",
+  "status": "PASS",
+  "failure": null,
+  "circuit": {
+    "file_sha256": "454e15dff5f9c5dcf58aec9c5183d80052fa138c27fb4d0dbb62a22b2963beac",
+    "sha256": "454e15dff5f9c5dcf58aec9c5183d80052fa138c27fb4d0dbb62a22b2963beac",
+    "qubits": 831,
+    "bits": 1,
+    "operations": 346779,
+    "toffoli_static": 26716,
+    "instruction_counts": {
+      "CCX": 26716,
+      "CX": 221427,
+      "CZ": 25980,
+      "HMR": 26116,
+      "INFO_TAG": 1608,
+      "NEG": 1000,
+      "POP_CONDITION": 2040,
+      "PUSH_CONDITION": 2040,
+      "R": 26116,
+      "X": 13633,
+      "Z": 103
+    },
+    "reaction_depth": 11666
+  },
+  "cost": {
+    "qubits": 831,
+    "toffoli": 26716.0,
+    "score": 22200996.0,
+    "toffoli_executed_total": 28013756416,
+    "shots": 1048576
+  },
+  "verification": {
+    "sampling": "v1",
+    "salt": "9926d15ad67eeda50e9fcb4ff711275e2632b6ec09df8eac2ece057324787163",
+    "seed": "fc0b92675a4e6713afac04bd18f5083725709bc05825e31287e1e5e8c9c0d0d2",
+    "directed_shots": 1179,
+    "random_shots": 1048576,
+    "full_strength": true,
+    "batch_size": 256,
+    "chunk_shots": 4096,
+    "limits": {
+      "max_file_bytes": 536870912,
+      "max_operations": 20000000,
+      "max_qubits": 65536,
+      "max_bits": 1048576
+    }
+  },
+  "verifier": {
+    "sha_verifier_version": "0.1.0",
+    "kickmix_version": "1.0.0"
+  },
+  "submission": {
+    "name": "Folded first rounds",
+    "authors": [
+      "sha256.fail"
+    ],
+    "kind": "submission",
+    "problem": "sha256-compress-v1",
+    "path": "submissions/folded-first-rounds",
+    "description": "The baseline with constant folding in rounds 0 to 3. The initial hash value is fixed, so round 0 reduces to two additions, round 1 needs no ANDs for Ch and Maj, and the round constants of rounds 1 to 3 are added at build time. Saves 372 Toffolis and no qubits.",
+    "source": "build.py"
+  },
+  "run": {
+    "started_at": "2026-11-14T13:09:10+00:00",
+    "elapsed_seconds": 16.245,
+    "workers": 4,
+    "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+    "python_version": "3.13.18",
+    "numpy_version": "2.5.4",
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+    "machine": "x86_64"
+  }
+}
