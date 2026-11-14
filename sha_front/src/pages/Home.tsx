@@ -4,7 +4,7 @@ import { ParetoChart } from '../components/ParetoChart';
 import { Records } from '../components/Records';
 import { StatTiles } from '../components/StatTiles';
 import { SubmissionDialog } from '../components/SubmissionDialog';
-import { PROBLEM_TITLES } from '../config';
+import { PROBLEM_MIN_QUBITS, PROBLEM_TITLES } from '../config';
 import { problemsOf, type Entry } from '../data';
 
 export function Home({ entries }: { entries: Entry[] }): ReactElement {
@@ -49,9 +49,13 @@ export function Home({ entries }: { entries: Entry[] }): ReactElement {
             <p className="lede">
               Each mark is a verified circuit. Left is fewer qubits, down is fewer Toffolis. A circuit is on the
               front when no other circuit is at least as good on both.
+              {PROBLEM_MIN_QUBITS[problem] !== undefined && (
+                <> The dashed line is the fewest qubits a circuit can have: the input and output themselves.</>
+              )}
             </p>
             <div className="card">
-              <ParetoChart entries={shown} selectedId={selectedId} onSelect={setSelectedId} />
+              <ParetoChart entries={shown} selectedId={selectedId} onSelect={setSelectedId}
+                minQubits={PROBLEM_MIN_QUBITS[problem]} />
             </div>
           </section>
 

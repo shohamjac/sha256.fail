@@ -28,6 +28,15 @@ export function noteLink(href: string, submissionPath: string): string | null {
   return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : null;
 }
 
+/**
+ * The fewest qubits a circuit for each problem can have: the problem's own registers, which
+ * every circuit must contain. For SHA-256 compression that is the 512-bit block plus the
+ * 256-bit digest. The chart marks it; problems not listed here get no mark.
+ */
+export const PROBLEM_MIN_QUBITS: Record<string, number> = {
+  'sha256-compress-v1': 768,
+};
+
 /** Display titles for the problems the site knows; unknown ones show their id. */
 export const PROBLEM_TITLES: Record<string, string> = {
   'sha256-compress-v1': 'SHA-256 compression',

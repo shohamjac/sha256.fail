@@ -72,9 +72,11 @@ interface Props {
   entries: Entry[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  /** The fewest qubits any circuit for this problem can have, drawn as a vertical line. */
+  minQubits?: number;
 }
 
-export function ParetoChart({ entries, selectedId, onSelect }: Props): ReactElement {
+export function ParetoChart({ entries, selectedId, onSelect, minQubits }: Props): ReactElement {
   const [ref, width] = useWidth();
   const [hoverId, setHoverId] = useState<string | null>(null);
 
@@ -89,11 +91,12 @@ export function ParetoChart({ entries, selectedId, onSelect }: Props): ReactElem
   const model = useMemo(() => {
     const front = frontier(entries);
     const frontIds = new Set(front.map((e) => e.id));
-    const [qMin, qMax] = padded(entries.map((e) => e.qubits), 1.12);
+    // The qubit axis always reaches down to the limit, however far the circuits are from it.
+    const [qMin, qMax] = padded([...entries.map((e) => e.qubits), ...(minQubits === undefined ? [] : [minQubits])], 1.12);
     const [tMin, tMax] = padded(entries.map((e) => e.toffoli), 1.25);
     const bestScore = Math.min(...entries.map((e) => e.score));
     return { front, frontIds, qMin, qMax, tMin, tMax, bestScore };
-  }, [entries]);
+  }, [entries, minQubits]);
 
   const x = scaleLog().domain([model.qMin, model.qMax]).range([plot.left, plot.right]);
   const y = scaleLog().domain([model.tMin, model.tMax]).range([plot.bottom, plot.top]);
@@ -189,7 +192,9 @@ export function ParetoChart({ entries, selectedId, onSelect }: Props): ReactElem
           height={height}
           viewBox={`0 0 ${width} ${height}`}
           role="group"
-          aria-label="Qubits against Toffolis for every verified circuit. The leaderboard below lists the same data."
+          aria-label={'Qubits against Toffolis for every verified circuit. '
+            + (minQubits === undefined ? '' : `No circuit can have fewer than ${count(minQubits)} qubits. `)
+            + 'The leaderboard below lists the same data.'}
           onPointerMove={(event) => setHoverId(nearest(event)?.id ?? null)}
           onPointerLeave={() => setHoverId(null)}
           onClick={(event) => {
@@ -216,6 +221,9 @@ export function ParetoChart({ entries, selectedId, onSelect }: Props): ReactElem
               <line key={line.multiple} className="iso"
                 x1={x(line.q0)} y1={y(line.score / line.q0)} x2={x(line.q1)} y2={y(line.score / line.q1)} />
             ))}
+            {minQubits !== undefined && (
+              <line className="limit" x1={x(minQubits)} x2={x(minQubits)} y1={plot.top} y2={plot.bottom} />
+            )}
             {stairs !== '' && <path className="front-line" d={stairs} />}
           </g>
 
@@ -236,6 +244,14 @@ export function ParetoChart({ entries, selectedId, onSelect }: Props): ReactElem
               </text>
             );
           })}
+
+          {minQubits !== undefined && (
+            // Runs up the left side of the line, where no mark can be.
+            <text className="limit-label" textAnchor="end"
+              transform={`translate(${x(minQubits) - 6} ${plot.top + 8}) rotate(-90)`}>
+              {width < 520 ? `min. ${count(minQubits)} qubits` : `minimum: ${count(minQubits)} qubits`}
+            </text>
+          )}
 
           {xTicks.map((t) => (
             <text key={t} className="tick" x={x(t)} y={plot.bottom + 18} textAnchor="middle">{count(t)}</text>
