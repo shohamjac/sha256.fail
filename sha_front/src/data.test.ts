@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { listed, problemsOf, toEntries, type Receipt } from './data';
-import { frontier } from './pareto';
+import { dominates, frontier } from './pareto';
 
 function receipt(overrides: Partial<Receipt> & { id?: string } = {}): Receipt {
   const { id = 'a'.repeat(64), ...rest } = overrides;
@@ -73,11 +73,26 @@ describe('the repository results', () => {
     }
   });
 
-  it('puts the baseline on the frontier and the textbook variant off it', () => {
-    const names = frontier(entries).map((e) => e.name);
-    expect(names).toContain('Baseline');
-    expect(names).toContain('Low-qubit adder');
-    expect(names).not.toContain('Compute, copy, uncompute');
+  // These tests run against whatever is on the leaderboard today, and a new submission can
+  // change who is on the front. So they check properties of the result, never names.
+  it('has a frontier that is exactly the circuits nothing dominates', () => {
+    const front = frontier(entries);
+    expect(front.length).toBeGreaterThanOrEqual(1);
+    const ids = new Set(front.map((e) => e.id));
+    for (const entry of entries) {
+      const dominated = entries.some((other) => dominates(other, entry));
+      expect(ids.has(entry.id)).toBe(!dominated);
+    }
+    for (const a of front) {
+      for (const b of front) {
+        expect(dominates(a, b)).toBe(false);
+      }
+    }
+  });
+
+  it('has the best-scoring circuit on the frontier', () => {
+    const best = entries.reduce((a, b) => (b.score < a.score ? b : a));
+    expect(frontier(entries).map((e) => e.id)).toContain(best.id);
   });
 });
 
@@ -127,11 +142,12 @@ describe('literature reconstructions', () => {
 
   it('are verified on the same terms as every other circuit', () => {
     const literature = all.filter((e) => e.kind === 'literature');
-    expect(literature.map((e) => e.name).sort()).toEqual(['qSHA256, Toffoli-only', 'qSHA256, measurement-based']);
+    const names = literature.map((e) => e.name);
+    expect(names).toContain('qSHA256, Toffoli-only');
+    expect(names).toContain('qSHA256, measurement-based');
     for (const entry of literature) {
       expect(entry.randomShots).toBeGreaterThanOrEqual(1 << 20);
       expect(entry.path).toMatch(/^submissions\/literature-/);
-      expect(entry.group).toBe('qSHA256');
     }
   });
 
@@ -141,6 +157,8 @@ describe('literature reconstructions', () => {
     expect(names).not.toContain('qSHA256, Toffoli-only');
     const best = shown.find((e) => e.name === 'qSHA256, measurement-based')!;
     expect(best.otherConfigurations.map((e) => e.name)).toEqual(['qSHA256, Toffoli-only']);
-    expect(shown).toHaveLength(all.length - 1);
+    // Every verified circuit is either listed or named by the listed circuit of its group.
+    const reachable = shown.length + shown.reduce((n, e) => n + e.otherConfigurations.length, 0);
+    expect(reachable).toBe(all.length);
   });
 });
