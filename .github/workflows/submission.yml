@@ -30,7 +30,6 @@ jobs:
     env:
       PR: ${{ github.event.pull_request.number }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-      OUT: ${{ runner.temp }}/out
     steps:
       # The base branch, not the pull request.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -44,7 +43,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mkdir -p "$OUT"
+          mkdir -p "$RUNNER_TEMP/out"
           gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/files" --paginate \
             --jq '.[] | {filename, status}' | jq -s . > "$RUNNER_TEMP/changed.json"
 
@@ -53,7 +52,7 @@ jobs:
         working-directory: sha256_verifier
         run: |
           set +e
-          name=$(uv run sha-verify pr-check "$RUNNER_TEMP/changed.json" --comment "$OUT/comment.md")
+          name=$(uv run sha-verify pr-check "$RUNNER_TEMP/changed.json" --comment "$RUNNER_TEMP/out/comment.md")
           code=$?
           set -e
           # pr-check only prints a name it has validated: lower-case letters, digits, hyphens.
@@ -94,7 +93,7 @@ jobs:
         run: |
           set +e
           uv run sha-verify pr-verify "$RUNNER_TEMP/submission/$NAME" \
-            --receipt "$OUT/receipt.json" --comment "$OUT/comment.md" --index ../results/index.json
+            --receipt "$RUNNER_TEMP/out/receipt.json" --comment "$RUNNER_TEMP/out/comment.md" --index ../results/index.json
           echo "code=$?" >> "$GITHUB_OUTPUT"
 
       - name: Summarize
@@ -105,12 +104,12 @@ jobs:
         run: |
           if [ "$FIND" = "3" ]; then outcome=skipped
           elif [ "$FIND" = "0" ] && [ "$VERIFY" = "0" ]; then outcome=pass
-          elif [ -f "$OUT/comment.md" ]; then outcome=fail
+          elif [ -f "$RUNNER_TEMP/out/comment.md" ]; then outcome=fail
           else outcome=error
           fi
           echo "outcome=$outcome" >> "$GITHUB_OUTPUT"
           echo "Outcome: $outcome"
-          if [ -f "$OUT/comment.md" ]; then cat "$OUT/comment.md" >> "$GITHUB_STEP_SUMMARY"; fi
+          if [ -f "$RUNNER_TEMP/out/comment.md" ]; then cat "$RUNNER_TEMP/out/comment.md" >> "$GITHUB_STEP_SUMMARY"; fi
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: steps.result.outputs.outcome == 'pass' || steps.result.outputs.outcome == 'fail'
