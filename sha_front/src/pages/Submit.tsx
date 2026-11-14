@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { REPO_URL, repoTree } from '../config';
+import { REPO_URL, repoFile, repoTree } from '../config';
 
 export function Submit(): ReactElement {
   return (
@@ -39,7 +39,10 @@ uv run sha-verify run path/to/circuit.kmb`}</code></pre>
             <tr><td><code>circuit.kmb</code></td><td>The circuit to verify</td></tr>
             <tr>
               <td><code>meta.json</code></td>
-              <td>Name, authors, a short description, the problem id and the directory path</td>
+              <td>
+                Name, authors, a short description, the problem id and the directory path. The fields are
+                listed in the <a href={repoFile('submissions/README.md')}>submissions guide</a>.
+              </td>
             </tr>
             <tr>
               <td><code>build.py</code>, <code>README.md</code></td>
@@ -49,12 +52,18 @@ uv run sha-verify run path/to/circuit.kmb`}</code></pre>
         </table>
       </div>
       <p>
-        The circuit is then verified again with a salt chosen after your file is fixed, so the random tests are
-        ones you could not have seen. If it passes, its receipt is committed and it appears here.
+        The pull request must add that one directory and nothing else. Within a few minutes a bot verifies the
+        circuit at full strength, with a salt drawn after your file is fixed, so the random tests are ones you
+        could not have seen. It comments the result on the pull request: qubits, Toffolis, score, and whether
+        the circuit is on the Pareto front. If the circuit fails, the comment names the check and the input
+        that broke it.
       </p>
+
+      <h2>4. Merge</h2>
       <p>
-        Automatic verification of pull requests is not set up yet. Until it is, a maintainer runs the verifier
-        on each submission by hand.
+        When a maintainer merges the pull request, the circuit is verified once more with a new salt. That
+        receipt is committed to the repository and is the one that counts; the site is rebuilt and the circuit
+        appears here.
       </p>
     </article>
   );

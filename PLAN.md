@@ -6,8 +6,9 @@ Status: M0–M4 are done. The baseline circuit passes at full strength with 831 
 27,088 Toffolis (score 22.5 million), and the site builds and shows it with two variants.
 The first literature reconstructions (part of M6) are in: both garbage-free configurations of
 qSHA256, at 1,375 qubits / 45,144 Toffolis (measurement-based) and 1,313 / 90,288
-(Toffoli-only). The site shows only the better-scoring one. Next is M5: verifying pull requests automatically and
-deploying the site.
+(Toffoli-only). The site shows only the better-scoring one. M5 is in place: pull requests that add a submission are verified
+and commented automatically, receipts are recorded on merge, and the site is deployed to
+GitHub Pages.
 
 Goal: a public benchmark for quantum circuits that compute SHA-256, verified with Google's
 Kickmix simulator, with a qubit–Toffoli Pareto front and leaderboard in the style of ecdsa.fail.
@@ -216,10 +217,21 @@ estimate before building it was 1,100–1,300 qubits; it came out smaller becaus
 zero-initialised `digest` register serves as the working state, so the rounds need no separate
 state register, no copy and no uncomputation. Only the message schedule is rewound.
 
-PR flow: a PR adds one directory under `submissions/`. CI (GitHub Actions, no secrets, no
-network during verification) checks that the PR touches only that directory, runs
-`sha-verify run`, commits the receipt to `results/`, comments Q / C / Q×C and whether the point
-is on the frontier. Merging to `main` triggers the site build. Failed runs are recorded too.
+PR flow, as built in M5 (`.github/workflows/submission.yml` and `site.yml`):
+
+1. A PR adds one new directory under `submissions/` and touches nothing else.
+2. `submission.yml` runs on `pull_request_target`, so it can comment on PRs from forks. It
+   never checks out or runs anything from the PR: it reads the circuit and `meta.json` out
+   of git as data, verifies at full strength with a fresh salt, and comments Q / C / Q×C and
+   whether the point is on the frontier. The job that parses the file has a read-only token;
+   a separate job holds the permission to comment.
+3. On merge, `site.yml` verifies every submission without an up-to-date receipt, again with
+   a fresh salt, and commits the receipts to `results/`. That receipt is the official one.
+   The job that verifies is read-only; a separate job commits, taking only JSON files.
+4. The same workflow then builds the site and deploys it to GitHub Pages.
+
+A circuit must therefore pass two independent full-strength runs to appear. Failed runs on
+`main` are recorded too, but only passing ones are shown.
 
 ## 6. Frontend — `sha_front/`
 

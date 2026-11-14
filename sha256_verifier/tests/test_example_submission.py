@@ -13,7 +13,7 @@ import pathlib
 import kickmix as km
 import pytest
 
-from sha_verifier import circuits, problems, verify
+from sha_verifier import circuits, problems, submission, verify
 
 ROOT = pathlib.Path(__file__).parents[2]
 EXAMPLE = ROOT / 'submissions' / 'example'
@@ -44,7 +44,9 @@ def test_generator_does_not_use_the_verifier():
     assert 'sha_verifier' not in source.replace('../../sha256_verifier', '')
 
 
-# Every submission in the repository: (directory name, builder class, qubits, Toffolis).
+# The submissions this project maintains itself: (directory name, builder class, qubits,
+# Toffolis). Their generators are run by the tests below. Submissions from anyone else are
+# not listed here and their code is never run; the generic checks further down cover them.
 SUBMISSIONS = [
     ('example', 'Sha256Builder', 831, 27088),
     ('low-qubit-adder', 'LowQubitBuilder', 801, 50224),
@@ -54,9 +56,20 @@ SUBMISSIONS = [
 ]
 
 
-def test_every_submission_directory_is_listed():
-    on_disk = sorted(p.name for p in (ROOT / 'submissions').iterdir() if p.is_dir())
-    assert on_disk == sorted(name for name, *_ in SUBMISSIONS)
+def test_every_submission_directory_is_well_formed():
+    """Applies to every directory, whoever added it. Reads only meta.json and file names."""
+    directories = sorted(p for p in (ROOT / 'submissions').iterdir() if p.is_dir())
+    assert {name for name, *_ in SUBMISSIONS} <= {p.name for p in directories}
+    for directory in directories:
+        meta, circuit = submission.check(directory)
+        assert meta['problem'] == PROBLEM.name and circuit.is_file()
+
+
+def test_only_the_project_has_maintainer_kinds():
+    ours = {name for name, *_ in SUBMISSIONS}
+    for directory in (ROOT / 'submissions').iterdir():
+        if directory.is_dir() and directory.name not in ours:
+            assert submission.load_meta(directory, external=True)['kind'] == 'submission'
 
 
 @pytest.mark.parametrize('name,builder,qubits,toffolis', SUBMISSIONS)
@@ -88,7 +101,7 @@ def test_index_lists_exactly_the_committed_receipts():
     index = json.loads((ROOT / 'results' / 'index.json').read_text())['receipts']
     files = [json.loads(p.read_text()) for p in sorted((ROOT / 'results' / PROBLEM.name).glob('*.json'))]
     assert sorted(index, key=lambda r: r['circuit']['sha256']) == sorted(files, key=lambda r: r['circuit']['sha256'])
-    assert len(files) == len(SUBMISSIONS)
+    assert len(files) >= len(SUBMISSIONS)
 
 
 def test_literature_reconstruction_matches_its_published_counts():

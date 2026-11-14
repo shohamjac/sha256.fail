@@ -8,7 +8,7 @@ import pathlib
 import secrets
 import sys
 
-from sha_verifier import __version__, environment, problems, selftest, verify
+from sha_verifier import __version__, environment, problems, selftest, submission, verify
 
 INDEX_NAME = 'index.json'
 
@@ -60,8 +60,73 @@ def _cmd_replay(args: argparse.Namespace) -> int:
     return 0
 
 
-def _cmd_collect(args: argparse.Namespace) -> int:
-    root = pathlib.Path(args.results_dir)
+def _read_index(path: str | None) -> list[dict]:
+    if not path or not pathlib.Path(path).is_file():
+        return []
+    return json.loads(pathlib.Path(path).read_text())['receipts']
+
+
+def _cmd_check_submission(args: argparse.Namespace) -> int:
+    try:
+        meta, circuit = submission.check(pathlib.Path(args.directory), external=args.external)
+    except submission.Invalid as ex:
+        print(f'Invalid submission: {ex}', file=sys.stderr)
+        return 1
+    print(f"OK: {meta['name']} ({circuit.name}) for {meta['problem']}")
+    return 0
+
+
+def _cmd_pr_check(args: argparse.Namespace) -> int:
+    """Exit 0 and print the directory name; 1 if the pull request is malformed (the reason
+    is written as a comment to --comment); 3 if it is not a submission at all."""
+    changed = json.loads(pathlib.Path(args.changed).read_text())
+    try:
+        name = submission.directory_of_change(changed)
+    except submission.NotASubmission:
+        print('Not a submission pull request.', file=sys.stderr)
+        return 3
+    except submission.Invalid as ex:
+        pathlib.Path(args.comment).write_text(submission.summarize_invalid(str(ex)))
+        print(f'Invalid submission: {ex}', file=sys.stderr)
+        return 1
+    print(name)
+    return 0
+
+
+def _cmd_pr_verify(args: argparse.Namespace) -> int:
+    """Checks and verifies one submission directory from a pull request. Always writes a
+    comment to --comment; writes the receipt to --receipt when the circuit was verified."""
+    comment = pathlib.Path(args.comment)
+    try:
+        meta, circuit = submission.check(pathlib.Path(args.directory), external=True)
+    except submission.Invalid as ex:
+        comment.write_text(submission.summarize_invalid(str(ex)))
+        print(f'Invalid submission: {ex}', file=sys.stderr)
+        return 1
+    receipt = verify.verify(circuit.read_bytes(), problems.get(meta['problem']), salt=secrets.token_hex(32),
+                            random_shots=args.shots, workers=args.workers, submission=meta)
+    pathlib.Path(args.receipt).write_text(json.dumps(receipt, indent=2) + '\n')
+    comment.write_text(submission.summarize(receipt, _read_index(args.index)))
+    print(f"{receipt['status']}: {circuit}", file=sys.stderr)
+    return 0 if receipt['status'] == 'PASS' else 1
+
+
+def _cmd_summarize(args: argparse.Namespace) -> int:
+    receipt = json.loads(pathlib.Path(args.receipt).read_text())
+    sys.stdout.write(submission.summarize(receipt, _read_index(args.index)))
+    return 0
+
+
+def _cmd_record(args: argparse.Namespace) -> int:
+    results = pathlib.Path(args.results_dir)
+    outcomes = submission.record(pathlib.Path(args.submissions_dir), results, workers=args.workers)
+    for outcome in outcomes:
+        print(f"{outcome['outcome']:8s} {outcome['name']}" + (f": {outcome['message']}" if 'message' in outcome else ''))
+    _write_index(results, results / INDEX_NAME)
+    return 1 if any(o['outcome'] == 'invalid' for o in outcomes) else 0
+
+
+def _write_index(root: pathlib.Path, out: pathlib.Path) -> int:
     receipts = []
     for path in sorted(root.rglob('*.json')):
         if path.name == INDEX_NAME:
@@ -70,9 +135,15 @@ def _cmd_collect(args: argparse.Namespace) -> int:
         if not isinstance(receipt, dict) or 'receipt_version' not in receipt:
             raise SystemExit(f'{path} is not a receipt.')
         receipts.append(receipt)
-    out = pathlib.Path(args.out) if args.out else root / INDEX_NAME
     out.write_text(json.dumps({'receipts': receipts}, indent=2) + '\n')
-    print(f'Wrote {len(receipts)} receipts to {out}', file=sys.stderr)
+    return len(receipts)
+
+
+def _cmd_collect(args: argparse.Namespace) -> int:
+    root = pathlib.Path(args.results_dir)
+    out = pathlib.Path(args.out) if args.out else root / INDEX_NAME
+    count = _write_index(root, out)
+    print(f'Wrote {count} receipts to {out}', file=sys.stderr)
     return 0
 
 
@@ -127,6 +198,41 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument('circuit', help='Path to the circuit file the receipt is for.')
     p.add_argument('--workers', type=int, default=None, help='Worker processes (default: all cores).')
     p.set_defaults(func=_cmd_replay)
+
+    p = commands.add_parser('check-submission', help='Check a submission directory\'s layout and meta.json.')
+    p.add_argument('directory', help='A directory under submissions/.')
+    p.add_argument('--external', action='store_true',
+                   help='Apply the rules for submissions from outside the project.')
+    p.set_defaults(func=_cmd_check_submission)
+
+    p = commands.add_parser(
+        'record', help='Verify every submission without an up-to-date receipt and write the receipts.',
+        description='For each directory under SUBMISSIONS_DIR whose circuit has no receipt carrying its current '
+                    'metadata, run a full-strength verification with a fresh random salt and write the receipt. '
+                    f'Then rebuild {INDEX_NAME}. Never runs any code from a submission.')
+    p.add_argument('submissions_dir')
+    p.add_argument('results_dir')
+    p.add_argument('--workers', type=int, default=None, help='Worker processes (default: all cores).')
+    p.set_defaults(func=_cmd_record)
+
+    p = commands.add_parser('summarize', help='Print a Markdown summary of a receipt.')
+    p.add_argument('receipt')
+    p.add_argument('--index', help=f'An {INDEX_NAME} to compare against.')
+    p.set_defaults(func=_cmd_summarize)
+
+    p = commands.add_parser('pr-check', help='For CI: find the submission directory a pull request adds.')
+    p.add_argument('changed', help='JSON list of the pull request\'s files, as the GitHub API returns it.')
+    p.add_argument('--comment', required=True, help='Where to write the comment if the pull request is malformed.')
+    p.set_defaults(func=_cmd_pr_check)
+
+    p = commands.add_parser('pr-verify', help='For CI: check and verify a submission from a pull request.')
+    p.add_argument('directory', help='The submission directory, extracted from the pull request.')
+    p.add_argument('--receipt', required=True, help='Where to write the receipt.')
+    p.add_argument('--comment', required=True, help='Where to write the Markdown comment.')
+    p.add_argument('--index', help=f'An {INDEX_NAME} to compare against.')
+    p.add_argument('--shots', type=int, default=None, help='Random tests (default: full strength).')
+    p.add_argument('--workers', type=int, default=None)
+    p.set_defaults(func=_cmd_pr_verify)
 
     p = commands.add_parser('collect', help=f'Gather every receipt under a directory into {INDEX_NAME}.')
     p.add_argument('results_dir', help='Directory holding receipts.')

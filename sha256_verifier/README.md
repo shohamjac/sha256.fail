@@ -31,6 +31,11 @@ Other commands:
   a receipt and checks that the result is identical.
 - `sha-verify collect DIR` gathers every receipt under `DIR` into `DIR/index.json`, which is
   what the frontend reads.
+- `sha-verify check-submission DIR` checks a submission directory's layout and `meta.json`.
+- `sha-verify record SUBMISSIONS RESULTS` verifies every submission that has no up-to-date
+  receipt and writes the receipts. CI runs this on `main`.
+- `sha-verify pr-check` and `sha-verify pr-verify` are what CI runs on a pull request; they
+  produce the comment the bot posts.
 - `sha-verify selftest` checks the simulator stack itself.
 
 ## What is checked
@@ -75,6 +80,7 @@ but the run: a throwaway CI job with no secrets, as the workflow here does.
 | `kmx.py` | Independent parser for Kickmix circuit text |
 | `sampling.py` | Seed derivation and random inputs |
 | `simulate.py` | Batched simulation and the per-shot checks |
+| `submission.py` | Rules for submission directories and pull requests, recording receipts, comment text |
 | `problems.py` | Registry of benchmark problems. Adding a hash function is one entry here. |
 | `sha2.py` | Reference SHA-2 compression. Circuit generators must not import it. |
 | `bits.py` | Conversion between words and register bit arrays |

@@ -1,15 +1,17 @@
 # sha256.fail
 
+**[shohamjac.github.io/sha256.fail](https://shohamjac.github.io/sha256.fail/)**
+
 A public benchmark for quantum circuits that compute SHA-256. Submissions are circuit files;
 a verifier built on Google's [Kickmix](https://github.com/quantumlib/Qualtran/tree/main/kickmix)
 simulator checks each one on about a million random inputs and reports its qubit count and
 Toffoli count. Verified circuits are shown on a qubit–Toffoli Pareto front.
 
 Status: early. The verifier works, the problem contract is frozen, and a baseline circuit
-passes at full strength: 831 qubits and 27,088 Toffolis. Five circuits are verified and the
-website builds and shows four of them (one work has two configurations; only its better one
-is listed), but it is not deployed anywhere yet and pull requests are not verified
-automatically. See [PLAN.md](PLAN.md) for the design and milestones.
+passes at full strength: 831 qubits and 27,088 Toffolis. Pull requests that add a circuit are
+verified automatically, and the site is rebuilt whenever one is merged.
+
+To submit a circuit, see [submissions/README.md](submissions/README.md). See [PLAN.md](PLAN.md) for the design and milestones.
 
 ## Layout
 
