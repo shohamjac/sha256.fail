@@ -515,6 +515,74 @@
         "platform": "Linux-7.1.3-2-cachyos-x86_64-with-glibc2.43",
         "machine": "x86_64"
       }
+    },
+    {
+      "receipt_version": 1,
+      "problem": "sha256-compress-v1",
+      "status": "PASS",
+      "failure": null,
+      "circuit": {
+        "file_sha256": "fb64647ce8150acab58a0d631b2955ca47dc36d065a048b03c47a3195c726751",
+        "sha256": "fb64647ce8150acab58a0d631b2955ca47dc36d065a048b03c47a3195c726751",
+        "qubits": 768,
+        "bits": 0,
+        "operations": 488872,
+        "toffoli_static": 85297,
+        "instruction_counts": {
+          "CCX": 85297,
+          "CX": 370965,
+          "X": 32610
+        },
+        "reaction_depth": 5391
+      },
+      "cost": {
+        "qubits": 768,
+        "toffoli": 85297.0,
+        "score": 65508096.0,
+        "toffoli_executed_total": 89440387072,
+        "shots": 1048576
+      },
+      "verification": {
+        "sampling": "v1",
+        "salt": "015ebc3de543e4ff3fd66669abd9427dcf7ff03263823427482cd9c47378ec94",
+        "seed": "18f61a0e37bf0b4fb724efef066d28368db54ba3139a817fbb2d57908cc6ff6e",
+        "directed_shots": 1179,
+        "random_shots": 1048576,
+        "full_strength": true,
+        "batch_size": 256,
+        "chunk_shots": 4096,
+        "limits": {
+          "max_file_bytes": 536870912,
+          "max_operations": 20000000,
+          "max_qubits": 65536,
+          "max_bits": 1048576
+        }
+      },
+      "verifier": {
+        "sha_verifier_version": "0.1.0",
+        "kickmix_version": "1.0.0"
+      },
+      "submission": {
+        "name": "Zero scratch",
+        "authors": [
+          "sha256.fail"
+        ],
+        "kind": "submission",
+        "problem": "sha256-compress-v1",
+        "path": "submissions/zero-scratch",
+        "description": "SHA-256 compression on exactly the 768 qubits of the block and digest registers, with no scratch qubit and no measurement: X, CNOT and Toffoli gates only. Additions keep their carries in the wires of the number being added. Sigma operands are made in place by CNOTs, and Ch and Maj are computed onto one of their own inputs. A round constant is added as signed binary digits, each by adding an unrelated register and then its complement to the upper bits.",
+        "source": "build.py"
+      },
+      "run": {
+        "started_at": "2026-11-14T18:01:22+00:00",
+        "elapsed_seconds": 10.825,
+        "workers": 4,
+        "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+        "python_version": "3.13.18",
+        "numpy_version": "2.5.4",
+        "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "machine": "x86_64"
+      }
     }
   ]
 }
