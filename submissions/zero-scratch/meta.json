@@ -1,0 +1,11 @@
+{
+  "name": "Zero scratch",
+  "authors": [
+    "sha256.fail"
+  ],
+  "kind": "submission",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/zero-scratch",
+  "description": "SHA-256 compression on exactly the 768 qubits of the block and digest registers, with no scratch qubit and no measurement: X, CNOT and Toffoli gates only. Additions keep their carries in the wires of the number being added. Sigma operands are made in place by CNOTs, and Ch and Maj are computed onto one of their own inputs. A round constant is added as signed binary digits, each by adding an unrelated register and then its complement to the upper bits.",
+  "source": "build.py"
+}
