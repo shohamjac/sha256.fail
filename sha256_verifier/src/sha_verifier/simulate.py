@@ -6,6 +6,8 @@ unchanged, every scratch qubit is zero and the phase is not flipped.
 
 from __future__ import annotations
 
+import concurrent.futures
+import concurrent.futures.process
 import dataclasses
 import multiprocessing
 import os
@@ -144,28 +146,41 @@ def run_random(circuit: km.Circuit, layout: Layout, problem: ProblemSpec, seed: 
     Returns:
         The number of Toffoli-like instructions executed over all shots (meaningful only
         when there is no failure), and the first failure if there was one.
+
+    Raises:
+        RuntimeError: A worker process died, which means the simulator crashed.
     """
     global _STATE
     tasks = sampling.chunks(shots)
     workers = max(1, min(workers, len(tasks)))
     _STATE = (circuit, layout, problem, seed)
     try:
-        total = 0
         if workers == 1 or 'fork' not in multiprocessing.get_all_start_methods():
-            results = map(_run_chunk, tasks)
-            pool = None
-        else:
-            pool = multiprocessing.get_context('fork').Pool(workers)
-            results = pool.imap(_run_chunk, tasks)
+            return _first_failure(map(_run_chunk, tasks))
+
+        # Not multiprocessing.Pool: stopping one early means terminate(), which kills workers
+        # mid-task and can deadlock on a queue lock a dead worker still holds; and a Pool
+        # waits forever on a worker that crashes. This executor reports a dead worker, and
+        # on an early stop it is shut down without killing anything: chunks not yet started
+        # are dropped and the few in flight are left to finish.
+        pool = concurrent.futures.ProcessPoolExecutor(max_workers=workers,
+                                                      mp_context=multiprocessing.get_context('fork'))
         try:
-            for toffolis, failure in results:
-                total += toffolis
-                if failure is not None:
-                    return total, failure
-            return total, None
+            futures = [pool.submit(_run_chunk, task) for task in tasks]
+            return _first_failure(future.result() for future in futures)
+        except concurrent.futures.process.BrokenProcessPool:
+            raise RuntimeError('A simulator worker process died while running the circuit.') from None
         finally:
-            if pool is not None:
-                pool.terminate()
-                pool.join()
+            pool.shutdown(wait=True, cancel_futures=True)
     finally:
         _STATE = None
+
+
+def _first_failure(results) -> tuple[int, Failure | None]:
+    """Sums executed Toffolis over chunk results, in order, up to and including the first failure."""
+    total = 0
+    for toffolis, failure in results:
+        total += toffolis
+        if failure is not None:
+            return total, failure
+    return total, None

@@ -28,3 +28,5 @@ packages = ["src/sha_verifier"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# If a test stalls, print every thread's stack after this many seconds.
+faulthandler_timeout = 180
