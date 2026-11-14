@@ -528,16 +528,244 @@ tbody tr:last-child td {
   gap: 12px;
 }
 
-.detail-panel {
-  border-top: 1px solid var(--border);
-  color: var(--text-secondary);
-  font-size: 14px;
-  margin-top: 4px;
-  padding-top: 12px;
+td.circuit button.name {
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-align: left;
 }
 
-.detail-panel strong {
+td.circuit button.name:hover,
+td.circuit button.name:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* The popup for one circuit. */
+
+dialog.submission {
+  background: none;
+  border: 0;
   color: var(--text-primary);
+  max-height: none;
+  max-width: none;
+  padding: 16px;
+  width: min(820px, 100%);
+}
+
+dialog.submission::backdrop {
+  background: rgba(11, 11, 11, 0.45);
+}
+
+dialog.submission .sheet {
+  background: var(--page);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 32px);
+  outline: none;
+  overflow: hidden;
+}
+
+dialog.submission header {
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+}
+
+dialog.submission h2 {
+  font-size: 20px;
+}
+
+dialog.submission .byline {
+  align-items: center;
+  color: var(--text-secondary);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 14px;
+  gap: 4px 10px;
+  margin-top: 4px;
+}
+
+dialog.submission .kind {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px;
+  padding: 1px 9px;
+}
+
+dialog.submission .close {
+  align-items: center;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  flex: none;
+  height: 32px;
+  justify-content: center;
+  width: 32px;
+}
+
+dialog.submission .close:hover {
+  background: var(--wash);
+  color: var(--text-primary);
+}
+
+dialog.submission .scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px 20px 22px;
+  /* Explicit colours: the default track is drawn light even on the dark theme. */
+  scrollbar-color: var(--axis) transparent;
+  scrollbar-width: thin;
+}
+
+dialog.submission .facts {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+dialog.submission .fact {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+dialog.submission .fact .label,
+dialog.submission h3 {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+dialog.submission .fact .value {
+  font-size: 21px;
+  font-weight: 650;
+  line-height: 1.3;
+  margin-top: 4px;
+}
+
+dialog.submission .fact .sub {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+dialog.submission .description {
+  color: var(--text-secondary);
+  margin: 16px 0 0;
+}
+
+dialog.submission h3 {
+  margin: 22px 0 8px;
+}
+
+dialog.submission .parameters {
+  display: grid;
+  font-size: 14px;
+  gap: 6px 18px;
+  grid-template-columns: max-content minmax(0, 1fr);
+  margin: 0;
+}
+
+dialog.submission .parameters dt {
+  color: var(--text-secondary);
+}
+
+dialog.submission .parameters dd {
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+}
+
+dialog.submission .parameters .aside {
+  color: var(--text-muted);
+}
+
+dialog.submission .wrap {
+  overflow-wrap: anywhere;
+}
+
+dialog.submission .others {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin: 14px 0 0;
+}
+
+dialog.submission .note {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+  padding: 14px 16px 4px;
+}
+
+dialog.submission .note h1 {
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: 0;
+  margin: 0 0 8px;
+}
+
+dialog.submission .note h2 {
+  font-size: 16px;
+  margin: 16px 0 6px;
+}
+
+dialog.submission .note h3 {
+  color: var(--text-primary);
+  font-size: 15px;
+  letter-spacing: 0;
+  margin: 14px 0 6px;
+  text-transform: none;
+}
+
+dialog.submission .note ul,
+dialog.submission .note ol {
+  margin: 0 0 12px;
+  padding-left: 22px;
+}
+
+dialog.submission .note li {
+  margin-bottom: 4px;
+}
+
+dialog.submission .note table {
+  font-size: 14px;
+  margin-bottom: 12px;
+  width: auto;
+}
+
+dialog.submission .note th,
+dialog.submission .note td {
+  padding: 6px 12px 6px 0;
+  white-space: normal;
+}
+
+dialog.submission .note tbody tr {
+  cursor: default;
+}
+
+dialog.submission .note tbody tr:hover {
+  background: none;
+}
+
+dialog.submission .muted {
+  color: var(--text-muted);
 }
 
 /* Prose pages. */

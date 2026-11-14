@@ -23,11 +23,13 @@ const KIND_NOTE: Record<Kind, string | null> = {
 
 interface Props {
   entries: Entry[];
+  /** The highlighted row, if any: the circuit last picked here or on the chart. */
   selectedId: string | null;
-  onSelect: (id: string) => void;
+  /** Called when a row is chosen; the page opens that circuit's details. */
+  onOpen: (id: string) => void;
 }
 
-export function Leaderboard({ entries, selectedId, onSelect }: Props): ReactElement {
+export function Leaderboard({ entries, selectedId, onOpen }: Props): ReactElement {
   const [sortKey, setSortKey] = useState<SortKey>('score');
   const [descending, setDescending] = useState(false);
   const selectedRow = useRef<HTMLTableRowElement | null>(null);
@@ -60,8 +62,6 @@ export function Leaderboard({ entries, selectedId, onSelect }: Props): ReactElem
     }
   }
 
-  const selected = entries.find((e) => e.id === selectedId) ?? null;
-
   return (
     <div>
       <div className="table-scroll">
@@ -86,10 +86,14 @@ export function Leaderboard({ entries, selectedId, onSelect }: Props): ReactElem
           <tbody>
             {rows.map((entry) => (
               <tr key={entry.id} ref={entry.id === selectedId ? selectedRow : null}
-                className={entry.id === selectedId ? 'selected' : ''} onClick={() => onSelect(entry.id)}>
+                className={entry.id === selectedId ? 'selected' : ''} onClick={() => onOpen(entry.id)}>
                 <td className="num">{rank.get(entry.id)}</td>
                 <td className="circuit">
-                  <div>{entry.name}</div>
+                  {/* A real button, so the details can be opened from the keyboard. */}
+                  <button type="button" className="name" aria-haspopup="dialog"
+                    onClick={(event) => { event.stopPropagation(); onOpen(entry.id); }}>
+                    {entry.name}
+                  </button>
                   <div className="authors">
                     {[entry.authors.join(', '), KIND_NOTE[entry.kind]].filter(Boolean).join(' · ')}
                   </div>
@@ -117,32 +121,6 @@ export function Leaderboard({ entries, selectedId, onSelect }: Props): ReactElem
         </table>
       </div>
 
-      {selected !== null && (
-        <div className="detail-panel" aria-live="polite">
-          <p>
-            <strong>{selected.name}.</strong> {selected.description}
-          </p>
-          <p>
-            Passed {count(selected.directedShots)} directed and {count(selected.randomShots)} random tests.{' '}
-            {selected.operations !== null && <>{count(selected.operations)} operations. </>}
-            Circuit <span className="mono">{selected.id.slice(0, 16)}…</span>
-          </p>
-          {selected.otherConfigurations.length > 0 && (
-            <p>
-              Other verified configurations of the same work, not listed because this one scores better:{' '}
-              {selected.otherConfigurations.map((other, i) => (
-                <span key={other.id}>
-                  {i > 0 && '; '}
-                  {other.name} ({count(other.qubits)} qubits, {count(other.toffoli)} Toffolis,{' '}
-                  {other.path !== null && <><a href={repoTree(other.path)}>files</a>, </>}
-                  <a href={repoFile(other.receiptPath)}>receipt</a>)
-                </span>
-              ))}
-              .
-            </p>
-          )}
-        </div>
-      )}
     </div>
   );
 }

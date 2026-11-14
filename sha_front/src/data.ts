@@ -23,6 +23,7 @@ export interface Receipt {
   cost: { qubits: number; toffoli: number; score: number; shots: number } | null;
   verification: {
     salt: string;
+    seed?: string | null;
     directed_shots: number | null;
     random_shots: number;
     full_strength: boolean;
@@ -35,6 +36,8 @@ export interface Receipt {
     description?: string;
     path?: string;
     group?: string;
+    reference?: string;
+    reconstructed_by?: string;
   } | null;
   run: { started_at: string };
 }
@@ -63,6 +66,14 @@ export interface Entry {
   randomShots: number;
   /** Repository path of the receipt. */
   receiptPath: string;
+  /** Toffoli-like instructions present in the circuit, whether or not every shot runs them. */
+  toffoliStatic: number | null;
+  /** Salt of the verification run, recorded so that the run can be replayed. */
+  salt: string;
+  verifierVersion: string;
+  kickmixVersion: string;
+  /** The published work a reconstruction is based on, if any. */
+  reference: string | null;
   /**
    * Set when several circuits are configurations of one piece of work (one paper or
    * project). Only the best-scoring circuit of a group is listed; see `listed`.
@@ -82,6 +93,23 @@ export async function loadReceipts(): Promise<Receipt[]> {
     throw new Error('Results file is not in the expected format.');
   }
   return (body as { receipts: Receipt[] }).receipts;
+}
+
+/**
+ * A submission's notes: the README.md of its directory, as Markdown. Null if it has none.
+ * Like `loadReceipts`, this is the one place that knows where notes are kept.
+ */
+export async function loadNote(entry: Entry): Promise<string | null> {
+  const match = /^submissions\/([a-z0-9][a-z0-9-]*)$/.exec(entry.path ?? '');
+  if (match === null) {
+    return null;
+  }
+  const response = await fetch(new URL(`data/notes/${match[1]}.md`, document.baseURI));
+  // A missing note may come back as the site's own HTML page rather than a 404.
+  if (!response.ok || (response.headers.get('content-type') ?? '').includes('text/html')) {
+    return null;
+  }
+  return response.text();
 }
 
 function asKind(value: string | undefined): Kind {
@@ -116,6 +144,11 @@ export function toEntries(receipts: Receipt[]): Entry[] {
       directedShots: r.verification.directed_shots ?? 0,
       randomShots: r.verification.random_shots,
       receiptPath: `results/${r.problem}/${r.circuit.sha256}.json`,
+      toffoliStatic: r.circuit.toffoli_static,
+      salt: r.verification.salt,
+      verifierVersion: r.verifier.sha_verifier_version,
+      kickmixVersion: r.verifier.kickmix_version,
+      reference: r.submission?.reference ?? null,
       group: r.submission?.group?.trim() || null,
       otherConfigurations: [],
     };
