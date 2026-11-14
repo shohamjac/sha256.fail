@@ -1,0 +1,11 @@
+{
+  "name": "Folded first rounds",
+  "authors": [
+    "sha256.fail"
+  ],
+  "kind": "submission",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/folded-first-rounds",
+  "description": "The baseline with constant folding in rounds 0 to 3. The initial hash value is fixed, so round 0 reduces to two additions, round 1 needs no ANDs for Ch and Maj, and the round constants of rounds 1 to 3 are added at build time. Saves 372 Toffolis and no qubits.",
+  "source": "build.py"
+}
