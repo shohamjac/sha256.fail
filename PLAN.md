@@ -2,8 +2,9 @@
 
 Date: 2026-11-14. Supersedes `preplan_codex.md` (see §10 for what I kept and what I changed).
 
-Status: M0–M3 are done. The baseline circuit passes at full strength with 831 qubits and
-27,088 Toffolis (score 22.5 million). Next are M4 (frontend) and M5 (PR flow).
+Status: M0–M4 are done. The baseline circuit passes at full strength with 831 qubits and
+27,088 Toffolis (score 22.5 million), and the site builds and shows it with two variants.
+Next is M5: verifying pull requests automatically and deploying the site.
 
 Goal: a public benchmark for quantum circuits that compute SHA-256, verified with Google's
 Kickmix simulator, with a qubit–Toffoli Pareto front and leaderboard in the style of ecdsa.fail.
@@ -190,7 +191,9 @@ records the Kickmix version and the SHA-256 of the loaded binary.
 submissions/
   example/
     circuit.kmb       # the artifact that is verified
-    meta.json         # name, authors, description, problem id, kind, optional links
+    meta.json         # name, authors, description, problem id, kind, path
+  low-qubit-adder/          # baseline variant: fewer qubits, more Toffolis (on the front)
+  compute-copy-uncompute/   # baseline variant: the textbook construction (dominated)
     build.py          # optional: how the circuit was generated (never run by CI)
     README.md
   <team>-<name>/ ...
@@ -218,8 +221,9 @@ A separate project that reads `results/index.json` and nothing else.
   for details, click to open the submission. Every point is a verified circuit; points are
   styled by `kind` (baseline, literature reconstruction, submission) from `meta.json`.
   A dominates B when Q_A ≤ Q_B and C_A ≤ C_B with at least one strict. Computed client-side.
-- **Frontier progress.** Best Q×C over time and a date slider that replays the frontier
-  (ecdsa.fail labels this "Frontier Progress").
+- **Record history.** A table of each circuit that set a new best score. The planned chart
+  of best score over time and the date slider that replays the frontier are not built: with
+  every result on one day they would show nothing. Add them once there is history.
 - **Leaderboard.** Sortable table: rank by Q×C, name, authors, Q, C, Q×C, reaction depth,
   date, frontier badge, links to the submission directory and its receipt.
 - **Pages.** Rules/contract, how to submit, what verification does and does not guarantee.

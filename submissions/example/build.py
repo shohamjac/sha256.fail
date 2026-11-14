@@ -9,7 +9,8 @@ A plain, readable construction, meant as a starting point rather than a good sco
   Each round is reversible given its message word, so the rounds are never uncomputed.
 - The message schedule is expanded in place over `block`: word W_t overwrites W_(t-16).
   After the last round the schedule is run backwards to restore the block.
-- Every addition is Kickmix's adder, which clears its carries by measurement.
+- Every addition is Kickmix's adder, which clears its carries by measurement. They all go
+  through `Sha256Builder.add`, so a variant can swap the adder by overriding one method.
 - One 32-qubit temporary holds whichever of Sigma, Ch or Maj is being added.
 
 This file uses only Kickmix, numpy and the standard library. It deliberately does not
@@ -73,29 +74,33 @@ class Sha256Builder:
         if shift is not None:  # A right shift drops the bits that would wrap around.
             self.b.cx(source[shift:], self.tmp[:WORD - shift])
 
+    def add(self, offset: km.array | int, target: km.array, *, subtract: bool = False) -> None:
+        """`target += offset` (or `-=`) modulo 2^32. Every addition in the circuit goes through here."""
+        (self.b.isub if subtract else self.b.iadd)(offset, target=target)
+
     def add_linear(self, source: km.array, sigma, target: km.array, *, subtract: bool = False) -> None:
         """`target += sigma(source)`, or `-=`."""
         self.xor_linear(source, sigma)
-        (self.b.isub if subtract else self.b.iadd)(self.tmp, target=target)
+        self.add(self.tmp, target, subtract=subtract)
         self.xor_linear(source, sigma)
 
-    def add_ch(self, e: km.array, f: km.array, g: km.array, target: km.array) -> None:
+    def add_ch(self, e: km.array, f: km.array, g: km.array, target: km.array, *, subtract: bool = False) -> None:
         """`target += Ch(e, f, g)`, using `Ch = g ^ (e & (f ^ g))`: one AND per bit."""
         self.b.cx(g, f)
         self.b.init_and(e, f, self.tmp)
         self.b.cx(g, self.tmp)
-        self.b.iadd(self.tmp, target=target)
+        self.add(self.tmp, target, subtract=subtract)
         self.b.cx(g, self.tmp)
         self.b.del_and(e, f, self.tmp)  # Measured away; costs no Toffoli.
         self.b.cx(g, f)
 
-    def add_maj(self, a: km.array, b: km.array, c: km.array, target: km.array) -> None:
+    def add_maj(self, a: km.array, b: km.array, c: km.array, target: km.array, *, subtract: bool = False) -> None:
         """`target += Maj(a, b, c)`, using `Maj = c ^ ((a ^ c) & (b ^ c))`: one AND per bit."""
         self.b.cx(c, a)
         self.b.cx(c, b)
         self.b.init_and(a, b, self.tmp)
         self.b.cx(c, self.tmp)
-        self.b.iadd(self.tmp, target=target)
+        self.add(self.tmp, target, subtract=subtract)
         self.b.cx(c, self.tmp)
         self.b.del_and(a, b, self.tmp)
         self.b.cx(c, b)
@@ -111,9 +116,9 @@ class Sha256Builder:
         a, b, c, d, e, f, g, h = state
         self.add_linear(e, BIG_SIGMA1, h)
         self.add_ch(e, f, g, h)
-        self.b.iadd(K[t], target=h)
-        self.b.iadd(self.w[t % 16], target=h)  # h now holds T1.
-        self.b.iadd(h, target=d)  # d now holds the new e.
+        self.add(K[t], h)
+        self.add(self.w[t % 16], h)  # h now holds T1.
+        self.add(h, d)  # d now holds the new e.
         self.add_linear(a, BIG_SIGMA0, h)
         self.add_maj(a, b, c, h)  # h now holds the new a.
         return [h, a, b, c, d, e, f, g]
@@ -126,7 +131,7 @@ class Sha256Builder:
         target = self.w[t % 16]
         steps = [
             lambda: self.add_linear(self.w[(t - 15) % 16], SMALL_SIGMA0, target, subtract=undo),
-            lambda: (self.b.isub if undo else self.b.iadd)(self.w[(t - 7) % 16], target=target),
+            lambda: self.add(self.w[(t - 7) % 16], target, subtract=undo),
             lambda: self.add_linear(self.w[(t - 2) % 16], SMALL_SIGMA1, target, subtract=undo),
         ]
         for step in (reversed(steps) if undo else steps):
@@ -144,7 +149,7 @@ class Sha256Builder:
         assert all(now is start for now, start in zip(state, self.h)), 'state registers did not line up'
 
         for word, value in zip(self.h, IV):  # Feed-forward: add the input chaining value.
-            self.b.iadd(value, target=word)
+            self.add(value, word)
 
         for t in reversed(range(16, 64)):  # Restore the block.
             self.schedule(t, undo=True)
@@ -203,10 +208,11 @@ def check(circuit: km.Circuit, shots: int = 1024) -> None:
         assert not np.asarray(sim.read_phase_flipped_across_shots()).any(), 'phase flipped'
 
 
-def main() -> None:
-    circuit = Sha256Builder().build()
+def main(builder: type[Sha256Builder] = Sha256Builder, script: str = __file__) -> None:
+    """Builds with `builder`, checks against hashlib, and writes circuit.kmb next to `script`."""
+    circuit = builder().build()
     check(circuit)
-    path = pathlib.Path(__file__).with_name('circuit.kmb')
+    path = pathlib.Path(script).with_name('circuit.kmb')
     circuit.to_file(path, format='kmb')
     stats = circuit.operation_statistics()
     print(f'Wrote {path.name}: {circuit.num_qubits} qubits, {stats.num_toffoli_like} Toffolis, '

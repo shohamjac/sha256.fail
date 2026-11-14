@@ -34,8 +34,8 @@
   },
   "verification": {
     "sampling": "v1",
-    "salt": "79ef139399eeb57962b945d1e7eda970c856615f391ef58b5017958617144b2a",
-    "seed": "5cc377986f664552dc203ded5efd601be08b1093bbf1859a2cd27a4d90bfa0d5",
+    "salt": "86dac6b2929960a32c47da27d8e7e4323a7f502141dfba85ee2c8011a7091d41",
+    "seed": "9a58ab04c42715f121ce28c8f8019b55ebce2bf792c91c44d84de3b3fdec4a31",
     "directed_shots": 1179,
     "random_shots": 1048576,
     "full_strength": true,
@@ -59,12 +59,13 @@
     ],
     "kind": "baseline",
     "problem": "sha256-compress-v1",
+    "path": "submissions/example",
     "description": "Plain reference construction: state computed in place in the digest register, message schedule expanded in place and rewound, measurement-based ripple-carry adders, one 32-qubit temporary.",
     "source": "build.py"
   },
   "run": {
-    "started_at": "2026-11-14T10:07:25+00:00",
-    "elapsed_seconds": 2.31,
+    "started_at": "2026-11-14T10:26:04+00:00",
+    "elapsed_seconds": 2.316,
     "workers": 128,
     "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
     "python_version": "3.13.9",

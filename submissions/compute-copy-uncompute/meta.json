@@ -1,0 +1,11 @@
+{
+  "name": "Compute, copy, uncompute",
+  "authors": [
+    "sha256.fail"
+  ],
+  "kind": "baseline",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/compute-copy-uncompute",
+  "description": "The baseline built the textbook way: the state is computed in 256 scratch qubits, copied into the digest register, and uncomputed. Does not rely on the digest register starting at zero.",
+  "source": "build.py"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Low-qubit adder",
+  "authors": [
+    "sha256.fail"
+  ],
+  "kind": "baseline",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/low-qubit-adder",
+  "description": "The baseline with its adder replaced by the Cuccaro ripple-carry adder, which needs one extra qubit instead of 31 carries and two Toffolis per bit instead of one.",
+  "source": "build.py"
+}
