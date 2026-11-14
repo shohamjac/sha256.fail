@@ -25,8 +25,13 @@ exits 0 if the circuit passed and 1 if it did not. A full run is 1,179 directed 
 | `--meta FILE` | JSON object with submission metadata, carried in the receipt unchanged. |
 | `--results-dir DIR` | Also write the receipt to `DIR/<problem>/<circuit sha256>.json`. |
 
-`sha-verify collect DIR` gathers every receipt under `DIR` into `DIR/index.json`, which is
-what the frontend reads. `sha-verify selftest` checks the simulator stack itself.
+Other commands:
+
+- `sha-verify replay RECEIPT CIRCUIT` re-runs a verification with the salt and shot count in
+  a receipt and checks that the result is identical.
+- `sha-verify collect DIR` gathers every receipt under `DIR` into `DIR/index.json`, which is
+  what the frontend reads.
+- `sha-verify selftest` checks the simulator stack itself.
 
 ## What is checked
 
@@ -88,5 +93,7 @@ uv sync
 uv run pytest
 ```
 
-The tests include a small 4-bit adder problem (`tests/toy.py`) and about thirty broken
-circuits that must each be rejected at a specific stage for a specific reason.
+The tests include a small 4-bit adder problem (`tests/toy.py`) with about thirty broken
+circuits that must each be rejected at a specific stage for a specific reason, and the
+baseline SHA-256 circuit from `../submissions/example`, which must pass and whose mutants
+must fail.

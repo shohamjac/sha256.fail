@@ -83,3 +83,28 @@ def test_collect_refuses_files_that_are_not_receipts(tmp_path):
     (tmp_path / 'stray.json').write_text('{"hello": 1}')
     with pytest.raises(SystemExit):
         cli.main(['collect', str(tmp_path)])
+
+
+def test_replay_matches_and_detects_a_different_circuit(tmp_path, capsys):
+    good = write(tmp_path, 'good.kmx', toy.GOOD)
+    results = tmp_path / 'results'
+    cli.main(['run', good, '--problem', 'toy-add4-v0', '--random-salt', '--results-dir', str(results)])
+    receipt_path = str(next((results / 'toy-add4-v0').glob('*.json')))
+    capsys.readouterr()
+
+    assert cli.main(['replay', receipt_path, good]) == 0
+    assert capsys.readouterr().out.startswith('MATCH: PASS')
+
+    other = write(tmp_path, 'other.kmx', toy.GOOD + 'X q0\nX q0\n')  # Same function, different circuit.
+    assert cli.main(['replay', receipt_path, other]) == 1
+    assert 'MISMATCH' in capsys.readouterr().out
+
+
+def test_replay_of_a_failure_reproduces_it(tmp_path, capsys):
+    bad = write(tmp_path, 'bad.kmx', toy.RARE_WRONG_OUTPUT)
+    results = tmp_path / 'results'
+    assert cli.main(['run', bad, '--problem', 'toy-add4-v0', '--random-salt', '--results-dir', str(results)]) == 1
+    receipt_path = str(next((results / 'toy-add4-v0').glob('*.json')))
+    capsys.readouterr()
+    assert cli.main(['replay', receipt_path, bad]) == 0
+    assert capsys.readouterr().out.startswith('MATCH: FAIL')

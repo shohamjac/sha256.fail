@@ -1,0 +1,8 @@
+{
+  "name": "Baseline",
+  "authors": ["sha256.fail"],
+  "kind": "baseline",
+  "problem": "sha256-compress-v1",
+  "description": "Plain reference construction: state computed in place in the digest register, message schedule expanded in place and rewound, measurement-based ripple-carry adders, one 32-qubit temporary.",
+  "source": "build.py"
+}

@@ -1,0 +1,79 @@
+{
+  "receipts": [
+    {
+      "receipt_version": 1,
+      "problem": "sha256-compress-v1",
+      "status": "PASS",
+      "failure": null,
+      "circuit": {
+        "file_sha256": "c2d9633d137a6e635c66d460aeb2d7251a2886951e9d0d5407ae94260c597969",
+        "sha256": "c2d9633d137a6e635c66d460aeb2d7251a2886951e9d0d5407ae94260c597969",
+        "qubits": 831,
+        "bits": 1,
+        "operations": 350816,
+        "toffoli_static": 27088,
+        "instruction_counts": {
+          "CCX": 27088,
+          "CX": 223486,
+          "CZ": 26344,
+          "HMR": 26488,
+          "INFO_TAG": 1632,
+          "NEG": 1062,
+          "POP_CONDITION": 2160,
+          "PUSH_CONDITION": 2160,
+          "R": 26488,
+          "X": 13798,
+          "Z": 110
+        },
+        "reaction_depth": 11696
+      },
+      "cost": {
+        "qubits": 831,
+        "toffoli": 27088.0,
+        "score": 22510128.0,
+        "toffoli_executed_total": 28403826688,
+        "shots": 1048576
+      },
+      "verification": {
+        "sampling": "v1",
+        "salt": "79ef139399eeb57962b945d1e7eda970c856615f391ef58b5017958617144b2a",
+        "seed": "5cc377986f664552dc203ded5efd601be08b1093bbf1859a2cd27a4d90bfa0d5",
+        "directed_shots": 1179,
+        "random_shots": 1048576,
+        "full_strength": true,
+        "batch_size": 256,
+        "chunk_shots": 4096,
+        "limits": {
+          "max_file_bytes": 536870912,
+          "max_operations": 20000000,
+          "max_qubits": 65536,
+          "max_bits": 1048576
+        }
+      },
+      "verifier": {
+        "sha_verifier_version": "0.1.0",
+        "kickmix_version": "1.0.0"
+      },
+      "submission": {
+        "name": "Baseline",
+        "authors": [
+          "sha256.fail"
+        ],
+        "kind": "baseline",
+        "problem": "sha256-compress-v1",
+        "description": "Plain reference construction: state computed in place in the digest register, message schedule expanded in place and rewound, measurement-based ripple-carry adders, one 32-qubit temporary.",
+        "source": "build.py"
+      },
+      "run": {
+        "started_at": "2026-11-14T10:07:25+00:00",
+        "elapsed_seconds": 2.31,
+        "workers": 128,
+        "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+        "python_version": "3.13.9",
+        "numpy_version": "2.5.4",
+        "platform": "Linux-7.1.3-2-cachyos-x86_64-with-glibc2.43",
+        "machine": "x86_64"
+      }
+    }
+  ]
+}

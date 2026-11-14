@@ -2,7 +2,8 @@
 
 Date: 2026-11-14. Supersedes `preplan_codex.md` (see §10 for what I kept and what I changed).
 
-Status: M0, M1 and M2 are done. Next is M3, the baseline circuit.
+Status: M0–M3 are done. The baseline circuit passes at full strength with 831 qubits and
+27,088 Toffolis (score 22.5 million). Next are M4 (frontend) and M5 (PR flow).
 
 Goal: a public benchmark for quantum circuits that compute SHA-256, verified with Google's
 Kickmix simulator, with a qubit–Toffoli Pareto front and leaderboard in the style of ecdsa.fail.
@@ -198,10 +199,10 @@ results/
   index.json
 ```
 
-`submissions/example/` is where the baseline circuit will be built (next phase, after this
-plan). Rough expectation for a straightforward baseline — in-place message schedule, reversible
-round function, compute/copy/uncompute, Kickmix's adder — is on the order of 1,100–1,300 qubits
-and a few tens of thousands of Toffolis. That is my estimate, not a measurement.
+`submissions/example/` holds the baseline circuit (M3): 831 qubits, 27,088 Toffolis. My
+estimate before building it was 1,100–1,300 qubits; it came out smaller because the
+zero-initialised `digest` register serves as the working state, so the rounds need no separate
+state register, no copy and no uncomputation. Only the message schedule is rewound.
 
 PR flow: a PR adds one directory under `submissions/`. CI (GitHub Actions, no secrets, no
 network during verification) checks that the PR touches only that directory, runs

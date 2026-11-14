@@ -37,6 +37,29 @@ def _cmd_run(args: argparse.Namespace) -> int:
     return 0 if receipt['status'] == 'PASS' else 1
 
 
+def _cmd_replay(args: argparse.Namespace) -> int:
+    recorded = json.loads(pathlib.Path(args.receipt).read_text())
+    problem = problems.get(recorded['problem'])
+    data = pathlib.Path(args.circuit).read_bytes()
+    replayed = verify.verify(data, problem, salt=recorded['verification']['salt'],
+                             random_shots=recorded['verification']['random_shots'],
+                             workers=args.workers, submission=recorded['submission'])
+    # The verifier version is reported separately: a newer verifier may still agree.
+    ignored = ('run', 'verifier')
+    differing = sorted(key for key in recorded.keys() | replayed.keys()
+                       if key not in ignored and recorded.get(key) != replayed.get(key))
+    if recorded['verifier'] != replayed['verifier']:
+        print(f"Note: receipt was made by {recorded['verifier']}, this is {replayed['verifier']}.", file=sys.stderr)
+    if differing:
+        print(f"MISMATCH in: {', '.join(differing)}")
+        for key in differing:
+            print(f'  {key}:\n    recorded: {json.dumps(recorded.get(key))}\n    replayed: {json.dumps(replayed.get(key))}')
+        return 1
+    print(f"MATCH: {replayed['status']}, {replayed['verification']['random_shots']} random shots, "
+          f"circuit {replayed['circuit']['file_sha256'][:16]}")
+    return 0
+
+
 def _cmd_collect(args: argparse.Namespace) -> int:
     root = pathlib.Path(args.results_dir)
     receipts = []
@@ -95,6 +118,15 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument('--results-dir',
                    help='Also write the receipt to <results-dir>/<problem>/<circuit sha256>.json.')
     p.set_defaults(func=_cmd_run)
+
+    p = commands.add_parser(
+        'replay', help='Re-run a verification from its receipt and compare.',
+        description='Verify a circuit again with the salt and shot count recorded in a receipt, and '
+                    'check that the result is identical. Exits 0 on a match and 1 otherwise.')
+    p.add_argument('receipt', help='Path to a receipt JSON file.')
+    p.add_argument('circuit', help='Path to the circuit file the receipt is for.')
+    p.add_argument('--workers', type=int, default=None, help='Worker processes (default: all cores).')
+    p.set_defaults(func=_cmd_replay)
 
     p = commands.add_parser('collect', help=f'Gather every receipt under a directory into {INDEX_NAME}.')
     p.add_argument('results_dir', help='Directory holding receipts.')

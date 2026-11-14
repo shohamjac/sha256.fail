@@ -2,16 +2,16 @@ name: verifier
 on:
   push:
     branches: [main]
-    paths: ['sha256_verifier/**', '.github/workflows/verifier.yml']
+    paths: ['sha256_verifier/**', 'submissions/**', 'results/**', '.github/workflows/verifier.yml']
   pull_request:
-    paths: ['sha256_verifier/**', '.github/workflows/verifier.yml']
+    paths: ['sha256_verifier/**', 'submissions/**', 'results/**', '.github/workflows/verifier.yml']
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   selftest:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: sha256_verifier
@@ -24,3 +24,9 @@ jobs:
       - run: uv sync --locked
       - run: uv run sha-verify selftest
       - run: uv run pytest -q
+      # The committed receipt of the baseline must reproduce exactly on this machine.
+      - name: Replay the baseline receipt
+        run: uv run sha-verify replay ../results/sha256-compress-v1/c2d9633d137a6e635c66d460aeb2d7251a2886951e9d0d5407ae94260c597969.json ../submissions/example/circuit.kmb
+      # And the baseline must pass again on random tests nobody has seen.
+      - name: Verify the baseline with a fresh salt
+        run: uv run sha-verify run ../submissions/example/circuit.kmb --random-salt > /dev/null
