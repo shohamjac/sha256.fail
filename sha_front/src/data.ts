@@ -34,6 +34,7 @@ export interface Receipt {
     kind?: string;
     description?: string;
     path?: string;
+    group?: string;
   } | null;
   run: { started_at: string };
 }
@@ -62,6 +63,13 @@ export interface Entry {
   randomShots: number;
   /** Repository path of the receipt. */
   receiptPath: string;
+  /**
+   * Set when several circuits are configurations of one piece of work (one paper or
+   * project). Only the best-scoring circuit of a group is listed; see `listed`.
+   */
+  group: string | null;
+  /** On a listed entry: the other verified circuits of its group, best first. */
+  otherConfigurations: Entry[];
 }
 
 export async function loadReceipts(): Promise<Receipt[]> {
@@ -108,6 +116,8 @@ export function toEntries(receipts: Receipt[]): Entry[] {
       directedShots: r.verification.directed_shots ?? 0,
       randomShots: r.verification.random_shots,
       receiptPath: `results/${r.problem}/${r.circuit.sha256}.json`,
+      group: r.submission?.group?.trim() || null,
+      otherConfigurations: [],
     };
     const key = `${entry.problem}/${entry.id}`;
     const existing = byId.get(key);
@@ -116,6 +126,31 @@ export function toEntries(receipts: Receipt[]): Entry[] {
     }
   }
   return [...byId.values()];
+}
+
+/**
+ * The entries the chart and leaderboard show. Circuits that share a group are different
+ * configurations of the same work; of those, only the one with the best score is shown
+ * (fewer qubits breaks a tie), and it carries the others in `otherConfigurations`.
+ * Ungrouped entries are all shown.
+ */
+export function listed(entries: Entry[]): Entry[] {
+  const better = (a: Entry, b: Entry): number => a.score - b.score || a.qubits - b.qubits;
+  const groups = new Map<string, Entry[]>();
+  const out: Entry[] = [];
+  for (const entry of entries) {
+    if (entry.group === null) {
+      out.push(entry);
+      continue;
+    }
+    const key = `${entry.problem}/${entry.group}`;
+    groups.set(key, [...(groups.get(key) ?? []), entry]);
+  }
+  for (const members of groups.values()) {
+    const [best, ...others] = [...members].sort(better);
+    out.push({ ...best!, otherConfigurations: others });
+  }
+  return out;
 }
 
 export function problemsOf(entries: Entry[]): string[] {

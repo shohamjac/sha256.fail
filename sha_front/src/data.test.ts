@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { problemsOf, toEntries, type Receipt } from './data';
+import { listed, problemsOf, toEntries, type Receipt } from './data';
 import { frontier } from './pareto';
 
 function receipt(overrides: Partial<Receipt> & { id?: string } = {}): Receipt {
@@ -78,5 +78,69 @@ describe('the repository results', () => {
     expect(names).toContain('Baseline');
     expect(names).toContain('Low-qubit adder');
     expect(names).not.toContain('Compute, copy, uncompute');
+  });
+});
+
+describe('listed', () => {
+  const entry = (id: string, group: string | undefined, qubits: number, toffoli: number) =>
+    toEntries([receipt({
+      id: id.repeat(64),
+      cost: { qubits, toffoli, score: qubits * toffoli, shots: 1048576 },
+      submission: { name: id, group },
+    })])[0]!;
+
+  it('keeps only the best-scoring circuit of a group and attaches the rest', () => {
+    const a = entry('a', 'work', 10, 100); // score 1000
+    const b = entry('b', 'work', 20, 30); // score 600: best
+    const c = entry('c', 'work', 5, 400); // score 2000
+    const shown = listed([a, b, c]);
+    expect(shown.map((e) => e.name)).toEqual(['b']);
+    expect(shown[0]!.otherConfigurations.map((e) => e.name)).toEqual(['a', 'c']);
+  });
+
+  it('shows every ungrouped circuit and treats groups separately', () => {
+    const shown = listed([entry('a', undefined, 1, 1), entry('b', undefined, 2, 2), entry('c', 'x', 3, 3),
+      entry('d', 'y', 4, 4)]);
+    expect(shown.map((e) => e.name).sort()).toEqual(['a', 'b', 'c', 'd']);
+    expect(shown.every((e) => e.otherConfigurations.length === 0)).toBe(true);
+  });
+
+  it('breaks a tied score by fewer qubits', () => {
+    const shown = listed([entry('a', 'g', 20, 10), entry('b', 'g', 10, 20)]);
+    expect(shown.map((e) => e.name)).toEqual(['b']);
+  });
+
+  it('does not change its input', () => {
+    const a = entry('a', 'g', 1, 1);
+    const b = entry('b', 'g', 2, 2);
+    listed([a, b]);
+    expect(a.otherConfigurations).toEqual([]);
+  });
+});
+
+describe('literature reconstructions', () => {
+  const body = JSON.parse(readFileSync(new URL('../../results/index.json', import.meta.url), 'utf8')) as {
+    receipts: Receipt[];
+  };
+  const all = toEntries(body.receipts);
+  const shown = listed(all);
+
+  it('are verified on the same terms as every other circuit', () => {
+    const literature = all.filter((e) => e.kind === 'literature');
+    expect(literature.map((e) => e.name).sort()).toEqual(['qSHA256, Toffoli-only', 'qSHA256, measurement-based']);
+    for (const entry of literature) {
+      expect(entry.randomShots).toBeGreaterThanOrEqual(1 << 20);
+      expect(entry.path).toMatch(/^submissions\/literature-/);
+      expect(entry.group).toBe('qSHA256');
+    }
+  });
+
+  it('show only the best configuration of each work', () => {
+    const names = shown.map((e) => e.name);
+    expect(names).toContain('qSHA256, measurement-based');
+    expect(names).not.toContain('qSHA256, Toffoli-only');
+    const best = shown.find((e) => e.name === 'qSHA256, measurement-based')!;
+    expect(best.otherConfigurations.map((e) => e.name)).toEqual(['qSHA256, Toffoli-only']);
+    expect(shown).toHaveLength(all.length - 1);
   });
 });

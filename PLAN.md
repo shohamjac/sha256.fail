@@ -4,7 +4,10 @@ Date: 2026-11-14. Supersedes `preplan_codex.md` (see §10 for what I kept and wh
 
 Status: M0–M4 are done. The baseline circuit passes at full strength with 831 qubits and
 27,088 Toffolis (score 22.5 million), and the site builds and shows it with two variants.
-Next is M5: verifying pull requests automatically and deploying the site.
+The first literature reconstructions (part of M6) are in: both garbage-free configurations of
+qSHA256, at 1,375 qubits / 45,144 Toffolis (measurement-based) and 1,313 / 90,288
+(Toffoli-only). The site shows only the better-scoring one. Next is M5: verifying pull requests automatically and
+deploying the site.
 
 Goal: a public benchmark for quantum circuits that compute SHA-256, verified with Google's
 Kickmix simulator, with a qubit–Toffoli Pareto front and leaderboard in the style of ecdsa.fail.
@@ -40,9 +43,13 @@ Kickmix simulator, with a qubit–Toffoli Pareto front and leaderboard in the st
 
 ### Still open
 
-- Which published constructions to rebuild first (candidates: Amy et al. 2016, Kim et al. 2018,
-  Lee et al. 2023). Each is its own circuit-building job; a paper's reported counts may not be
-  reproduced exactly, since its contract and gate set can differ from ours.
+- Which published constructions to rebuild next (candidates: Amy et al. 2016, Kim et al. 2018,
+  Lee et al. 2023). Each is its own
+  circuit-building job; a paper's reported counts may not be reproduced exactly, since its
+  contract and gate set can differ from ours. How the first one was done, and the standard it
+  sets: rebuild from the source without running it, reproduce the source's own published
+  counts as a cross-check, and state every adaptation. See
+  `submissions/literature-qsha256/README.md`.
 - Second instance after launch: SHA-512, SHA3-256, or Bitcoin double-SHA (§8).
 
 ## 2. What I checked (facts, not assumptions)
@@ -194,6 +201,8 @@ submissions/
     meta.json         # name, authors, description, problem id, kind, path
   low-qubit-adder/          # baseline variant: fewer qubits, more Toffolis (on the front)
   compute-copy-uncompute/   # baseline variant: the textbook construction (dominated)
+  literature-qsha256/           # github.com/icedmoca/qSHA256, Toffoli-only (not listed on the site)
+  literature-qsha256-measured/  # same project, measurement-based (dominated; the one listed)
     build.py          # optional: how the circuit was generated (never run by CI)
     README.md
   <team>-<name>/ ...
@@ -228,6 +237,9 @@ A separate project that reads `results/index.json` and nothing else.
   date, frontier badge, links to the submission directory and its receipt.
 - **Pages.** Rules/contract, how to submit, what verification does and does not guarantee.
 - **Problem switcher** keyed on problem id, hidden while there is only one.
+- **One point per work.** Submissions whose `meta.json` share a `group` are configurations of
+  the same paper or project. All are verified and keep their receipts, but the chart and
+  leaderboard show only the best-scoring one, which names the others in its details.
 - Deployed as static files (GitHub Pages) from CI on `main`.
 
 ## 7. Designing for the later hosted service

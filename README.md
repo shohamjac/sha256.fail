@@ -6,8 +6,9 @@ simulator checks each one on about a million random inputs and reports its qubit
 Toffoli count. Verified circuits are shown on a qubit–Toffoli Pareto front.
 
 Status: early. The verifier works, the problem contract is frozen, and a baseline circuit
-passes at full strength: 831 qubits and 27,088 Toffolis. The website builds and shows three
-verified circuits, but it is not deployed anywhere yet and pull requests are not verified
+passes at full strength: 831 qubits and 27,088 Toffolis. Five circuits are verified and the
+website builds and shows four of them (one work has two configurations; only its better one
+is listed), but it is not deployed anywhere yet and pull requests are not verified
 automatically. See [PLAN.md](PLAN.md) for the design and milestones.
 
 ## Layout
@@ -16,7 +17,7 @@ automatically. See [PLAN.md](PLAN.md) for the design and milestones.
 |---|---|
 | `sha256_verifier/` | Backend: the verifier package and `sha-verify` CLI |
 | `sha_front/` | Frontend: Pareto front, leaderboard and rules pages |
-| `submissions/` | One directory per submitted circuit; `example/` is the baseline, the other two are variants of it |
+| `submissions/` | One directory per submitted circuit: `example/` is the baseline, two are variants of it, and `literature-*` are reconstructions of published circuits |
 | `results/` | Verification receipts written by the verifier, read by the frontend |
 
 The backend and frontend are separate projects. The only thing they share is the receipt

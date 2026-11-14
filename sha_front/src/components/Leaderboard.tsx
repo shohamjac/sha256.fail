@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { repoFile, repoTree } from '../config';
-import type { Entry } from '../data';
+import type { Entry, Kind } from '../data';
 import { compact, count, date } from '../format';
 import { frontier, ranked } from '../pareto';
 
@@ -13,6 +13,13 @@ const COLUMNS: { key: SortKey; label: string; title: string }[] = [
   { key: 'reactionDepth', label: 'Reaction depth', title: 'Longest chain of measurement-dependent steps, as reported by Kickmix' },
   { key: 'verifiedAt', label: 'Verified', title: 'Date of the first passing full-strength run' },
 ];
+
+/** Shown under the name for entries that are not ordinary submissions. */
+const KIND_NOTE: Record<Kind, string | null> = {
+  submission: null,
+  baseline: 'reference construction',
+  literature: 'reconstruction of published work',
+};
 
 interface Props {
   entries: Entry[];
@@ -83,7 +90,9 @@ export function Leaderboard({ entries, selectedId, onSelect }: Props): ReactElem
                 <td className="num">{rank.get(entry.id)}</td>
                 <td className="circuit">
                   <div>{entry.name}</div>
-                  {entry.authors.length > 0 && <div className="authors">{entry.authors.join(', ')}</div>}
+                  <div className="authors">
+                    {[entry.authors.join(', '), KIND_NOTE[entry.kind]].filter(Boolean).join(' · ')}
+                  </div>
                 </td>
                 <td className="num">{count(entry.qubits)}</td>
                 <td className="num">{count(entry.toffoli)}</td>
@@ -118,6 +127,20 @@ export function Leaderboard({ entries, selectedId, onSelect }: Props): ReactElem
             {selected.operations !== null && <>{count(selected.operations)} operations. </>}
             Circuit <span className="mono">{selected.id.slice(0, 16)}…</span>
           </p>
+          {selected.otherConfigurations.length > 0 && (
+            <p>
+              Other verified configurations of the same work, not listed because this one scores better:{' '}
+              {selected.otherConfigurations.map((other, i) => (
+                <span key={other.id}>
+                  {i > 0 && '; '}
+                  {other.name} ({count(other.qubits)} qubits, {count(other.toffoli)} Toffolis,{' '}
+                  {other.path !== null && <><a href={repoTree(other.path)}>files</a>, </>}
+                  <a href={repoFile(other.receiptPath)}>receipt</a>)
+                </span>
+              ))}
+              .
+            </p>
+          )}
         </div>
       )}
     </div>

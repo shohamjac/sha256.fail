@@ -29,7 +29,9 @@ against the real results file.
 | `src/config.ts` | Repository URL used for links to submissions and receipts |
 | `src/styles.css` | All styling, with light and dark colour tokens |
 
-Only circuits that passed a full-strength run are shown. A circuit is on the Pareto front
+Only circuits that passed a full-strength run are shown. Where several are configurations of
+one work (the same `group` in their metadata), only the best-scoring one is shown, and it
+names the others in its details. A circuit is on the Pareto front
 when no other circuit has at most as many qubits and at most as many Toffolis, with one of
 the two strictly fewer.
 

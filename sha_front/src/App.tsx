@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { REPO_URL } from './config';
-import { loadReceipts, toEntries, type Entry } from './data';
+import { listed, loadReceipts, toEntries, type Entry } from './data';
 import { Home } from './pages/Home';
 import { Rules } from './pages/Rules';
 import { Submit } from './pages/Submit';
@@ -37,7 +37,7 @@ export function App(): ReactElement {
 
   useEffect(() => {
     loadReceipts()
-      .then((receipts) => setData({ state: 'ready', entries: toEntries(receipts) }))
+      .then((receipts) => setData({ state: 'ready', entries: listed(toEntries(receipts)) }))
       .catch((error: unknown) =>
         setData({ state: 'error', message: error instanceof Error ? error.message : String(error) }));
   }, []);

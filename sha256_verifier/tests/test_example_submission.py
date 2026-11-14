@@ -49,6 +49,8 @@ SUBMISSIONS = [
     ('example', 'Sha256Builder', 831, 27088),
     ('low-qubit-adder', 'LowQubitBuilder', 801, 50224),
     ('compute-copy-uncompute', 'ComputeCopyUncomputeBuilder', 1087, 45248),
+    ('literature-qsha256', 'QSha256Reconstruction', 1313, 90288),
+    ('literature-qsha256-measured', 'QSha256MeasuredReconstruction', 1375, 45144),
 ]
 
 
@@ -87,6 +89,51 @@ def test_index_lists_exactly_the_committed_receipts():
     files = [json.loads(p.read_text()) for p in sorted((ROOT / 'results' / PROBLEM.name).glob('*.json'))]
     assert sorted(index, key=lambda r: r['circuit']['sha256']) == sorted(files, key=lambda r: r['circuit']['sha256'])
     assert len(files) == len(SUBMISSIONS)
+
+
+def test_literature_reconstruction_matches_its_published_counts():
+    """Built with the adder qSHA256's benchmark table was generated with, the reconstruction
+    has exactly the qubits, Toffolis and gates that table lists."""
+    path = ROOT / 'submissions' / 'literature-qsha256' / 'build.py'
+    spec = importlib.util.spec_from_file_location('build_literature_qsha256_counts', path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert module.published_counts() == {'qubits': 1313, 'toffoli': 92672, 'gates': 399044}
+    assert 'import qsha256' not in path.read_text() and 'from qsha256' not in path.read_text()
+
+
+def test_literature_reconstruction_uses_no_measurement():
+    loaded = circuits.load((ROOT / 'submissions' / 'literature-qsha256' / 'circuit.kmb').read_bytes())
+    assert set(loaded.summary.counts) == {'X', 'CX', 'CCX'}
+
+
+def test_measured_literature_reconstruction_matches_its_published_counts():
+    """qSHA256's table lists the measurement-based configuration at 1,375 qubits, 514,364 gates
+    and a T-count of 180,576 (four per computed AND), with no Toffoli gates as it counts them."""
+    path = ROOT / 'submissions' / 'literature-qsha256-measured' / 'build.py'
+    spec = importlib.util.spec_from_file_location('build_literature_qsha256_measured_counts', path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert module.published_counts() == {
+        'qubits': 1375, 'ands': 45144, 't_count': 180576, 'gates': 514364, 'toffoli_gates': 0}
+    assert 'import qsha256' not in path.read_text() and 'from qsha256' not in path.read_text()
+
+
+def test_measured_literature_reconstruction_removes_every_and_by_measurement():
+    loaded = circuits.load((ROOT / 'submissions' / 'literature-qsha256-measured' / 'circuit.kmb').read_bytes())
+    counts = loaded.summary.counts
+    assert set(counts) == {'X', 'CX', 'CCX', 'HMR', 'CZ'}
+    # Each AND is computed once (CCX) and removed once (HMR, then a conditional CZ).
+    assert counts['CCX'] == counts['HMR'] == counts['CZ'] == 45144
+    assert loaded.summary.conditional_counts == {'CZ': 45144}
+
+
+def test_grouped_submissions_share_a_reference():
+    metas = [json.loads((ROOT / 'submissions' / name / 'meta.json').read_text()) for name, *_ in SUBMISSIONS]
+    grouped = [m for m in metas if 'group' in m]
+    assert sorted(m['name'] for m in grouped) == ['qSHA256, Toffoli-only', 'qSHA256, measurement-based']
+    assert {(m['group'], m['kind'], m['reference'], m['reference_commit']) for m in grouped} == {
+        ('qSHA256', 'literature', 'https://github.com/icedmoca/qSHA256', '741fe86b4ebdeac97c41fe0058db1985d723d6e1')}
 
 
 @pytest.mark.parametrize('name', [name for name, *_ in SUBMISSIONS if name != 'example'])

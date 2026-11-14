@@ -12,7 +12,7 @@ const MAX_LABELS = 4;
 
 const KIND_LABEL: Record<Kind, string> = {
   submission: 'Submission',
-  baseline: 'Baseline',
+  baseline: 'Reference construction',
   literature: 'From the literature',
 };
 
@@ -27,9 +27,25 @@ function Shape({ kind, x, y, r, className }: { kind: Kind; x: number; y: number;
   return <circle className={className} cx={x} cy={y} r={r} />;
 }
 
-/** Evenly spaced round numbers inside [low, high], for labelling a log axis that spans less than a decade or two. */
-function axisTicks(low: number, high: number, target: number): number[] {
-  return ticks(low, high, target).filter((t) => t >= low && t <= high);
+/**
+ * Round tick values inside [low, high] for a log axis. A narrow range gets evenly spaced
+ * values; a wide one gets 1-2-3-4-5-6-8 steps per decade (or 1-2-5 if those are too many),
+ * so the compressed upper end is not over-labelled and the lower end is not left bare.
+ */
+export function axisTicks(low: number, high: number, target: number): number[] {
+  if (high / low < 2.5) {
+    return ticks(low, high, target).filter((t) => t >= low && t <= high);
+  }
+  for (const steps of [[1, 2, 3, 4, 5, 6, 8], [1, 2, 5], [1]]) {
+    const values: number[] = [];
+    for (let decade = 10 ** Math.floor(Math.log10(low)); decade <= high; decade *= 10) {
+      values.push(...steps.map((step) => step * decade).filter((v) => v >= low && v <= high));
+    }
+    if (values.length <= target + 2) {
+      return values;
+    }
+  }
+  return [];
 }
 
 function padded(values: number[], factor: number): [number, number] {
@@ -309,6 +325,7 @@ function Tooltip({ entry, onFront, dominatedBy, left, top, width }: {
         <dd>{compact(entry.score)}</dd>
       </dl>
       <div className="status">
+        {entry.kind !== 'submission' && <>{KIND_LABEL[entry.kind]} · </>}
         {onFront
           ? 'On the Pareto front'
           : `Dominated by ${dominatedBy} circuit${dominatedBy === 1 ? '' : 's'}`}

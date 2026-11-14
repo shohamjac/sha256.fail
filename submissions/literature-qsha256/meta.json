@@ -1,0 +1,15 @@
+{
+  "name": "qSHA256, Toffoli-only",
+  "authors": [
+    "icedmoca (qSHA256)"
+  ],
+  "kind": "literature",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/literature-qsha256",
+  "description": "Reconstruction of the garbage-free SHA-256 circuit of the qSHA256 project in its default architecture (Cuccaro adder, rolling schedule, serial rounds, full uncomputation). X, CNOT and Toffoli only, no measurement. Rebuilt by sha256.fail from the project's source at commit 741fe86; the project's own code was not run.",
+  "source": "build.py",
+  "group": "qSHA256",
+  "reference": "https://github.com/icedmoca/qSHA256",
+  "reference_commit": "741fe86b4ebdeac97c41fe0058db1985d723d6e1",
+  "reconstructed_by": "sha256.fail"
+}
