@@ -1,0 +1,11 @@
+{
+  "name": "Trimmed constants and tail",
+  "authors": [
+    "sha256.fail"
+  ],
+  "kind": "submission",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/trimmed-constants-and-tail",
+  "description": "The baseline architecture with hand-written adders. Each round constant is reduced by a few units to gain trailing zeros, which a constant adder skips, and free carry-ins on the neighbouring additions make up the difference. Two additions in a row into one register share their lowest bit, saving a Toffoli. The last two schedule words are never stored: their terms are added straight into the state. Saves 649 Toffolis and 2 qubits over the folded first rounds.",
+  "source": "build.py"
+}
