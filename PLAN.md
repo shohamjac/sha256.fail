@@ -85,9 +85,9 @@ Registers (names and sizes are checked; no others allowed):
 - Every other qubit is scratch: starts |0⟩, must end |0⟩.
 - Phase: no shot may end with a flipped phase.
 
-Bit order (to be frozen in M1 with test vectors): `block[32j + k]` is bit k (LSB = 0) of
-message word W_j; `digest[32j + k]` is bit k of H_j; words are big-endian over bytes as in
-FIPS 180-4. Helpers convert bytes ↔ register bits.
+Bit order (frozen in M1): `block[32j + k]` is bit k (LSB = 0) of message word W_j;
+`digest[32j + k]` is bit k of H_j; words are big-endian over bytes as in FIPS 180-4.
+The full contract, with test vectors, is `sha256_verifier/docs/sha256-compress-v1.md`.
 
 Pass = structural checks + all directed tests + all 2^20 random shots correct.
 
@@ -100,7 +100,8 @@ sha256_verifier/
   pyproject.toml
   src/sha_verifier/
     problems.py     # registry: name -> ProblemSpec(registers, reference fn, directed tests)
-    reference.py    # vectorized numpy SHA-256 compression
+    sha2.py         # vectorized numpy SHA-2 compression (SHA-256 and SHA-512 parameters)
+    bits.py         # words <-> register bit arrays
     validate.py     # allowlist, register schema, independent op walk
     simulate.py     # batched Kickmix runs, multiprocess, checks
     sampling.py     # seed derivation, input generation
@@ -114,9 +115,13 @@ sha256_verifier/
 
 `hashlib` cannot be used directly: it always pads, and the task is a raw compression. So the
 reference is our own numpy implementation over `uint32` arrays (also needed for 2^20 inputs at
-once). It is validated against `hashlib` on every single-block padded message length (0–55
-bytes) and against NIST's intermediate-value examples. The baseline circuit generator must not
-import it — the two are written separately so one bug cannot make both agree.
+once). It is validated against `hashlib` three ways: full digests at every message length
+across three blocks; one compression of every single-block padded length (0–55 bytes); and
+raw random blocks, using the fact that hashing a 64-byte message compresses that block
+unpadded and then a fixed padding block. The FIPS 180-4 example digests are pinned too. Its
+round constants are derived from the primes rather than typed in. The baseline circuit
+generator must not import it — the two are written separately so one bug cannot make both
+agree.
 
 ### 4.2 Checks, in order
 
@@ -125,8 +130,8 @@ import it — the two are written separately so one bug cannot make both agree.
    limits (ops, qubits, file bytes). An independent pure-Python walk of the `.kmx` text
    recomputes qubit count and static gate counts and must agree with Kickmix's own numbers —
    this is the defence against a crafted file fooling the counter.
-3. **Directed tests** (~1,000 shots): all-zero, all-one, each single bit set, carry-heavy
-   words, padded "abc" and empty message.
+3. **Directed tests** (1,179 shots, frozen in M1): constant patterns, each single bit set
+   and clear, carry-heavy words, and padded messages of every length 0–55.
 4. **Random tests.** 2^20 uniform 512-bit blocks, one shot each, batch 256, chunks spread over
    cores. Each shot uses a fresh input and fresh measurement outcomes, which is exactly the
    joint sample Google's bound is stated for. No "repeats per input".

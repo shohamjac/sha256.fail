@@ -10,8 +10,21 @@ Currently implemented:
   phase), each of which must be detected.
 - `sha-verify version` — verifier, Kickmix and platform versions.
 
-The SHA-256 problem definition, sampling, and receipts come next (milestones M1–M2 in
-`../PLAN.md`).
+- The problem `sha256-compress-v1`: its registers, bit order, reference function, allowed
+  instructions and directed tests. The contract is [docs/sha256-compress-v1.md](docs/sha256-compress-v1.md).
+
+Not yet implemented: checking a circuit against a problem (`sha-verify run`), random
+sampling, and receipts. That is milestone M2 in `../PLAN.md`.
+
+## Modules
+
+| Module | What |
+|---|---|
+| `problems.py` | Registry of benchmark problems. Adding a hash function is one entry here. |
+| `sha2.py` | Reference SHA-2 compression, vectorized over inputs. Circuit generators must not import it. |
+| `bits.py` | Conversion between words and register bit arrays |
+| `selftest.py` | Simulator and fault-detection self-test |
+| `environment.py` | Kickmix version and binary hash, for receipts |
 
 ## Simulator
 
