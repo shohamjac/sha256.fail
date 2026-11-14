@@ -80,3 +80,13 @@ def test_single_worker_runs_in_process(monkeypatch):
     circuit, layout = prepared(toy.GOOD)
     total, failure = simulate.run_random(circuit, layout, toy.PROBLEM, b'\x03' * 32, 4096, workers=1)
     assert failure is None and total == toy.TOFFOLIS * 4096
+
+
+def test_command_line_process_has_one_thread_when_it_forks():
+    """Imported the way the command line imports it, the verifier starts no extra threads."""
+    import subprocess
+    import sys
+    script = ("from sha_verifier import cli; import numpy, kickmix, threading; "
+              "print(threading.active_count(), open('/proc/self/status').read().split('Threads:')[1].split()[0])")
+    out = subprocess.run([sys.executable, '-c', script], capture_output=True, text=True, check=True).stdout.split()
+    assert out == ['1', '1'], out
