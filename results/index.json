@@ -6,6 +6,77 @@
       "status": "PASS",
       "failure": null,
       "circuit": {
+        "file_sha256": "0326a48e3ecbc79e1a793a1e871a23c3e6cc6cd32c62fe6c98aaad3eb59040a1",
+        "sha256": "0326a48e3ecbc79e1a793a1e871a23c3e6cc6cd32c62fe6c98aaad3eb59040a1",
+        "qubits": 829,
+        "bits": 1,
+        "operations": 308806,
+        "toffoli_static": 26067,
+        "instruction_counts": {
+          "CCX": 26067,
+          "CX": 224298,
+          "CZ": 25214,
+          "HMR": 25214,
+          "X": 6863,
+          "Z": 1150
+        },
+        "reaction_depth": 3892
+      },
+      "cost": {
+        "qubits": 829,
+        "toffoli": 26067.0,
+        "score": 21609543.0,
+        "toffoli_executed_total": 27333230592,
+        "shots": 1048576
+      },
+      "verification": {
+        "sampling": "v1",
+        "salt": "297a8b91933bf44e181710dad16240773976dba80370db99a1779d855d4cfa6c",
+        "seed": "6f06ad668c4c4e4214eb528f7c22865b2af2e03c0b43290445e783991fb8019e",
+        "directed_shots": 1179,
+        "random_shots": 1048576,
+        "full_strength": true,
+        "batch_size": 256,
+        "chunk_shots": 4096,
+        "limits": {
+          "max_file_bytes": 536870912,
+          "max_operations": 20000000,
+          "max_qubits": 65536,
+          "max_bits": 1048576
+        }
+      },
+      "verifier": {
+        "sha_verifier_version": "0.1.0",
+        "kickmix_version": "1.0.0"
+      },
+      "submission": {
+        "name": "Trimmed constants and tail",
+        "authors": [
+          "sha256.fail"
+        ],
+        "kind": "submission",
+        "problem": "sha256-compress-v1",
+        "path": "submissions/trimmed-constants-and-tail",
+        "description": "The baseline architecture with hand-written adders. Each round constant is reduced by a few units to gain trailing zeros, which a constant adder skips, and free carry-ins on the neighbouring additions make up the difference. Two additions in a row into one register share their lowest bit, saving a Toffoli. The last two schedule words are never stored: their terms are added straight into the state. Saves 649 Toffolis and 2 qubits over the folded first rounds.",
+        "source": "build.py"
+      },
+      "run": {
+        "started_at": "2026-11-14T17:08:00+00:00",
+        "elapsed_seconds": 12.948,
+        "workers": 4,
+        "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+        "python_version": "3.13.18",
+        "numpy_version": "2.5.4",
+        "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "machine": "x86_64"
+      }
+    },
+    {
+      "receipt_version": 1,
+      "problem": "sha256-compress-v1",
+      "status": "PASS",
+      "failure": null,
+      "circuit": {
         "file_sha256": "182d12c33567407d093eea8977537add45f3cdc8ec38d95b0d4db6aa291f34fe",
         "sha256": "182d12c33567407d093eea8977537add45f3cdc8ec38d95b0d4db6aa291f34fe",
         "qubits": 1313,
