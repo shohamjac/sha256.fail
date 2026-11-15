@@ -57,6 +57,7 @@ export interface Entry {
   path: string | null;
   qubits: number;
   toffoli: number;
+  /** Qubits times Toffolis, as the receipt records it. A track rescores it; see `scoredOn`. */
   score: number;
   operations: number | null;
   reactionDepth: number | null;
@@ -165,12 +166,13 @@ export function toEntries(receipts: Receipt[]): Entry[] {
  * The entries the chart and leaderboard show. Circuits that share a group are different
  * configurations of the same work; of those, only the one with the best score is shown
  * (fewer qubits breaks a tie), and it carries the others in `otherConfigurations`.
- * Ungrouped entries are all shown.
+ * Ungrouped entries are all shown. Which configuration is best depends on the track, so
+ * this is applied to entries already scored on one.
  */
-export function listed(entries: Entry[]): Entry[] {
-  const better = (a: Entry, b: Entry): number => a.score - b.score || a.qubits - b.qubits;
-  const groups = new Map<string, Entry[]>();
-  const out: Entry[] = [];
+export function listed<T extends Entry>(entries: T[]): T[] {
+  const better = (a: T, b: T): number => a.score - b.score || a.qubits - b.qubits;
+  const groups = new Map<string, T[]>();
+  const out: T[] = [];
   for (const entry of entries) {
     if (entry.group === null) {
       out.push(entry);

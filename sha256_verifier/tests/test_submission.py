@@ -195,10 +195,10 @@ def test_record_never_runs_submission_code(tmp_path):
 # Comments.
 
 
-def passing(qubits, toffoli, sha='a'):
+def passing(qubits, toffoli, sha='a', depth=None):
     return {
         'problem': 'toy-add4-v0', 'status': 'PASS', 'failure': None,
-        'circuit': {'sha256': sha * 64, 'file_sha256': sha * 64},
+        'circuit': {'sha256': sha * 64, 'file_sha256': sha * 64, 'reaction_depth': depth},
         'cost': {'qubits': qubits, 'toffoli': toffoli, 'score': qubits * toffoli},
         'verification': {'directed_shots': 5, 'random_shots': 4096, 'full_strength': True, 'salt': 'ab' * 32},
         'submission': {'name': 'x'},
@@ -222,6 +222,21 @@ def test_summary_of_a_dominated_circuit():
 def test_summary_of_a_trade_off_that_is_not_the_best_score():
     text = submission.summarize(passing(5, 400, 'n'), [passing(10, 100, 'a')])
     assert 'On the Pareto front' in text and 'dominates' not in text and 'New best score' not in text
+
+
+def test_summary_ranks_each_track_on_its_own():
+    # Best on reaction depth, dominated on Toffolis.
+    text = submission.summarize(passing(10, 200, 'n', depth=5), [passing(10, 100, 'a', depth=20), passing(20, 50, 'b')])
+    assert '| Toffoli count | 10 | 200 | 2,000 |' in text and '| Reaction depth | 10 | 5 | 50 |' in text
+    toffoli, depth = text.split('**Toffoli count.**')[1].split('**Reaction depth.**')
+    assert 'Dominated** by 1 verified circuit:' in toffoli and 'no more Toffolis' in toffoli
+    assert 'On the Pareto front' in depth and 'no more reaction depth' in depth and 'dominates 1 verified circuit.' in depth
+    assert '**New best score**, 75.0% below the current best of 200.' in depth  # 'b' has no depth, so is left out.
+
+
+def test_summary_without_a_reaction_depth_shows_only_the_toffoli_track():
+    text = submission.summarize(passing(10, 100), [])
+    assert '**Toffoli count.**' in text and 'Reaction depth' not in text
 
 
 def test_summary_of_the_first_circuit_and_of_a_resubmission():

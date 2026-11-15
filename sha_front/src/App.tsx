@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { REPO_URL } from './config';
-import { listed, loadReceipts, toEntries, type Entry } from './data';
+import { loadReceipts, toEntries, type Entry } from './data';
 import { Home } from './pages/Home';
 import { Rules } from './pages/Rules';
 import { Submit } from './pages/Submit';
@@ -15,8 +15,9 @@ const PAGES = [
 
 type Route = (typeof PAGES)[number]['hash'];
 
+/** The page a hash names. A query after the page, as in `#/?track=depth`, is the page's own. */
 function currentRoute(): Route {
-  const hash = window.location.hash;
+  const hash = window.location.hash.split('?')[0];
   return PAGES.find((page) => page.hash === hash)?.hash ?? '#/';
 }
 
@@ -37,7 +38,7 @@ export function App(): ReactElement {
 
   useEffect(() => {
     loadReceipts()
-      .then((receipts) => setData({ state: 'ready', entries: listed(toEntries(receipts)) }))
+      .then((receipts) => setData({ state: 'ready', entries: toEntries(receipts) }))
       .catch((error: unknown) =>
         setData({ state: 'error', message: error instanceof Error ? error.message : String(error) }));
   }, []);

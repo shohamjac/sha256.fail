@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { dominates, frontier, ranked, records, staircase } from './pareto';
 
-const p = (qubits: number, toffoli: number) => ({ qubits, toffoli });
+const p = (qubits: number, cost: number) => ({ qubits, cost });
 
 describe('dominates', () => {
   it('needs no worse on both axes and strictly better on one', () => {
@@ -22,12 +22,12 @@ describe('frontier', () => {
     expect(frontier([textbook, baseline, lowQubit])).toEqual([lowQubit, baseline]);
   });
 
-  it('is ordered by increasing qubits and decreasing Toffolis', () => {
+  it('is ordered by increasing qubits and decreasing cost', () => {
     const front = frontier([p(5, 1), p(1, 9), p(3, 4), p(4, 8), p(2, 6), p(3, 5)]);
     expect(front).toEqual([p(1, 9), p(2, 6), p(3, 4), p(5, 1)]);
     for (let i = 1; i < front.length; i++) {
       expect(front[i]!.qubits).toBeGreaterThan(front[i - 1]!.qubits);
-      expect(front[i]!.toffoli).toBeLessThan(front[i - 1]!.toffoli);
+      expect(front[i]!.cost).toBeLessThan(front[i - 1]!.cost);
     }
   });
 

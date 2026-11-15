@@ -28,6 +28,7 @@ Kickmix simulator, with a qubit–Toffoli Pareto front and leaderboard in the st
 
 | D15 | Name | sha256.fail (domain availability not checked) |
 | D16 | Literature results | No unverified markers on the chart. A published construction appears only once it has been rebuilt as a Kickmix circuit for this contract and passed the verifier like any other submission. Deferred until after launch. |
+| D17 | Reaction-depth track | A second ranking of the same circuits, toggled on the leaderboard page: C is replaced by D, Kickmix 1.0.0's `Circuit.reaction_depth()`, and scored Q × D. Same problem and receipt format (receipts already record D), no re-verification. D is taken from Kickmix as is, without an independent cross-check; a test pins Kickmix's rule on known circuits so an upgrade cannot change it unnoticed. On the site the toggle switches the chart, tiles, ranking, Pareto badges, record history and which configuration of a group is listed. Decided 2026-11-14. |
 
 ### My defaults — say so if you disagree
 
@@ -245,8 +246,10 @@ A separate project that reads `results/index.json` and nothing else.
 - **Record history.** A table of each circuit that set a new best score. The planned chart
   of best score over time and the date slider that replays the frontier are not built: with
   every result on one day they would show nothing. Add them once there is history.
-- **Leaderboard.** Sortable table: rank by Q×C, name, authors, Q, C, Q×C, reaction depth,
+- **Leaderboard.** Sortable table: rank by score, name, authors, Q, C, reaction depth, score,
   date, frontier badge, links to the submission directory and its receipt.
+- **Track toggle** (D17): Toffoli count or reaction depth, kept in the URL (`#/?track=depth`).
+  Everything on the leaderboard page follows it; the default is the Toffoli track.
 - **Pages.** Rules/contract, how to submit, what verification does and does not guarantee.
 - **Problem switcher** keyed on problem id, hidden while there is only one.
 - **One point per work.** Submissions whose `meta.json` share a `group` are configurations of

@@ -1,9 +1,10 @@
 import { ticks } from 'd3-array';
 import { scaleLog } from 'd3-scale';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactElement } from 'react';
-import type { Entry, Kind } from '../data';
+import type { Kind } from '../data';
 import { compact, count, date } from '../format';
 import { dominates, frontier, staircase } from '../pareto';
+import type { Scored, Track } from '../tracks';
 
 const MARGIN = { top: 14, right: 20, bottom: 46, left: 58 };
 const MARK = 5; // Half-size of a mark, in pixels.
@@ -69,14 +70,16 @@ function useWidth(): [React.RefObject<HTMLDivElement | null>, number] {
 }
 
 interface Props {
-  entries: Entry[];
+  entries: Scored[];
+  /** The track whose cost is on the vertical axis. */
+  track: Track;
   selectedId: string | null;
   onSelect: (id: string) => void;
   /** The fewest qubits any circuit for this problem can have, drawn as a vertical line. */
   minQubits?: number;
 }
 
-export function ParetoChart({ entries, selectedId, onSelect, minQubits }: Props): ReactElement {
+export function ParetoChart({ entries, track, selectedId, onSelect, minQubits }: Props): ReactElement {
   const [ref, width] = useWidth();
   const [hoverId, setHoverId] = useState<string | null>(null);
 
@@ -93,7 +96,7 @@ export function ParetoChart({ entries, selectedId, onSelect, minQubits }: Props)
     const frontIds = new Set(front.map((e) => e.id));
     // The qubit axis always reaches down to the limit, however far the circuits are from it.
     const [qMin, qMax] = padded([...entries.map((e) => e.qubits), ...(minQubits === undefined ? [] : [minQubits])], 1.12);
-    const [tMin, tMax] = padded(entries.map((e) => e.toffoli), 1.25);
+    const [tMin, tMax] = padded(entries.map((e) => e.cost), 1.25);
     const bestScore = Math.min(...entries.map((e) => e.score));
     return { front, frontIds, qMin, qMax, tMin, tMax, bestScore };
   }, [entries, minQubits]);
@@ -106,7 +109,7 @@ export function ParetoChart({ entries, selectedId, onSelect, minQubits }: Props)
 
   // The staircase and the region it bounds (everything some frontier circuit dominates).
   const corners = staircase(model.front, model.qMax, model.tMax);
-  const stairs = corners.map((c, i) => `${i === 0 ? 'M' : 'L'}${x(c.qubits)},${y(c.toffoli)}`).join(' ');
+  const stairs = corners.map((c, i) => `${i === 0 ? 'M' : 'L'}${x(c.qubits)},${y(c.cost)}`).join(' ');
   const region = corners.length > 0 ? `${stairs} L${plot.right},${plot.top} Z` : '';
 
   // Lines of equal score: straight on log-log axes. The best score, and twice it.
@@ -131,14 +134,14 @@ export function ParetoChart({ entries, selectedId, onSelect, minQubits }: Props)
   // they stay round and the shapes get their own legend entries.
   const swatchKind: Kind = kinds.length === 1 ? kinds[0]! : 'submission';
 
-  function nearest(event: MouseEvent<SVGSVGElement>): Entry | null {
+  function nearest(event: MouseEvent<SVGSVGElement>): Scored | null {
     const box = event.currentTarget.getBoundingClientRect();
     const px = event.clientX - box.left;
     const py = event.clientY - box.top;
-    let best: Entry | null = null;
+    let best: Scored | null = null;
     let bestDistance = HIT;
     for (const entry of entries) {
-      const distance = Math.hypot(x(entry.qubits) - px, y(entry.toffoli) - py);
+      const distance = Math.hypot(x(entry.qubits) - px, y(entry.cost) - py);
       if (distance < bestDistance) {
         best = entry;
         bestDistance = distance;
@@ -176,7 +179,7 @@ export function ParetoChart({ entries, selectedId, onSelect, minQubits }: Props)
         </span>
         <span>
           <svg width="22" height="12"><line x1="1" y1="6" x2="21" y2="6" stroke="var(--axis)" strokeWidth="1" /></svg>
-          Equal score (qubits × Toffolis)
+          Equal score ({track.scoreFormula})
         </span>
         {kinds.length > 1 &&
           kinds.map((kind) => (
@@ -192,7 +195,7 @@ export function ParetoChart({ entries, selectedId, onSelect, minQubits }: Props)
           height={height}
           viewBox={`0 0 ${width} ${height}`}
           role="group"
-          aria-label={'Qubits against Toffolis for every verified circuit. '
+          aria-label={`Qubits against ${track.costNoun} for every verified circuit. `
             + (minQubits === undefined ? '' : `No circuit can have fewer than ${count(minQubits)} qubits. `)
             + 'The leaderboard below lists the same data.'}
           onPointerMove={(event) => setHoverId(nearest(event)?.id ?? null)}
@@ -266,13 +269,13 @@ export function ParetoChart({ entries, selectedId, onSelect, minQubits }: Props)
           </text>
           <text className="axis-title" textAnchor="middle"
             transform={`translate(14 ${(plot.top + plot.bottom) / 2}) rotate(-90)`}>
-            Toffolis per shot
+            {track.axisTitle}
           </text>
 
           {drawOrder.map((entry) => {
             const onFront = model.frontIds.has(entry.id);
             const cx = x(entry.qubits);
-            const cy = y(entry.toffoli);
+            const cy = y(entry.cost);
             const flip = cx > plot.right - 150;
             return (
               <g
@@ -280,7 +283,7 @@ export function ParetoChart({ entries, selectedId, onSelect, minQubits }: Props)
                 className={`mark ${onFront ? 'front' : 'dominated'} ${entry.id === activeId ? 'active' : ''}`}
                 tabIndex={0}
                 role="button"
-                aria-label={`${entry.name}: ${count(entry.qubits)} qubits, ${count(entry.toffoli)} Toffolis, ${
+                aria-label={`${entry.name}: ${count(entry.qubits)} qubits, ${count(entry.cost)} ${track.costNoun}, ${
                   onFront ? 'on the Pareto front' : 'dominated'
                 }`}
                 onFocus={() => setHoverId(entry.id)}
@@ -303,10 +306,11 @@ export function ParetoChart({ entries, selectedId, onSelect, minQubits }: Props)
         {active !== null && hoverId !== null && (
           <Tooltip
             entry={active}
+            track={track}
             onFront={model.frontIds.has(active.id)}
             dominatedBy={entries.filter((other) => dominates(other, active)).length}
             left={x(active.qubits)}
-            top={y(active.toffoli)}
+            top={y(active.cost)}
             width={width}
           />
         )}
@@ -315,8 +319,9 @@ export function ParetoChart({ entries, selectedId, onSelect, minQubits }: Props)
   );
 }
 
-function Tooltip({ entry, onFront, dominatedBy, left, top, width }: {
-  entry: Entry;
+function Tooltip({ entry, track, onFront, dominatedBy, left, top, width }: {
+  entry: Scored;
+  track: Track;
   onFront: boolean;
   dominatedBy: number;
   left: number;
@@ -335,8 +340,8 @@ function Tooltip({ entry, onFront, dominatedBy, left, top, width }: {
       <dl>
         <dt>Qubits</dt>
         <dd>{count(entry.qubits)}</dd>
-        <dt>Toffolis</dt>
-        <dd>{count(entry.toffoli)}</dd>
+        <dt>{track.costLabel}</dt>
+        <dd>{count(entry.cost)}</dd>
         <dt>Score</dt>
         <dd>{compact(entry.score)}</dd>
       </dl>

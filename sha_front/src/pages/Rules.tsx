@@ -61,6 +61,28 @@ export function Rules(): ReactElement {
         and more Toffolis than the leader is still on it.
       </p>
 
+      <h3>The reaction-depth track</h3>
+      <p>
+        A second ranking of the same circuits replaces Toffolis with <strong>reaction depth</strong>, and scores
+        qubits × reaction depth. Switch between the two on the leaderboard page.
+      </p>
+      <p>
+        A fault-tolerant computer applies Toffolis by consuming magic states, and each one leaves a random
+        correction to be worked out from measurement results. Some corrections can only be worked out once
+        earlier ones are known. Reaction depth is the longest chain of such steps, one after another. With
+        enough magic-state factories it sets the running time, whatever the Toffoli count.
+      </p>
+      <p>
+        The number is what Kickmix 1.0.0 computes
+        (<a href="https://github.com/quantumlib/Qualtran/blob/main/kickmix/src/kickmix/circuit/circuit_util.cc"><code>compute_reaction_depth</code></a>).
+        Clifford gates add nothing; each Toffoli-like gate and each <code>HMR</code> measurement adds one step;
+        a gate under a classical condition waits for that condition. Kickmix treats each Toffoli as
+        auto-corrected, so a chain of Toffolis that each fail to commute with the next can still have depth 2.
+        Unlike the Toffoli count, it is read from the circuit as written: a conditional gate counts whether or
+        not a shot runs it. The idea comes from Craig Gidney's talk <em>How to eat magic states</em> (APS March
+        Meeting 2026).
+      </p>
+
       <h2>Limits</h2>
       <p>
         A circuit file may be at most 512 MiB, with at most 20,000,000 operations, 65,536 qubits and 1,048,576
