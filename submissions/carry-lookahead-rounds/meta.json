@@ -1,0 +1,11 @@
+{
+  "name": "Carry-lookahead rounds",
+  "authors": [
+    "tomirendo"
+  ],
+  "kind": "submission",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/carry-lookahead-rounds",
+  "description": "Built for the reaction-depth track, where Toffolis are free. Every addition is a log-depth carry-lookahead adder (Sklansky prefix, carries erased with Draper's identity), and each round computes e' and a' into fresh registers as one carry-save sum, storing only carry rows: XOR-linear and degree-2 terms (Sigma, Ch, Maj) are built on the fly in reused helper qubits. The dropped registers d and h are measured in the X basis and their phase is fixed on a recomputation, so no state register is ever added into in place and phase-correction chains do not grow from round to round. 1,006 qubits at reaction depth 629, against 829 at 3,892 for the previous best.",
+  "source": "build.py"
+}
