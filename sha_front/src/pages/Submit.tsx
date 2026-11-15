@@ -54,8 +54,8 @@ uv run sha-verify run path/to/circuit.kmb`}</code></pre>
       <p>
         The pull request must add that one directory and nothing else. Within a few minutes a bot verifies the
         circuit at full strength, with a salt drawn after your file is fixed, so the random tests are ones you
-        could not have seen. It comments the result on the pull request: qubits, Toffolis, score, and whether
-        the circuit is on the Pareto front. If the circuit fails, the comment names the check and the input
+        could not have seen. It comments the result on the pull request: qubits, Toffolis, reaction depth, the
+        score on each track, and whether the circuit is on each Pareto front. If the circuit fails, the comment names the check and the input
         that broke it.
       </p>
 

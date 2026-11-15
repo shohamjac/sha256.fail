@@ -4,8 +4,9 @@
 
 A public benchmark for quantum circuits that compute SHA-256. Submissions are circuit files;
 a verifier built on Google's [Kickmix](https://github.com/quantumlib/Qualtran/tree/main/kickmix)
-simulator checks each one on about a million random inputs and reports its qubit count and
-Toffoli count. Verified circuits are shown on a qubit–Toffoli Pareto front.
+simulator checks each one on about a million random inputs and reports its qubit count,
+Toffoli count and reaction depth. Circuits are ranked on two tracks, qubits × Toffolis and
+qubits × reaction depth, each with its own Pareto front.
 
 Status: early. The verifier works, the problem contract is frozen, and a baseline circuit
 passes at full strength: 831 qubits and 27,088 Toffolis. Pull requests that add a circuit are

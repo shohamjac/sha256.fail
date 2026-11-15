@@ -2,9 +2,10 @@ import { useEffect, useRef, useState, type MouseEvent, type ReactElement } from 
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { noteLink, repoFile, repoTree } from '../config';
-import { loadNote, type Entry, type Kind } from '../data';
+import { loadNote, type Kind } from '../data';
 import { compact, count, date } from '../format';
 import { dominates, ranked } from '../pareto';
+import type { Scored, Track } from '../tracks';
 
 const KIND_BADGE: Record<Kind, string> = {
   submission: 'Submission',
@@ -16,9 +17,11 @@ type Note = { state: 'loading' } | { state: 'none' } | { state: 'ready'; text: s
 
 interface Props {
   /** The circuit to show, or null when the dialog is closed. */
-  entry: Entry | null;
+  entry: Scored | null;
   /** Every listed circuit of the same problem, for rank and Pareto status. */
-  entries: Entry[];
+  entries: Scored[];
+  /** The track the page shows; the score and rank are on it. */
+  track: Track;
   onClose: () => void;
 }
 
@@ -28,7 +31,7 @@ interface Props {
  * Built on the native dialog element, which provides the backdrop, keeps keyboard focus
  * inside while open, and closes on Escape.
  */
-export function SubmissionDialog({ entry, entries, onClose }: Props): ReactElement {
+export function SubmissionDialog({ entry, entries, track, onClose }: Props): ReactElement {
   const dialog = useRef<HTMLDialogElement | null>(null);
   const [note, setNote] = useState<Note>({ state: 'loading' });
 
@@ -79,14 +82,15 @@ export function SubmissionDialog({ entry, entries, onClose }: Props): ReactEleme
   return (
     <dialog ref={dialog} className="submission" onClose={onClose} onClick={onBackdrop}
       aria-labelledby="submission-title">
-      {entry !== null && <Content entry={entry} entries={entries} note={note} onClose={onClose} />}
+      {entry !== null && <Content entry={entry} entries={entries} track={track} note={note} onClose={onClose} />}
     </dialog>
   );
 }
 
-function Content({ entry, entries, note, onClose }: {
-  entry: Entry;
-  entries: Entry[];
+function Content({ entry, entries, track, note, onClose }: {
+  entry: Scored;
+  entries: Scored[];
+  track: Track;
   note: Note;
   onClose: () => void;
 }): ReactElement {
@@ -114,9 +118,9 @@ function Content({ entry, entries, note, onClose }: {
       <div className="scroll">
         <div className="facts">
           <div className="fact">
-            <div className="label">Score</div>
+            <div className="label">Score, {track.label.toLowerCase()}</div>
             <div className="value">{count(entry.score)}</div>
-            <div className="sub">{count(entry.toffoli)} T × {count(entry.qubits)} Q</div>
+            <div className="sub">{count(entry.cost)} {track.symbol} × {count(entry.qubits)} Q</div>
           </div>
           <div className="fact">
             <div className="label">Rank</div>
@@ -186,7 +190,7 @@ function Content({ entry, entries, note, onClose }: {
             {entry.otherConfigurations.map((other, i) => (
               <span key={other.id}>
                 {i > 0 && '; '}
-                {other.name} ({count(other.qubits)} qubits, {count(other.toffoli)} Toffolis, score{' '}
+                {other.name} ({count(other.qubits)} qubits, {count(track.cost(other) ?? 0)} {track.costNoun}, score{' '}
                 {compact(other.score)},{' '}
                 {other.path !== null && <><a href={repoTree(other.path)} target="_blank" rel="noreferrer">files</a>, </>}
                 <a href={repoFile(other.receiptPath)} target="_blank" rel="noreferrer">receipt</a>)

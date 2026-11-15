@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { listed, problemsOf, toEntries, type Receipt } from './data';
 import { dominates, frontier } from './pareto';
+import { scoredOn, TRACKS } from './tracks';
 
 function receipt(overrides: Partial<Receipt> & { id?: string } = {}): Receipt {
   const { id = 'a'.repeat(64), ...rest } = overrides;
@@ -73,26 +74,34 @@ describe('the repository results', () => {
     }
   });
 
-  // These tests run against whatever is on the leaderboard today, and a new submission can
-  // change who is on the front. So they check properties of the result, never names.
-  it('has a frontier that is exactly the circuits nothing dominates', () => {
-    const front = frontier(entries);
-    expect(front.length).toBeGreaterThanOrEqual(1);
-    const ids = new Set(front.map((e) => e.id));
-    for (const entry of entries) {
-      const dominated = entries.some((other) => dominates(other, entry));
-      expect(ids.has(entry.id)).toBe(!dominated);
-    }
-    for (const a of front) {
-      for (const b of front) {
-        expect(dominates(a, b)).toBe(false);
-      }
-    }
+  it('records a reaction depth for every circuit', () => {
+    expect(scoredOn(entries, TRACKS.depth)).toHaveLength(entries.length);
   });
 
-  it('has the best-scoring circuit on the frontier', () => {
-    const best = entries.reduce((a, b) => (b.score < a.score ? b : a));
-    expect(frontier(entries).map((e) => e.id)).toContain(best.id);
+  // These tests run against whatever is on the leaderboard today, and a new submission can
+  // change who is on the front. So they check properties of the result, never names.
+  describe.each(Object.values(TRACKS))('on the $label track', (track) => {
+    const scored = scoredOn(entries, track);
+
+    it('has a frontier that is exactly the circuits nothing dominates', () => {
+      const front = frontier(scored);
+      expect(front.length).toBeGreaterThanOrEqual(1);
+      const ids = new Set(front.map((e) => e.id));
+      for (const entry of scored) {
+        const dominated = scored.some((other) => dominates(other, entry));
+        expect(ids.has(entry.id)).toBe(!dominated);
+      }
+      for (const a of front) {
+        for (const b of front) {
+          expect(dominates(a, b)).toBe(false);
+        }
+      }
+    });
+
+    it('has the best-scoring circuit on the frontier', () => {
+      const best = scored.reduce((a, b) => (b.score < a.score ? b : a));
+      expect(frontier(scored).map((e) => e.id)).toContain(best.id);
+    });
   });
 });
 
@@ -131,13 +140,29 @@ describe('listed', () => {
     listed([a, b]);
     expect(a.otherConfigurations).toEqual([]);
   });
+
+  it('picks the best configuration on the track it is given', () => {
+    const withDepth = (id: string, qubits: number, toffoli: number, depth: number) =>
+      toEntries([receipt({
+        id: id.repeat(64),
+        circuit: { sha256: id.repeat(64), file_sha256: id.repeat(64), operations: 1, toffoli_static: 1, reaction_depth: depth },
+        cost: { qubits, toffoli, score: qubits * toffoli, shots: 1048576 },
+        submission: { name: id, group: 'g' },
+      })])[0]!;
+    const few = withDepth('a', 10, 100, 50); // Toffoli score 1,000; depth score 500.
+    const shallow = withDepth('b', 10, 200, 10); // Toffoli score 2,000; depth score 100.
+    expect(listed(scoredOn([few, shallow], TRACKS.toffoli)).map((e) => e.name)).toEqual(['a']);
+    const onDepth = listed(scoredOn([few, shallow], TRACKS.depth));
+    expect(onDepth.map((e) => e.name)).toEqual(['b']);
+    expect(onDepth[0]!.otherConfigurations.map((e) => e.score)).toEqual([500]);
+  });
 });
 
 describe('literature reconstructions', () => {
   const body = JSON.parse(readFileSync(new URL('../../results/index.json', import.meta.url), 'utf8')) as {
     receipts: Receipt[];
   };
-  const all = toEntries(body.receipts);
+  const all = scoredOn(toEntries(body.receipts), TRACKS.toffoli);
   const shown = listed(all);
 
   it('are verified on the same terms as every other circuit', () => {

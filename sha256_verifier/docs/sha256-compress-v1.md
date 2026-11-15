@@ -75,6 +75,37 @@ Measurement-based uncomputation (`HMR`, `R`, classically conditioned gates) is a
   condition holds.
 - **Score**: Q × C. Lower is better.
 
+### Reaction-depth track
+
+A second ranking replaces C with the circuit's reaction depth. The circuits and their
+verification are the same; only the scoring differs.
+
+- **D**, reaction depth: what `Circuit.reaction_depth()` of Kickmix 1.0.0 returns for the
+  circuit. The receipt records it as `circuit.reaction_depth`.
+- **Score**: Q × D. Lower is better.
+
+Reaction depth is the longest chain of measurement results a fault-tolerant computer must
+wait for, one after another, to keep track of the Pauli corrections the circuit owes. On a
+machine with enough magic-state factories it sets the runtime. Kickmix tracks, for each
+qubit, how many reactions must pass before it is known whether that qubit owes an X, and
+whether it owes a Z, plus a depth for each classical bit:
+
+- Clifford gates (`X`, `Z`, `CX`, `CZ`, `SWAP`) add no reactions; they only carry
+  dependencies from one qubit to another.
+- `CCX`, `CCZ` and `CSWAP` each add one reaction to the corrections they create. Kickmix
+  models each as an auto-corrected Toffoli, so four Toffolis in a row, each failing to
+  commute with the next, have depth 2, not 4.
+- `HMR` adds one reaction: its bit is one deeper than the qubit's Z depth.
+- A gate under a classical condition is at least as deep as its condition bit.
+- `R` and `HMR` clear a qubit's depths, and a new measurement or `BIT_STORE0`/`BIT_STORE1`
+  replaces a bit's depth. D is the largest depth left at the end of the circuit, so depth
+  that nothing later depends on does not count.
+
+Unlike C, D is a property of the circuit text: a conditional instruction counts whether or not
+a given shot runs it. Kickmix's source:
+[`compute_reaction_depth`](https://github.com/quantumlib/Qualtran/blob/main/kickmix/src/kickmix/circuit/circuit_util.cc).
+The idea is from Craig Gidney's talk "How to eat magic states" (APS March Meeting 2026).
+
 ## Verification
 
 A circuit passes when every shot below ends with the right `digest`, `block` unchanged,

@@ -33,8 +33,8 @@ the file is in. Optional: `source` (the generator file, such as `build.py`), `re
 
 1. **It is checked automatically.** The pull request must add exactly one new directory here
    and touch nothing else. A bot verifies the circuit at full strength, with a random salt
-   drawn after your file is fixed, and comments the result: qubits, Toffolis, score, and
-   whether it is on the Pareto front. If the circuit fails, the comment names the check and
+   drawn after your file is fixed, and comments the result: qubits, Toffolis, reaction
+   depth, the score on each track, and whether it is on each Pareto front. If the circuit fails, the comment names the check and
    the input that broke it.
 2. **A maintainer merges it.**
 3. **The official receipt is recorded.** On merge the circuit is verified once more with a

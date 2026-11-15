@@ -1,21 +1,25 @@
 import type { ReactElement } from 'react';
-import type { Entry } from '../data';
 import { compact, count } from '../format';
 import { frontier } from '../pareto';
+import type { Scored, Track } from '../tracks';
 
-function least(entries: Entry[], key: 'score' | 'qubits' | 'toffoli'): Entry {
+function least(entries: Scored[], key: 'score' | 'qubits' | 'cost'): Scored {
   return entries.reduce((best, e) => (e[key] < best[key] ? e : best));
 }
 
-export function StatTiles({ entries }: { entries: Entry[] }): ReactElement {
+export function StatTiles({ entries, track }: { entries: Scored[]; track: Track }): ReactElement {
   const bestScore = least(entries, 'score');
   const fewestQubits = least(entries, 'qubits');
-  const fewestToffolis = least(entries, 'toffoli');
+  const leastCost = least(entries, 'cost');
   const onFront = frontier(entries).length;
   const tiles = [
     { label: 'Best score', value: compact(bestScore.score), detail: bestScore.name },
     { label: 'Fewest qubits', value: count(fewestQubits.qubits), detail: fewestQubits.name },
-    { label: 'Fewest Toffolis', value: count(fewestToffolis.toffoli), detail: fewestToffolis.name },
+    {
+      label: track.id === 'toffoli' ? 'Fewest Toffolis' : 'Lowest reaction depth',
+      value: count(leastCost.cost),
+      detail: leastCost.name,
+    },
     { label: 'Verified circuits', value: count(entries.length), detail: `${onFront} on the Pareto front` },
   ];
   return (

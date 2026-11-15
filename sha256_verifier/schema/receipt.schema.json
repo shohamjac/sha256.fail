@@ -26,7 +26,7 @@
         "operations": {"type": ["integer", "null"], "minimum": 0},
         "toffoli_static": {"type": ["integer", "null"], "minimum": 0, "description": "CCX, CCZ and CSWAP instructions present in the circuit."},
         "instruction_counts": {"type": ["object", "null"], "additionalProperties": {"type": "integer", "minimum": 1}},
-        "reaction_depth": {"type": ["integer", "null"], "minimum": 0}
+        "reaction_depth": {"type": ["integer", "null"], "minimum": 0, "description": "D: Kickmix's Circuit.reaction_depth(), scored as Q times D on the reaction-depth track."}
       }
     },
     "cost": {

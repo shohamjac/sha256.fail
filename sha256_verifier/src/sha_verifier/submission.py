@@ -242,9 +242,16 @@ def _verified(receipts: list[dict], problem: str) -> list[dict]:
     return list(by_circuit.values())
 
 
-def _dominates(a: dict, b: dict) -> bool:
-    return (a['qubits'] <= b['qubits'] and a['toffoli'] <= b['toffoli']
-            and (a['qubits'] < b['qubits'] or a['toffoli'] < b['toffoli']))
+# The two tracks a circuit is ranked on. Each pairs qubits with one other cost, and scores
+# their product: (title, what the cost is called in sentences, the cost read from a receipt).
+TRACKS = (
+    ('Toffoli count', 'Toffolis', lambda r: r['cost']['toffoli']),
+    ('Reaction depth', 'reaction depth', lambda r: r['circuit'].get('reaction_depth')),
+)
+
+
+def _dominates(a: tuple[float, float], b: tuple[float, float]) -> bool:
+    return a[0] <= b[0] and a[1] <= b[1] and a != b
 
 
 def _number(value: float) -> str:
@@ -270,34 +277,39 @@ def summarize(receipt: dict, index: list[dict]) -> str:
         lines += ['', 'Run `sha-verify run` on the circuit to reproduce this locally.']
         return '\n'.join(lines) + '\n'
 
-    cost = receipt['cost']
+    qubits = receipt['cost']['qubits']
     others = [r for r in _verified(index, receipt['problem']) if r['circuit']['sha256'] != receipt['circuit']['sha256']]
-    dominating = [r for r in others if _dominates(r['cost'], cost)]
-    beaten = [r for r in others if _dominates(cost, r['cost'])]
-    best = min(others, key=lambda r: r['cost']['score'], default=None)
+    tracks = [(title, noun, value, value(receipt)) for title, noun, value in TRACKS if value(receipt) is not None]
 
     lines += [
         '### Verification passed',
         '',
-        '| Qubits | Toffolis per shot | Score |',
-        '|---:|---:|---:|',
-        f"| {_number(cost['qubits'])} | {_number(cost['toffoli'])} | {_number(cost['score'])} |",
-        '',
+        '| Track | Qubits | Toffolis per shot, or reaction depth | Score |',
+        '|---|---:|---:|---:|',
+        *(f'| {title} | {_number(qubits)} | {_number(own)} | {_number(qubits * own)} |'
+          for title, _, _, own in tracks),
     ]
-    if dominating:
-        lines.append(f'**Dominated** by {len(dominating)} verified circuit{"s" if len(dominating) != 1 else ""}: '
-                     'at least one has no more qubits and no more Toffolis.')
-    else:
-        lines.append('**On the Pareto front**: no verified circuit has both no more qubits and no more Toffolis.')
-        if beaten:
-            lines.append(f'It dominates {len(beaten)} verified circuit{"s" if len(beaten) != 1 else ""}.')
-    if best is None:
-        lines.append('It is the first verified circuit for this problem.')
-    elif cost['score'] < best['cost']['score']:
-        gain = 100 * (1 - cost['score'] / best['cost']['score'])
-        lines.append(f"**New best score**, {gain:.1f}% below the current best of {_number(best['cost']['score'])}.")
-    else:
-        lines.append(f"The current best score is {_number(best['cost']['score'])}.")
+    for title, noun, value, own in tracks:
+        mine = (qubits, own)
+        theirs = [(r['cost']['qubits'], value(r)) for r in others if value(r) is not None]
+        dominating = [t for t in theirs if _dominates(t, mine)]
+        beaten = [t for t in theirs if _dominates(mine, t)]
+        best = min((q * v for q, v in theirs), default=None)
+        lines += ['', f'**{title}.**']
+        if dominating:
+            lines.append(f'**Dominated** by {len(dominating)} verified circuit{"s" if len(dominating) != 1 else ""}: '
+                         f'at least one has no more qubits and no more {noun}.')
+        else:
+            lines.append(f'**On the Pareto front**: no verified circuit has both no more qubits and no more {noun}.')
+            if beaten:
+                lines.append(f'It dominates {len(beaten)} verified circuit{"s" if len(beaten) != 1 else ""}.')
+        if best is None:
+            lines.append('It is the first verified circuit for this problem.')
+        elif qubits * own < best:
+            gain = 100 * (1 - qubits * own / best)
+            lines.append(f'**New best score**, {gain:.1f}% below the current best of {_number(best)}.')
+        else:
+            lines.append(f'The current best score is {_number(best)}.')
 
     checks = receipt['verification']
     lines += [
