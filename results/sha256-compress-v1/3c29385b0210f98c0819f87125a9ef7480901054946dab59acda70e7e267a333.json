@@ -1,0 +1,72 @@
+{
+  "receipt_version": 1,
+  "problem": "sha256-compress-v1",
+  "status": "PASS",
+  "failure": null,
+  "circuit": {
+    "file_sha256": "3c29385b0210f98c0819f87125a9ef7480901054946dab59acda70e7e267a333",
+    "sha256": "3c29385b0210f98c0819f87125a9ef7480901054946dab59acda70e7e267a333",
+    "qubits": 1006,
+    "bits": 33,
+    "operations": 3189400,
+    "toffoli_static": 1151702,
+    "instruction_counts": {
+      "CCX": 1151702,
+      "CX": 1266049,
+      "CZ": 262280,
+      "HMR": 266120,
+      "R": 124862,
+      "X": 114547,
+      "Z": 3840
+    },
+    "reaction_depth": 629
+  },
+  "cost": {
+    "qubits": 1006,
+    "toffoli": 1151702.0,
+    "score": 1158612212.0,
+    "toffoli_executed_total": 1207647076352,
+    "shots": 1048576
+  },
+  "verification": {
+    "sampling": "v1",
+    "salt": "2e6d8157228179b01b4bd326ac935e7817a483ad443407a15bde17d2a9e0dec7",
+    "seed": "02439e0bbe3cefd2949610f65ff2e8120ad2a6b881233ebd1fbb048520149474",
+    "directed_shots": 1179,
+    "random_shots": 1048576,
+    "full_strength": true,
+    "batch_size": 256,
+    "chunk_shots": 4096,
+    "limits": {
+      "max_file_bytes": 536870912,
+      "max_operations": 20000000,
+      "max_qubits": 65536,
+      "max_bits": 1048576
+    }
+  },
+  "verifier": {
+    "sha_verifier_version": "0.1.0",
+    "kickmix_version": "1.0.0"
+  },
+  "submission": {
+    "name": "Carry-lookahead rounds",
+    "authors": [
+      "tomirendo"
+    ],
+    "kind": "submission",
+    "problem": "sha256-compress-v1",
+    "path": "submissions/carry-lookahead-rounds",
+    "description": "Built for the reaction-depth track, where Toffolis are free. Every addition is a log-depth carry-lookahead adder (Sklansky prefix, carries erased with Draper's identity), and each round computes e' and a' into fresh registers as one carry-save sum, storing only carry rows: XOR-linear and degree-2 terms (Sigma, Ch, Maj) are built on the fly in reused helper qubits. The dropped registers d and h are measured in the X basis and their phase is fixed on a recomputation, so no state register is ever added into in place and phase-correction chains do not grow from round to round. 1,006 qubits at reaction depth 629, against 829 at 3,892 for the previous best.",
+    "source": "build.py"
+  },
+  "run": {
+    "started_at": "2026-11-15T09:30:32+00:00",
+    "elapsed_seconds": 97.388,
+    "workers": 4,
+    "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+    "python_version": "3.13.18",
+    "numpy_version": "2.5.4",
+    "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+    "machine": "x86_64"
+  }
+}
