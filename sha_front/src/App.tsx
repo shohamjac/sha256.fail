@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactElement } from 'react';
+import { ThemeToggle } from './components/ThemeToggle';
 import { REPO_URL } from './config';
 import { loadReceipts, toEntries, type Entry } from './data';
 import { Home } from './pages/Home';
@@ -54,7 +55,10 @@ export function App(): ReactElement {
             </a>
           ))}
         </nav>
-        <a className="repo" href={REPO_URL}>GitHub</a>
+        <div className="header-tools">
+          <ThemeToggle />
+          <a href={REPO_URL}>GitHub</a>
+        </div>
       </header>
 
       <main>
@@ -71,8 +75,11 @@ export function App(): ReactElement {
       </main>
 
       <footer className="site-footer">
-        Verified with Google's Kickmix simulator. Code and results are in the{' '}
-        <a href={REPO_URL}>repository</a>.
+        <p>
+          Verified with Google's Kickmix simulator. Code and results are in the{' '}
+          <a href={REPO_URL}>repository</a>.
+        </p>
+        <p className="author">by Shoham Jacoby</p>
       </footer>
     </div>
   );

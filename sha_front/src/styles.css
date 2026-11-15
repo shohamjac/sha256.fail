@@ -20,25 +20,24 @@
   --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --page: #0d0d0d;
-    --surface: #1a1a19;
-    --text-primary: #f0efec;
-    --text-secondary: #c3c2b7;
-    --text-muted: #898781;
-    --grid: #2c2c2a;
-    --axis: #383835;
-    --border: rgba(255, 255, 255, 0.1);
-    --wash: rgba(255, 255, 255, 0.05);
-    --series-1: #3987e5;
-    --series-1-wash: rgba(57, 135, 229, 0.14);
-    --deemphasis: #898781;
-    --link: #86b6ef;
-    --good: #0ca30c;
-    --shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
-  }
+/* index.html sets data-theme before the first paint, from the visitor's choice or the system's. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --text-primary: #f0efec;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.1);
+  --wash: rgba(255, 255, 255, 0.05);
+  --series-1: #3987e5;
+  --series-1-wash: rgba(57, 135, 229, 0.14);
+  --deemphasis: #898781;
+  --link: #86b6ef;
+  --good: #0ca30c;
+  --shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -163,8 +162,36 @@ p {
   color: var(--text-primary);
 }
 
-.site-header .repo {
+.header-tools {
+  align-items: center;
+  align-self: center;
+  display: flex;
+  gap: 14px;
   margin-left: auto;
+}
+
+.theme-toggle {
+  align-items: center;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  height: 30px;
+  justify-content: center;
+  padding: 0;
+  width: 30px;
+}
+
+.theme-toggle:hover {
+  background: var(--wash);
+  color: var(--text-primary);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--series-1);
+  outline-offset: 1px;
 }
 
 /* Page furniture. */
@@ -456,9 +483,16 @@ p {
   z-index: 2;
 }
 
-.tooltip .name {
-  color: var(--text-secondary);
+.tooltip .head {
   margin-bottom: 6px;
+}
+
+.tooltip .name {
+  font-weight: 600;
+}
+
+.tooltip .authors {
+  color: var(--text-secondary);
 }
 
 .tooltip dl {
@@ -876,8 +910,20 @@ dialog.submission .muted {
   border-top: 1px solid var(--border);
   color: var(--text-muted);
   font-size: 13px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  justify-content: space-between;
   margin-top: 56px;
   padding-top: 16px;
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+.site-footer .author {
+  white-space: nowrap;
 }
 
 @media (max-width: 560px) {
@@ -893,8 +939,9 @@ dialog.submission .muted {
     padding: 14px 12px;
   }
 
-  .site-header .repo {
-    margin-left: 0;
+  /* Pull the icon's hover box into the gutter so the icon lines up with the site name. */
+  .header-tools {
+    margin-left: -6px;
   }
 
   td.circuit {

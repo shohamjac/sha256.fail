@@ -336,7 +336,10 @@ function Tooltip({ entry, track, onFront, dominatedBy, left, top, width }: {
   };
   return (
     <div className="tooltip" style={style} role="status">
-      <div className="name">{entry.name}</div>
+      <div className="head">
+        <div className="name">{entry.name}</div>
+        {entry.authors.length > 0 && <div className="authors">by {entry.authors.join(', ')}</div>}
+      </div>
       <dl>
         <dt>Qubits</dt>
         <dd>{count(entry.qubits)}</dd>
