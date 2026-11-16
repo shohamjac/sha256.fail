@@ -1,0 +1,11 @@
+{
+  "name": "Balanced lookahead rounds",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "kind": "submission",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/balanced-lookahead-rounds",
+  "description": "Short on both counts at once: reaction depth 728 and 84,150 Toffolis, on 1,113 qubits. Every AND is computed once into a qubit of its own and measured away, which costs no Toffoli and only as many reactions as the tree of ANDs is deep; everything in between is an XOR of register qubits and those AND qubits. Each round forms e' and a' in fresh registers with one carry-save sum and one log-depth carry tree each, and the registers it drops are measured in the X basis with the phase fixed directly on the bits of a second sum. The schedule moves the same way, forwards and back. Carry trees are Sklansky networks where depth matters and Brent-Kung networks elsewhere.",
+  "source": "build.py"
+}
