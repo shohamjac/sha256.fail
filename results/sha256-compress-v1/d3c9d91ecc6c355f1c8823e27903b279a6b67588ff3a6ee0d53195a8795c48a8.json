@@ -1,0 +1,73 @@
+{
+  "receipt_version": 1,
+  "problem": "sha256-compress-v1",
+  "status": "PASS",
+  "failure": null,
+  "circuit": {
+    "file_sha256": "d3c9d91ecc6c355f1c8823e27903b279a6b67588ff3a6ee0d53195a8795c48a8",
+    "sha256": "d3c9d91ecc6c355f1c8823e27903b279a6b67588ff3a6ee0d53195a8795c48a8",
+    "qubits": 1113,
+    "bits": 33,
+    "operations": 2597204,
+    "toffoli_static": 84150,
+    "instruction_counts": {
+      "CCX": 84150,
+      "CX": 1990183,
+      "CZ": 84150,
+      "HMR": 91318,
+      "R": 176496,
+      "SWAP": 448,
+      "X": 137258,
+      "Z": 33201
+    },
+    "reaction_depth": 728
+  },
+  "cost": {
+    "qubits": 1113,
+    "toffoli": 84150.0,
+    "score": 93658950.0,
+    "toffoli_executed_total": 88237670400,
+    "shots": 1048576
+  },
+  "verification": {
+    "sampling": "v1",
+    "salt": "bc44e159e561f535f09be35b3ea2eb192286ed3252aa15ad04ecc31963bb38db",
+    "seed": "f570c1650ad280adda2bffcd153ce333af1f3e424e0d7c9418720bb61565137c",
+    "directed_shots": 1179,
+    "random_shots": 1048576,
+    "full_strength": true,
+    "batch_size": 256,
+    "chunk_shots": 4096,
+    "limits": {
+      "max_file_bytes": 536870912,
+      "max_operations": 20000000,
+      "max_qubits": 65536,
+      "max_bits": 1048576
+    }
+  },
+  "verifier": {
+    "sha_verifier_version": "0.1.0",
+    "kickmix_version": "1.0.0"
+  },
+  "submission": {
+    "name": "Balanced lookahead rounds",
+    "authors": [
+      "Shoham Jacoby"
+    ],
+    "kind": "submission",
+    "problem": "sha256-compress-v1",
+    "path": "submissions/balanced-lookahead-rounds",
+    "description": "Short on both counts at once: reaction depth 728 and 84,150 Toffolis, on 1,113 qubits. Every AND is computed once into a qubit of its own and measured away, which costs no Toffoli and only as many reactions as the tree of ANDs is deep; everything in between is an XOR of register qubits and those AND qubits. Each round forms e' and a' in fresh registers with one carry-save sum and one log-depth carry tree each, and the registers it drops are measured in the X basis with the phase fixed directly on the bits of a second sum. The schedule moves the same way, forwards and back. Carry trees are Sklansky networks where depth matters and Brent-Kung networks elsewhere.",
+    "source": "build.py"
+  },
+  "run": {
+    "started_at": "2026-11-16T11:34:34+00:00",
+    "elapsed_seconds": 72.106,
+    "workers": 4,
+    "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+    "python_version": "3.13.18",
+    "numpy_version": "2.5.4",
+    "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+    "machine": "x86_64"
+  }
+}
