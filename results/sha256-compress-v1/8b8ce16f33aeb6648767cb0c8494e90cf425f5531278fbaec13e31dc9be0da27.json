@@ -1,0 +1,72 @@
+{
+  "receipt_version": 1,
+  "problem": "sha256-compress-v1",
+  "status": "PASS",
+  "failure": null,
+  "circuit": {
+    "file_sha256": "8b8ce16f33aeb6648767cb0c8494e90cf425f5531278fbaec13e31dc9be0da27",
+    "sha256": "8b8ce16f33aeb6648767cb0c8494e90cf425f5531278fbaec13e31dc9be0da27",
+    "qubits": 786,
+    "bits": 1,
+    "operations": 3170843,
+    "toffoli_static": 1347160,
+    "instruction_counts": {
+      "CCX": 1347160,
+      "CX": 909325,
+      "CZ": 316736,
+      "HMR": 316736,
+      "R": 170846,
+      "X": 110040
+    },
+    "reaction_depth": 926
+  },
+  "cost": {
+    "qubits": 786,
+    "toffoli": 1347160.0,
+    "score": 1058867760.0,
+    "toffoli_executed_total": 1412599644160,
+    "shots": 1048576
+  },
+  "verification": {
+    "sampling": "v1",
+    "salt": "22839d7945b43a48bac60a78602a1ccdec362ac4df1cf4539c03691c72b209c0",
+    "seed": "26412167748c8467e09416c57eed58dd31ac8ad31289270e8ac906bd70cf7d63",
+    "directed_shots": 1179,
+    "random_shots": 1048576,
+    "full_strength": true,
+    "batch_size": 256,
+    "chunk_shots": 4096,
+    "limits": {
+      "max_file_bytes": 536870912,
+      "max_operations": 20000000,
+      "max_qubits": 65536,
+      "max_bits": 1048576
+    }
+  },
+  "verifier": {
+    "sha_verifier_version": "0.1.0",
+    "kickmix_version": "1.0.0"
+  },
+  "submission": {
+    "name": "In-place rounds, 786 qubits",
+    "authors": [
+      "Shoham Jacoby"
+    ],
+    "github_user_id": 51854221,
+    "kind": "submission",
+    "problem": "sha256-compress-v1",
+    "path": "submissions/in-place-rounds-786",
+    "description": "Rounds in place on the eight state registers, with T1 added straight into d as two rows that are never stored, and an adder that takes the word in parts of eight bits and keeps the carry into each part. 786 qubits at reaction depth 926. K sits in the register of W during the round. It sits on the reaction-depth front between Zero scratch and Lean lookahead rounds. Built on the generator of Lean lookahead rounds.",
+    "source": "build.py"
+  },
+  "run": {
+    "started_at": "2026-11-16T16:44:41+00:00",
+    "elapsed_seconds": 132.721,
+    "workers": 4,
+    "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+    "python_version": "3.13.18",
+    "numpy_version": "2.5.4",
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+    "machine": "x86_64"
+  }
+}
