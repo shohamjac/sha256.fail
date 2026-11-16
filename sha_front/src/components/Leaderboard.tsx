@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { repoFile, repoTree } from '../config';
+import { Avatar } from './Avatar';
 import type { Kind } from '../data';
 import { compact, count, date } from '../format';
 import { frontier, ranked } from '../pareto';
@@ -102,7 +103,8 @@ export function Leaderboard({ entries, track, selectedId, onOpen }: Props): Reac
                     {entry.name}
                   </button>
                   <div className="authors">
-                    {[entry.authors.join(', '), KIND_NOTE[entry.kind]].filter(Boolean).join(' · ')}
+                    {entry.githubUserId !== null && <Avatar githubUserId={entry.githubUserId} size={18} />}
+                    <span>{[entry.authors.join(', '), KIND_NOTE[entry.kind]].filter(Boolean).join(' · ')}</span>
                   </div>
                 </td>
                 <td className="num">{count(entry.qubits)}</td>

@@ -40,7 +40,8 @@ uv run sha-verify run path/to/circuit.kmb`}</code></pre>
             <tr>
               <td><code>meta.json</code></td>
               <td>
-                Name, authors, a short description, the problem id and the directory path. The fields are
+                Name, authors, a short description, the problem id and the directory path; optionally your
+                numeric GitHub user ID, to show your profile picture on the leaderboard. The fields are
                 listed in the <a href={repoFile('submissions/README.md')}>submissions guide</a>.
               </td>
             </tr>

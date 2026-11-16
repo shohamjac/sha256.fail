@@ -11,6 +11,15 @@ export function repoTree(path: string): string {
 }
 
 /**
+ * A GitHub account's profile picture, by its numeric user ID. The ID never changes, so the
+ * picture survives a change of username. `size` is in CSS pixels; twice that is fetched for
+ * sharp rendering on high-density screens.
+ */
+export function avatarUrl(githubUserId: number, size: number): string {
+  return `https://avatars.githubusercontent.com/u/${githubUserId}?s=${2 * size}&v=4`;
+}
+
+/**
  * Where a link written inside a submission's notes points. Notes are a README from the
  * submission's directory, so relative links are resolved against that directory in the
  * repository. Returns null for anything that is not a plain web link.

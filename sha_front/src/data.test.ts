@@ -49,7 +49,16 @@ describe('toEntries', () => {
 
   it('copes with missing metadata', () => {
     const [entry] = toEntries([receipt({ submission: null, id: 'b'.repeat(64) })]);
-    expect(entry).toMatchObject({ name: 'Circuit bbbbbbbb', authors: [], kind: 'submission', path: null });
+    expect(entry).toMatchObject({ name: 'Circuit bbbbbbbb', authors: [], kind: 'submission', path: null, githubUserId: null });
+  });
+
+  it('keeps a GitHub user ID only if it is a positive whole number', () => {
+    const withId = (value: unknown): number | null =>
+      toEntries([receipt({ submission: { name: 'x', github_user_id: value as number } })])[0]!.githubUserId;
+    expect(withId(3248423)).toBe(3248423);
+    for (const bad of [0, -1, 1.5, '3248423', '1/../../x', null, 2 ** 53]) {
+      expect(withId(bad)).toBeNull();
+    }
   });
 
   it('treats an unknown kind as a submission', () => {

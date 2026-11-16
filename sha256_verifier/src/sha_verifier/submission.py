@@ -36,6 +36,11 @@ _TEXT_FIELDS = {
     'reconstructed_by': (False, 80),
 }
 _LIST_FIELDS = {'authors': (True, 20, 80), 'links': (False, 10, 300)}
+# The submitter's numeric GitHub user ID, which the site turns into their profile picture.
+# Optional: leaving it out keeps the submitter anonymous. A pull request may only name the
+# account that opened it; see `check_github_user_id`.
+GITHUB_USER_ID = 'github_user_id'
+_MAX_ID = 2**53 - 1  # Exactly representable in JavaScript, which the site is written in.
 
 
 class Invalid(Exception):
@@ -124,7 +129,7 @@ def load_meta(directory: pathlib.Path, *, external: bool = False) -> dict:
     if not isinstance(meta, dict):
         raise Invalid(f'`{META_FILE}` must be a JSON object.')
 
-    unknown = sorted(set(meta) - set(_TEXT_FIELDS) - set(_LIST_FIELDS))
+    unknown = sorted(set(meta) - set(_TEXT_FIELDS) - set(_LIST_FIELDS) - {GITHUB_USER_ID})
     if unknown:
         raise Invalid(f'`{META_FILE}` has fields that are not recognised: {_listing(unknown)}.')
 
@@ -149,6 +154,13 @@ def load_meta(directory: pathlib.Path, *, external: bool = False) -> dict:
         for item in items:
             text(field, item, limit)
 
+    if GITHUB_USER_ID in meta:
+        value = meta[GITHUB_USER_ID]
+        # bool is a subclass of int in Python; `true` is not an ID.
+        if type(value) is not int or not 1 <= value <= _MAX_ID:
+            raise Invalid(f'`{GITHUB_USER_ID}` in `{META_FILE}` must be your numeric GitHub user ID, a whole '
+                          'number such as 1234567, not your username. Leave it out to stay anonymous.')
+
     if meta['problem'] not in problems.PROBLEMS:
         raise Invalid(f'`problem` must be one of: {_listing(sorted(problems.PROBLEMS))}.')
     if meta['kind'] not in KINDS:
@@ -169,6 +181,31 @@ def check(directory: pathlib.Path, *, external: bool = False) -> tuple[dict, pat
         raise Invalid('The directory name must be 1 to 64 lower-case letters, digits and hyphens, '
                       'starting and ending with a letter or digit.')
     return load_meta(directory, external=external), circuit_path(directory)
+
+
+def check_github_user_id(meta: dict, opener_id: int) -> None:
+    """A pull request may only put the ID of the account that opened it in `meta.json`.
+
+    Args:
+        meta: The validated `meta.json`.
+        opener_id: GitHub's numeric ID for the account that opened the pull request.
+
+    Raises:
+        Invalid: `meta.json` names some other account.
+    """
+    claimed = meta.get(GITHUB_USER_ID)
+    if claimed is not None and claimed != opener_id:
+        raise Invalid(f'`{GITHUB_USER_ID}` is {claimed}, but this pull request was opened by GitHub user ID '
+                      f'{opener_id}. It must be the ID of the account that opens the pull request, or be left '
+                      'out to stay anonymous.')
+
+
+def github_user_id_hint(meta: dict, opener_id: int) -> str:
+    """A note for the pull request comment when `meta.json` has no GitHub user ID."""
+    if GITHUB_USER_ID in meta:
+        return ''
+    return (f'\nThis submission is anonymous on the leaderboard. To show your GitHub profile picture next to it, '
+            f'add `"{GITHUB_USER_ID}": {int(opener_id)}` (your GitHub user ID) to `{META_FILE}`.\n')
 
 
 def receipt_path(results_root: pathlib.Path, receipt: dict) -> pathlib.Path:

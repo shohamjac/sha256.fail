@@ -3,6 +3,7 @@
   "authors": [
     "tomirendo"
   ],
+  "github_user_id": 3248423,
   "kind": "submission",
   "problem": "sha256-compress-v1",
   "path": "submissions/carry-lookahead-rounds",

@@ -199,6 +199,7 @@
         "authors": [
           "Shoham Jacoby"
         ],
+        "github_user_id": 51854221,
         "kind": "submission",
         "problem": "sha256-compress-v1",
         "path": "submissions/balanced-lookahead-brent-kung",
@@ -272,6 +273,7 @@
         "authors": [
           "Shoham Jacoby"
         ],
+        "github_user_id": 51854221,
         "kind": "submission",
         "problem": "sha256-compress-v1",
         "path": "submissions/balanced-lookahead-compact",
@@ -344,6 +346,7 @@
         "authors": [
           "tomirendo"
         ],
+        "github_user_id": 3248423,
         "kind": "submission",
         "problem": "sha256-compress-v1",
         "path": "submissions/carry-lookahead-rounds",
@@ -567,6 +570,7 @@
         "authors": [
           "Shoham Jacoby"
         ],
+        "github_user_id": 51854221,
         "kind": "submission",
         "problem": "sha256-compress-v1",
         "path": "submissions/balanced-lookahead-sklansky",
@@ -715,6 +719,7 @@
         "authors": [
           "Shoham Jacoby"
         ],
+        "github_user_id": 51854221,
         "kind": "submission",
         "problem": "sha256-compress-v1",
         "path": "submissions/lean-lookahead-rounds",
@@ -935,6 +940,7 @@
         "authors": [
           "Shoham Jacoby"
         ],
+        "github_user_id": 51854221,
         "kind": "submission",
         "problem": "sha256-compress-v1",
         "path": "submissions/balanced-lookahead-rounds",

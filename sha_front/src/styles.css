@@ -571,8 +571,19 @@ td.circuit {
 }
 
 td.circuit .authors {
+  align-items: center;
   color: var(--text-muted);
+  display: flex;
   font-size: 13px;
+  gap: 6px;
+}
+
+/* A submitter's GitHub picture, beside their name. */
+.avatar {
+  background: var(--wash);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--border);
+  flex: none;
 }
 
 tbody tr {
