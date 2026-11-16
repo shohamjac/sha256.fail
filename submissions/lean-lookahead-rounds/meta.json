@@ -1,0 +1,11 @@
+{
+  "name": "Lean lookahead rounds",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "kind": "submission",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/lean-lookahead-rounds",
+  "description": "Built for the reaction-depth track on the ideas of Carry-lookahead rounds, with most of its scratch and waiting removed. No carry-save row is stored: a bit of such a row is built in helper qubits for the gate that needs it, also when rows are nested. The registers a round drops are cleared by subtracting a recomputation in place, not measured, which needs no extra register and one reaction less. The adder's prefix network is aligned so that no carry is merged more than four times (AND-depth 5, and 5 reactions per step of the schedule rewind, not 6), and it works on the word in two parts with one carry kept between them, so it needs 26 scratch qubits, not 46. The last two schedule words are never formed. 826 qubits at reaction depth 581, against 1,006 at 629.",
+  "source": "build.py"
+}
