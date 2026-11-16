@@ -1,0 +1,72 @@
+{
+  "receipt_version": 1,
+  "problem": "sha256-compress-v1",
+  "status": "PASS",
+  "failure": null,
+  "circuit": {
+    "file_sha256": "96f9636040ad97c0fb1e34e6eacdbf11835052eb7e7cefa4d07d4440706154e8",
+    "sha256": "96f9636040ad97c0fb1e34e6eacdbf11835052eb7e7cefa4d07d4440706154e8",
+    "qubits": 826,
+    "bits": 1,
+    "operations": 4196867,
+    "toffoli_static": 1888398,
+    "instruction_counts": {
+      "CCX": 1888398,
+      "CX": 1408360,
+      "CZ": 274208,
+      "HMR": 274208,
+      "R": 166352,
+      "SWAP": 512,
+      "X": 184829
+    },
+    "reaction_depth": 581
+  },
+  "cost": {
+    "qubits": 826,
+    "toffoli": 1888398.0,
+    "score": 1559816748.0,
+    "toffoli_executed_total": 1980128821248,
+    "shots": 1048576
+  },
+  "verification": {
+    "sampling": "v1",
+    "salt": "e8dafeb2460eeda63d33662d713752dde8ad0195e857bb8c286ae1d6bb624dd7",
+    "seed": "98a98259b23f8331c6da090e59d85eab7e353f990862d34da37e6d8d280fac8d",
+    "directed_shots": 1179,
+    "random_shots": 1048576,
+    "full_strength": true,
+    "batch_size": 256,
+    "chunk_shots": 4096,
+    "limits": {
+      "max_file_bytes": 536870912,
+      "max_operations": 20000000,
+      "max_qubits": 65536,
+      "max_bits": 1048576
+    }
+  },
+  "verifier": {
+    "sha_verifier_version": "0.1.0",
+    "kickmix_version": "1.0.0"
+  },
+  "submission": {
+    "name": "Lean lookahead rounds",
+    "authors": [
+      "Shoham Jacoby"
+    ],
+    "kind": "submission",
+    "problem": "sha256-compress-v1",
+    "path": "submissions/lean-lookahead-rounds",
+    "description": "Built for the reaction-depth track on the ideas of Carry-lookahead rounds, with most of its scratch and waiting removed. No carry-save row is stored: a bit of such a row is built in helper qubits for the gate that needs it, also when rows are nested. The registers a round drops are cleared by subtracting a recomputation in place, not measured, which needs no extra register and one reaction less. The adder's prefix network is aligned so that no carry is merged more than four times (AND-depth 5, and 5 reactions per step of the schedule rewind, not 6), and it works on the word in two parts with one carry kept between them, so it needs 26 scratch qubits, not 46. The last two schedule words are never formed. 826 qubits at reaction depth 581, against 1,006 at 629.",
+    "source": "build.py"
+  },
+  "run": {
+    "started_at": "2026-11-16T11:02:28+00:00",
+    "elapsed_seconds": 154.395,
+    "workers": 4,
+    "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+    "python_version": "3.13.18",
+    "numpy_version": "2.5.4",
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+    "machine": "x86_64"
+  }
+}
