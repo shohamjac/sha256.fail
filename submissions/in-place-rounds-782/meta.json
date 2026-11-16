@@ -1,0 +1,12 @@
+{
+  "name": "In-place rounds, 782 qubits",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "github_user_id": 51854221,
+  "kind": "submission",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/in-place-rounds-782",
+  "description": "Rounds in place on the eight state registers, five additions a round, with an adder that takes the word in parts of four bits and keeps the carry into each part. 782 qubits at reaction depth 1,227. K + W + Sigma1 + Ch is reduced to two rows that are never stored and added into h as two additions. It sits on the reaction-depth front between Zero scratch and Lean lookahead rounds. Built on the generator of Lean lookahead rounds.",
+  "source": "build.py"
+}
