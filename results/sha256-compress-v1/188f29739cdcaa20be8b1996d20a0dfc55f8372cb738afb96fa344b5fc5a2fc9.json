@@ -1,0 +1,73 @@
+{
+  "receipt_version": 1,
+  "problem": "sha256-compress-v1",
+  "status": "PASS",
+  "failure": null,
+  "circuit": {
+    "file_sha256": "188f29739cdcaa20be8b1996d20a0dfc55f8372cb738afb96fa344b5fc5a2fc9",
+    "sha256": "188f29739cdcaa20be8b1996d20a0dfc55f8372cb738afb96fa344b5fc5a2fc9",
+    "qubits": 1060,
+    "bits": 33,
+    "operations": 2514706,
+    "toffoli_static": 77304,
+    "instruction_counts": {
+      "CCX": 77304,
+      "CX": 1935705,
+      "CZ": 77304,
+      "HMR": 84472,
+      "R": 169562,
+      "SWAP": 448,
+      "X": 136710,
+      "Z": 33201
+    },
+    "reaction_depth": 905
+  },
+  "cost": {
+    "qubits": 1060,
+    "toffoli": 77304.0,
+    "score": 81942240.0,
+    "toffoli_executed_total": 81059119104,
+    "shots": 1048576
+  },
+  "verification": {
+    "sampling": "v1",
+    "salt": "4bffdb8d794d58b67010ce2f367a94f34a5266ac158a53a5c9d3a9a22c0905f6",
+    "seed": "5e1e15ec7feff234d727c9ef67ba25c4158d6fbcf9872b4fe9557f32a2303ffc",
+    "directed_shots": 1179,
+    "random_shots": 1048576,
+    "full_strength": true,
+    "batch_size": 256,
+    "chunk_shots": 4096,
+    "limits": {
+      "max_file_bytes": 536870912,
+      "max_operations": 20000000,
+      "max_qubits": 65536,
+      "max_bits": 1048576
+    }
+  },
+  "verifier": {
+    "sha_verifier_version": "0.1.0",
+    "kickmix_version": "1.0.0"
+  },
+  "submission": {
+    "name": "Balanced lookahead rounds, Brent-Kung",
+    "authors": [
+      "Shoham Jacoby"
+    ],
+    "kind": "submission",
+    "problem": "sha256-compress-v1",
+    "path": "submissions/balanced-lookahead-brent-kung",
+    "description": "The circuit of Balanced lookahead rounds with Brent-Kung carry trees for the sums of a round as well, in place of Sklansky trees. A Brent-Kung tree has fewer nodes, so this variant needs fewer qubits and Toffolis, and it is deeper: 1,060 qubits, 77,304 Toffolis, reaction depth 905. Every AND is computed once into a qubit of its own and measured away, and registers are cleared by an X-basis measurement with the phase fixed on the bits of a second sum.",
+    "source": "build.py"
+  },
+  "run": {
+    "started_at": "2026-11-16T11:37:35+00:00",
+    "elapsed_seconds": 54.11,
+    "workers": 4,
+    "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+    "python_version": "3.13.18",
+    "numpy_version": "2.5.4",
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+    "machine": "x86_64"
+  }
+}
