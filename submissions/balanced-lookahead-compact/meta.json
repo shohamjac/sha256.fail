@@ -1,0 +1,11 @@
+{
+  "name": "Balanced lookahead rounds, compact",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "kind": "submission",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/balanced-lookahead-compact",
+  "description": "Balanced lookahead rounds with its scratch cut down, still below 1,000 in reaction depth and below 100,000 Toffolis: 916 qubits, 97,249 Toffolis, reaction depth 905. The carries of a sum that forms a register are built in place and become the register. A dropped register is measured before the sum that fixes its phase is computed, so its qubits are free during it. Sums that only fix a phase merge some carries in place with a Toffoli, trading Toffolis for qubits. The two rows shared by a round's sums are held as one register and one carry row, and the ANDs they were made from are measured away while the rows are in use. Carry trees are Brent-Kung networks, except for a Sklansky network in the clearing step of the rewind.",
+  "source": "build.py"
+}
