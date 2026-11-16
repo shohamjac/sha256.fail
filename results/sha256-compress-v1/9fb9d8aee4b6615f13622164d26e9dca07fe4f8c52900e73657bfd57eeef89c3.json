@@ -1,0 +1,72 @@
+{
+  "receipt_version": 1,
+  "problem": "sha256-compress-v1",
+  "status": "PASS",
+  "failure": null,
+  "circuit": {
+    "file_sha256": "9fb9d8aee4b6615f13622164d26e9dca07fe4f8c52900e73657bfd57eeef89c3",
+    "sha256": "9fb9d8aee4b6615f13622164d26e9dca07fe4f8c52900e73657bfd57eeef89c3",
+    "qubits": 782,
+    "bits": 1,
+    "operations": 1876285,
+    "toffoli_static": 728048,
+    "instruction_counts": {
+      "CCX": 728048,
+      "CX": 688926,
+      "CZ": 114576,
+      "HMR": 114576,
+      "R": 124648,
+      "X": 105511
+    },
+    "reaction_depth": 1227
+  },
+  "cost": {
+    "qubits": 782,
+    "toffoli": 728048.0,
+    "score": 569333536.0,
+    "toffoli_executed_total": 763413659648,
+    "shots": 1048576
+  },
+  "verification": {
+    "sampling": "v1",
+    "salt": "dd31a22d8a6925490cab7c5748c9e0a40be9318696aab9a64f8bf91b40860fa5",
+    "seed": "5b12b6c5376bb61aa30b9a01529f38e0c178252a715e40b46d96acd2ec1b7d0d",
+    "directed_shots": 1179,
+    "random_shots": 1048576,
+    "full_strength": true,
+    "batch_size": 256,
+    "chunk_shots": 4096,
+    "limits": {
+      "max_file_bytes": 536870912,
+      "max_operations": 20000000,
+      "max_qubits": 65536,
+      "max_bits": 1048576
+    }
+  },
+  "verifier": {
+    "sha_verifier_version": "0.1.0",
+    "kickmix_version": "1.0.0"
+  },
+  "submission": {
+    "name": "In-place rounds, 782 qubits",
+    "authors": [
+      "Shoham Jacoby"
+    ],
+    "github_user_id": 51854221,
+    "kind": "submission",
+    "problem": "sha256-compress-v1",
+    "path": "submissions/in-place-rounds-782",
+    "description": "Rounds in place on the eight state registers, five additions a round, with an adder that takes the word in parts of four bits and keeps the carry into each part. 782 qubits at reaction depth 1,227. K + W + Sigma1 + Ch is reduced to two rows that are never stored and added into h as two additions. It sits on the reaction-depth front between Zero scratch and Lean lookahead rounds. Built on the generator of Lean lookahead rounds.",
+    "source": "build.py"
+  },
+  "run": {
+    "started_at": "2026-11-16T16:53:18+00:00",
+    "elapsed_seconds": 63.784,
+    "workers": 4,
+    "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+    "python_version": "3.13.18",
+    "numpy_version": "2.5.4",
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+    "machine": "x86_64"
+  }
+}
