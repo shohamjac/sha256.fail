@@ -1,0 +1,11 @@
+{
+  "name": "Balanced lookahead rounds, Brent-Kung",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "kind": "submission",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/balanced-lookahead-brent-kung",
+  "description": "The circuit of Balanced lookahead rounds with Brent-Kung carry trees for the sums of a round as well, in place of Sklansky trees. A Brent-Kung tree has fewer nodes, so this variant needs fewer qubits and Toffolis, and it is deeper: 1,060 qubits, 77,304 Toffolis, reaction depth 905. Every AND is computed once into a qubit of its own and measured away, and registers are cleared by an X-basis measurement with the phase fixed on the bits of a second sum.",
+  "source": "build.py"
+}
