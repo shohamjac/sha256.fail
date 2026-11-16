@@ -1,0 +1,12 @@
+{
+  "name": "In-place rounds, 786 qubits",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "github_user_id": 51854221,
+  "kind": "submission",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/in-place-rounds-786",
+  "description": "Rounds in place on the eight state registers, with T1 added straight into d as two rows that are never stored, and an adder that takes the word in parts of eight bits and keeps the carry into each part. 786 qubits at reaction depth 926. K sits in the register of W during the round. It sits on the reaction-depth front between Zero scratch and Lean lookahead rounds. Built on the generator of Lean lookahead rounds.",
+  "source": "build.py"
+}
