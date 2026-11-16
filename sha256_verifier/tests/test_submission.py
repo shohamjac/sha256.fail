@@ -89,8 +89,10 @@ def test_good_meta(tmp_path):
 
 
 def test_optional_fields(tmp_path):
-    directory = make(tmp_path, source='build.py', reference='https://example.org/paper', links=['https://example.org'])
-    assert submission.load_meta(directory, external=True)['links'] == ['https://example.org']
+    directory = make(tmp_path, source='build.py', reference='https://example.org/paper', links=['https://example.org'],
+                     github_user_id=1234567)
+    meta = submission.load_meta(directory, external=True)
+    assert meta['links'] == ['https://example.org'] and meta['github_user_id'] == 1234567
 
 
 @pytest.mark.parametrize('overrides,fragment', [
@@ -111,6 +113,14 @@ def test_optional_fields(tmp_path):
     ({'surprise': 1}, 'not recognised'),
     ({'description': 'x' * 1501}, '`description`'),
     ({'links': ['x'] * 11}, '`links`'),
+    ({'github_user_id': 'someone'}, 'not your username'),
+    ({'github_user_id': '1234567'}, '`github_user_id`'),
+    ({'github_user_id': 0}, '`github_user_id`'),
+    ({'github_user_id': -5}, '`github_user_id`'),
+    ({'github_user_id': 1.5}, '`github_user_id`'),
+    ({'github_user_id': True}, '`github_user_id`'),
+    ({'github_user_id': None}, '`github_user_id`'),
+    ({'github_user_id': 2**53}, '`github_user_id`'),
 ])
 def test_bad_meta(tmp_path, overrides, fragment):
     directory = make(tmp_path)
@@ -322,6 +332,36 @@ def test_pr_verify_command_rejects_maintainer_only_metadata(tmp_path):
     receipt, comment = tmp_path / 'receipt.json', tmp_path / 'comment.md'
     assert cli.main(['pr-verify', str(directory), '--receipt', str(receipt), '--comment', str(comment)]) == 1
     assert not receipt.exists() and 'assigned by the maintainers' in comment.read_text()
+
+
+def pr_verify(directory, tmp_path, *extra):
+    receipt, comment = tmp_path / 'receipt.json', tmp_path / 'comment.md'
+    code = cli.main(['pr-verify', str(directory), '--receipt', str(receipt), '--comment', str(comment),
+                     '--workers', '1', *extra])
+    return code, receipt, comment.read_text()
+
+
+def test_pr_verify_accepts_the_openers_own_github_user_id(tmp_path):
+    code, receipt, comment = pr_verify(make(tmp_path, github_user_id=42), tmp_path, '--github-user-id', '42')
+    assert code == 0
+    assert json.loads(receipt.read_text())['submission']['github_user_id'] == 42
+    assert 'anonymous' not in comment
+
+
+def test_pr_verify_rejects_someone_elses_github_user_id(tmp_path):
+    code, receipt, comment = pr_verify(make(tmp_path, github_user_id=43), tmp_path, '--github-user-id', '42')
+    assert code == 1 and not receipt.exists()
+    assert 'opened by GitHub user ID 42' in comment
+
+
+def test_pr_verify_tells_an_anonymous_submitter_their_github_user_id(tmp_path):
+    code, _, comment = pr_verify(make(tmp_path), tmp_path, '--github-user-id', '42')
+    assert code == 0 and '`"github_user_id": 42`' in comment
+
+
+def test_pr_verify_without_an_opener_skips_the_github_check(tmp_path):
+    code, _, comment = pr_verify(make(tmp_path, github_user_id=43), tmp_path)
+    assert code == 0 and 'anonymous' not in comment
 
 
 def test_record_and_check_commands(tmp_path, capsys):

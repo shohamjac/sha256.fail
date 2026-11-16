@@ -18,6 +18,7 @@ The directory name is 1 to 64 lower-case letters, digits and hyphens.
 {
   "name": "Short name shown on the leaderboard",
   "authors": ["Your name or handle"],
+  "github_user_id": 1234567,
   "kind": "submission",
   "problem": "sha256-compress-v1",
   "path": "submissions/your-directory",
@@ -25,9 +26,15 @@ The directory name is 1 to 64 lower-case letters, digits and hyphens.
 }
 ```
 
-All six fields are required. `kind` must be `submission`, and `path` must be the directory
-the file is in. Optional: `source` (the generator file, such as `build.py`), `reference`
+All fields but `github_user_id` are required. `kind` must be `submission`, and `path` must
+be the directory the file is in. Also optional: `source` (the generator file, such as `build.py`), `reference`
 (a URL), and `links` (a list of URLs). Other fields are rejected.
+
+`github_user_id` puts your GitHub profile picture next to the submission on the leaderboard.
+It is the numeric ID of your GitHub account, not your username: find it with
+`gh api user --jq .id`, or at `https://api.github.com/users/<your-username>`. It must be the
+account that opens the pull request. Leave the field out to stay anonymous; the bot's comment
+then tells you your ID, in case you change your mind.
 
 ## What happens to a pull request
 

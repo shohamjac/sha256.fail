@@ -32,6 +32,8 @@ export interface Receipt {
   submission: {
     name?: string;
     authors?: string[];
+    /** The submitter's numeric GitHub user ID. Absent for anonymous submissions. */
+    github_user_id?: number;
     kind?: string;
     description?: string;
     path?: string;
@@ -51,6 +53,8 @@ export interface Entry {
   problem: string;
   name: string;
   authors: string[];
+  /** The submitter's numeric GitHub user ID, for their profile picture; null if anonymous. */
+  githubUserId: number | null;
   kind: Kind;
   description: string;
   /** Repository path of the submission directory, if known. */
@@ -113,6 +117,11 @@ export async function loadNote(entry: Entry): Promise<string | null> {
   return response.text();
 }
 
+/** A positive whole number, or null: it becomes part of an image URL. */
+function asGithubUserId(value: unknown): number | null {
+  return typeof value === 'number' && Number.isSafeInteger(value) && value > 0 ? value : null;
+}
+
 function asKind(value: string | undefined): Kind {
   return value === 'baseline' || value === 'literature' ? value : 'submission';
 }
@@ -133,6 +142,7 @@ export function toEntries(receipts: Receipt[]): Entry[] {
       problem: r.problem,
       name: r.submission?.name?.trim() || `Circuit ${r.circuit.sha256.slice(0, 8)}`,
       authors: r.submission?.authors ?? [],
+      githubUserId: asGithubUserId(r.submission?.github_user_id),
       kind: asKind(r.submission?.kind),
       description: r.submission?.description ?? '',
       path: r.submission?.path ?? null,

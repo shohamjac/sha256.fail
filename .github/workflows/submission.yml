@@ -90,10 +90,13 @@ jobs:
         working-directory: sha256_verifier
         env:
           NAME: ${{ steps.find.outputs.name }}
+          # The account that opened the pull request: the only one meta.json may name.
+          OPENER_ID: ${{ github.event.pull_request.user.id }}
         run: |
           set +e
           uv run sha-verify pr-verify "$RUNNER_TEMP/submission/$NAME" \
-            --receipt "$RUNNER_TEMP/out/receipt.json" --comment "$RUNNER_TEMP/out/comment.md" --index ../results/index.json
+            --receipt "$RUNNER_TEMP/out/receipt.json" --comment "$RUNNER_TEMP/out/comment.md" --index ../results/index.json \
+            --github-user-id "$OPENER_ID"
           echo "code=$?" >> "$GITHUB_OUTPUT"
 
       - name: Summarize

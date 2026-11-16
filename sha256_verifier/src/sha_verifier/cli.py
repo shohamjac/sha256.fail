@@ -99,6 +99,8 @@ def _cmd_pr_verify(args: argparse.Namespace) -> int:
     comment = pathlib.Path(args.comment)
     try:
         meta, circuit = submission.check(pathlib.Path(args.directory), external=True)
+        if args.github_user_id is not None:
+            submission.check_github_user_id(meta, args.github_user_id)
     except submission.Invalid as ex:
         comment.write_text(submission.summarize_invalid(str(ex)))
         print(f'Invalid submission: {ex}', file=sys.stderr)
@@ -106,7 +108,8 @@ def _cmd_pr_verify(args: argparse.Namespace) -> int:
     receipt = verify.verify(circuit.read_bytes(), problems.get(meta['problem']), salt=secrets.token_hex(32),
                             random_shots=args.shots, workers=args.workers, submission=meta)
     pathlib.Path(args.receipt).write_text(json.dumps(receipt, indent=2) + '\n')
-    comment.write_text(submission.summarize(receipt, _read_index(args.index)))
+    hint = '' if args.github_user_id is None else submission.github_user_id_hint(meta, args.github_user_id)
+    comment.write_text(submission.summarize(receipt, _read_index(args.index)) + hint)
     print(f"{receipt['status']}: {circuit}", file=sys.stderr)
     return 0 if receipt['status'] == 'PASS' else 1
 
@@ -232,6 +235,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument('--index', help=f'An {INDEX_NAME} to compare against.')
     p.add_argument('--shots', type=int, default=None, help='Random tests (default: full strength).')
     p.add_argument('--workers', type=int, default=None)
+    p.add_argument('--github-user-id', type=int, default=None,
+                   help='Numeric GitHub ID of the account that opened the pull request. meta.json may name only '
+                        'this account.')
     p.set_defaults(func=_cmd_pr_verify)
 
     p = commands.add_parser('collect', help=f'Gather every receipt under a directory into {INDEX_NAME}.')
