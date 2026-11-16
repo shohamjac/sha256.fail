@@ -1,0 +1,11 @@
+{
+  "name": "Balanced lookahead rounds, Sklansky",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "kind": "submission",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/balanced-lookahead-sklansky",
+  "description": "The circuit of Balanced lookahead rounds with Sklansky carry trees for every sum of the rounds, the schedule and its rewind, in place of Brent-Kung trees where depth mattered less. It is a little shallower and uses more Toffolis: 1,113 qubits, 98,202 Toffolis, reaction depth 717. Every AND is computed once into a qubit of its own and measured away, and registers are cleared by an X-basis measurement with the phase fixed on the bits of a second sum.",
+  "source": "build.py"
+}
