@@ -1,0 +1,12 @@
+{
+  "name": "In-place rounds, 775 qubits",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "github_user_id": 51854221,
+  "kind": "submission",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/in-place-rounds-775",
+  "description": "Rounds in place on the eight state registers, seven additions a round, with a ripple adder whose carries are pebbled: the carry into a bit is made from an earlier carry whenever it is needed and unmade the same way, so an addition holds at most five carries at once. 775 qubits, seven more than the block and digest, at reaction depth 2,074. It sits on the reaction-depth front between Zero scratch and the other in-place entries. Built on the generator of Lean lookahead rounds.",
+  "source": "build.py"
+}
