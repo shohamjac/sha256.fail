@@ -1,0 +1,73 @@
+{
+  "receipt_version": 1,
+  "problem": "sha256-compress-v1",
+  "status": "PASS",
+  "failure": null,
+  "circuit": {
+    "file_sha256": "07fce58360e8aab3f35d183968d3bfbe7aefee0be56289122458657abd9dc3ce",
+    "sha256": "07fce58360e8aab3f35d183968d3bfbe7aefee0be56289122458657abd9dc3ce",
+    "qubits": 818,
+    "bits": 1,
+    "operations": 4857857,
+    "toffoli_static": 2208566,
+    "instruction_counts": {
+      "CCX": 2208566,
+      "CX": 1662888,
+      "CZ": 257152,
+      "HMR": 257152,
+      "R": 226116,
+      "SWAP": 512,
+      "X": 245471
+    },
+    "reaction_depth": 667
+  },
+  "cost": {
+    "qubits": 818,
+    "toffoli": 2208566.0,
+    "score": 1806606988.0,
+    "toffoli_executed_total": 2315849302016,
+    "shots": 1048576
+  },
+  "verification": {
+    "sampling": "v1",
+    "salt": "86cf52b7dc6fee44dcf11f97a3c8088cf181a748ee08d4d2b3cf40526d9932e0",
+    "seed": "dda99694cc4000b8a65480888b1a2cb1d0446caf070657af3ebf38d05fea4089",
+    "directed_shots": 1179,
+    "random_shots": 1048576,
+    "full_strength": true,
+    "batch_size": 256,
+    "chunk_shots": 4096,
+    "limits": {
+      "max_file_bytes": 536870912,
+      "max_operations": 20000000,
+      "max_qubits": 65536,
+      "max_bits": 1048576
+    }
+  },
+  "verifier": {
+    "sha_verifier_version": "0.1.0",
+    "kickmix_version": "1.0.0"
+  },
+  "submission": {
+    "name": "Lean lookahead rounds, 818 qubits",
+    "authors": [
+      "Shoham Jacoby"
+    ],
+    "github_user_id": 51854221,
+    "kind": "submission",
+    "problem": "sha256-compress-v1",
+    "path": "submissions/lean-lookahead-818",
+    "description": "The rounds of Lean lookahead rounds, with new state words in fresh registers and dropped ones subtracted away, and an adder that takes the word in four parts of eight bits in place of two halves. That adder needs 18 scratch qubits, not 26, and is deeper: 818 qubits at reaction depth 667. It sits on the reaction-depth front just below Lean lookahead rounds.",
+    "source": "build.py"
+  },
+  "run": {
+    "started_at": "2026-11-16T16:39:24+00:00",
+    "elapsed_seconds": 133.352,
+    "workers": 4,
+    "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+    "python_version": "3.13.18",
+    "numpy_version": "2.5.4",
+    "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+    "machine": "x86_64"
+  }
+}
