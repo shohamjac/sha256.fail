@@ -222,6 +222,79 @@
       "status": "PASS",
       "failure": null,
       "circuit": {
+        "file_sha256": "2c6fc2ef63a29a7a9c3b5f7608fc55b0c7ab63cdcb8126040bc9c5be6e4b1fee",
+        "sha256": "2c6fc2ef63a29a7a9c3b5f7608fc55b0c7ab63cdcb8126040bc9c5be6e4b1fee",
+        "qubits": 916,
+        "bits": 33,
+        "operations": 1995523,
+        "toffoli_static": 97249,
+        "instruction_counts": {
+          "CCX": 97249,
+          "CX": 1438640,
+          "CZ": 57047,
+          "HMR": 64215,
+          "R": 152421,
+          "SWAP": 512,
+          "X": 163230,
+          "Z": 22209
+        },
+        "reaction_depth": 905
+      },
+      "cost": {
+        "qubits": 916,
+        "toffoli": 97249.0,
+        "score": 89080084.0,
+        "toffoli_executed_total": 101972967424,
+        "shots": 1048576
+      },
+      "verification": {
+        "sampling": "v1",
+        "salt": "27572333ee1040cf289f2d15f1ba7a6c4415ec1521c5690724ac5c40dfc786a0",
+        "seed": "7ef4458cd45c405d45cd518c04f5037e305ca855e17abce047c713f5f3a8f830",
+        "directed_shots": 1179,
+        "random_shots": 1048576,
+        "full_strength": true,
+        "batch_size": 256,
+        "chunk_shots": 4096,
+        "limits": {
+          "max_file_bytes": 536870912,
+          "max_operations": 20000000,
+          "max_qubits": 65536,
+          "max_bits": 1048576
+        }
+      },
+      "verifier": {
+        "sha_verifier_version": "0.1.0",
+        "kickmix_version": "1.0.0"
+      },
+      "submission": {
+        "name": "Balanced lookahead rounds, compact",
+        "authors": [
+          "Shoham Jacoby"
+        ],
+        "kind": "submission",
+        "problem": "sha256-compress-v1",
+        "path": "submissions/balanced-lookahead-compact",
+        "description": "Balanced lookahead rounds with its scratch cut down, still below 1,000 in reaction depth and below 100,000 Toffolis: 916 qubits, 97,249 Toffolis, reaction depth 905. The carries of a sum that forms a register are built in place and become the register. A dropped register is measured before the sum that fixes its phase is computed, so its qubits are free during it. Sums that only fix a phase merge some carries in place with a Toffoli, trading Toffolis for qubits. The two rows shared by a round's sums are held as one register and one carry row, and the ANDs they were made from are measured away while the rows are in use. Carry trees are Brent-Kung networks, except for a Sklansky network in the clearing step of the rewind.",
+        "source": "build.py"
+      },
+      "run": {
+        "started_at": "2026-11-16T11:42:36+00:00",
+        "elapsed_seconds": 56.221,
+        "workers": 4,
+        "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+        "python_version": "3.13.18",
+        "numpy_version": "2.5.4",
+        "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+        "machine": "x86_64"
+      }
+    },
+    {
+      "receipt_version": 1,
+      "problem": "sha256-compress-v1",
+      "status": "PASS",
+      "failure": null,
+      "circuit": {
         "file_sha256": "3c29385b0210f98c0819f87125a9ef7480901054946dab59acda70e7e267a333",
         "sha256": "3c29385b0210f98c0819f87125a9ef7480901054946dab59acda70e7e267a333",
         "qubits": 1006,
