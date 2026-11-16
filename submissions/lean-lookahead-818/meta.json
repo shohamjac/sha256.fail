@@ -1,0 +1,11 @@
+{
+  "name": "Lean lookahead rounds, 818 qubits",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "kind": "submission",
+  "problem": "sha256-compress-v1",
+  "path": "submissions/lean-lookahead-818",
+  "description": "The rounds of Lean lookahead rounds, with new state words in fresh registers and dropped ones subtracted away, and an adder that takes the word in four parts of eight bits in place of two halves. That adder needs 18 scratch qubits, not 26, and is deeper: 818 qubits at reaction depth 667. It sits on the reaction-depth front just below Lean lookahead rounds.",
+  "source": "build.py"
+}
