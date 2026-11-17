@@ -38,7 +38,7 @@ Kickmix simulator, with a qubit–Toffoli Pareto front and leaderboard in the st
 | D8 | Toffoli metric C | Mean executed CCX + CCZ + CSWAP per shot, as Google and ecdsa.fail do | Static count is also recorded. They differ only when a Toffoli sits under a classical condition. |
 | D9 | Qubit metric Q | `circuit.num_qubits` = highest qubit index + 1 | Checked: `X q5000` alone gives 5001, so sparse numbering cannot hide qubits. |
 | D10 | Score | Q × C shown as a ranking column; the Pareto front is the main view | Same as ecdsa.fail. |
-| D11 | Submission artifact | A circuit file (`.kmb` or `.kmx`), never code | The verifier must not execute submitter code. ecdsa.fail runs contestant Rust and needs a bubblewrap sandbox for it. |
+| D11 | Submission artifact | A circuit file (`.kmb` or `.kmx`, zstd-compressed when over 1 MiB), never code | The verifier must not execute submitter code. ecdsa.fail runs contestant Rust and needs a bubblewrap sandbox for it. |
 | D12 | Seed | SHA-256(domain ‖ circuit hash ‖ salt). Local runs: empty salt. Official runs: fresh random salt drawn by CI, published in the receipt | Unpredictable before, reproducible after. See §4.3. |
 | D13 | Frontend stack | Vite + React + TypeScript, static build, D3 for the chart | One `loadResults()` function is the only place that knows data comes from a JSON file, so the hosted version swaps it for an API call. |
 | D14 | Licence | Apache-2.0 | Matches Kickmix and Google's verifiers. |
@@ -199,7 +199,7 @@ records the Kickmix version and the SHA-256 of the loaded binary.
 ```
 submissions/
   example/
-    circuit.kmb       # the artifact that is verified
+    circuit.kmb.zst   # the artifact that is verified (zstd-compressed .kmb)
     meta.json         # name, authors, description, problem id, kind, path
   low-qubit-adder/          # baseline variant: fewer qubits, more Toffolis (on the front)
   compute-copy-uncompute/   # baseline variant: the textbook construction (dominated)

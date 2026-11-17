@@ -43,7 +43,7 @@ def verify(data: bytes, problem: ProblemSpec, *, salt: str = '', random_shots: i
     only for a mistake by the caller.
 
     Args:
-        data: The contents of a `.kmb` or `.kmx` file.
+        data: The contents of a `.kmb` or `.kmx` file, optionally zstd-compressed.
         salt: Mixed into the seed that selects the random tests. Use an unpredictable salt
             chosen after the circuit is fixed when the result must be trusted by others.
         random_shots: Number of random inputs. Defaults to the problem's full-strength
@@ -63,13 +63,15 @@ def verify(data: bytes, problem: ProblemSpec, *, salt: str = '', random_shots: i
     started = datetime.datetime.now(datetime.timezone.utc)
     clock = time.monotonic()
     loaded = None
+    circuit_file = data  # The bytes the file hash is taken of: decompressed, once that has worked.
     seed = None
     directed_count = None
     failure = None
     cost = None
 
     try:
-        loaded = circuits.load(data)
+        circuit_file = circuits.decompress(data)
+        loaded = circuits.load(circuit_file)
         layout = circuits.check_structure(loaded, problem)
         seed = sampling.derive_seed(problem, loaded.sha256, salt)
 
@@ -110,7 +112,7 @@ def verify(data: bytes, problem: ProblemSpec, *, salt: str = '', random_shots: i
         'status': 'PASS' if failure is None else 'FAIL',
         'failure': failure,
         'circuit': {
-            'file_sha256': hashlib.sha256(data).hexdigest(),
+            'file_sha256': hashlib.sha256(circuit_file).hexdigest(),
             'sha256': loaded.sha256 if loaded else None,
             'qubits': loaded.summary.num_qubits if loaded else None,
             'bits': loaded.summary.num_bits if loaded else None,

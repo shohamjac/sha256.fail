@@ -72,7 +72,7 @@ jobs:
           test "$(git rev-parse FETCH_HEAD)" = "$HEAD_SHA"
           dest="$RUNNER_TEMP/submission/$NAME"
           mkdir -p "$dest"
-          for file in circuit.kmb circuit.kmx meta.json; do
+          for file in circuit.kmb.zst circuit.kmx.zst circuit.kmb circuit.kmx meta.json; do
             blob="$HEAD_SHA:submissions/$NAME/$file"
             if git cat-file -e "$blob" 2>/dev/null; then
               if [ "$(git cat-file -s "$blob")" -gt 536870912 ]; then

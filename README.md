@@ -33,7 +33,7 @@ Needs [uv](https://docs.astral.sh/uv/).
 ```bash
 cd sha256_verifier
 uv sync --locked
-uv run sha-verify run ../submissions/example/circuit.kmb
+uv run sha-verify run ../submissions/example/circuit.kmb.zst
 ```
 
 The task a circuit must perform is specified in

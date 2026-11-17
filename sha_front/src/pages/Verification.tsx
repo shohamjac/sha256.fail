@@ -56,7 +56,7 @@ export function Verification(): ReactElement {
         Every entry links to its receipt, which records the salt. Anyone can repeat the exact run, with the same
         inputs and the same simulated measurement outcomes, and must get the same receipt:
       </p>
-      <pre><code>uv run sha-verify replay receipt.json circuit.kmb</code></pre>
+      <pre><code>uv run sha-verify replay receipt.json circuit.kmb.zst</code></pre>
       <p>
         The verifier, its tests and the receipt format are in the{' '}
         <a href={repoTree('sha256_verifier')}>repository</a>. The simulator is Google's Kickmix 1.0.0; the

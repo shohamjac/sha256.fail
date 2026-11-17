@@ -28,5 +28,9 @@ uv run --project ../../sha256_verifier python build.py
 ```
 
 ```bash
-uv run --project ../../sha256_verifier sha-verify run circuit.kmb
+uv run --project ../../sha256_verifier sha-verify pack circuit.kmb --rm
+```
+
+```bash
+uv run --project ../../sha256_verifier sha-verify run circuit.kmb.zst
 ```
