@@ -108,6 +108,9 @@ def decompress(data: bytes, limits: Limits = LIMITS) -> bytes:
         raise reject('unreadable', 'The zstd file is truncated.')
     if decompressor.unused_data:
         raise reject('unreadable', 'The zstd file has data after its end; it must be a single zstd frame.')
+    # Otherwise load() would decompress again and the receipt would hash the inner frame.
+    if out.startswith(ZSTD_MAGIC):
+        raise reject('unreadable', 'The file is zstd-compressed twice; compress it once.')
     return out
 
 

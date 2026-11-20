@@ -41,7 +41,8 @@ def test_uncompressed_data_passes_through():
     (circuits.pack(toy.kmb(toy.GOOD)) + b'extra', 'single zstd frame'),
     (circuits.pack(toy.kmb(toy.GOOD)) * 2, 'single zstd frame'),
     (circuits.ZSTD_MAGIC + b'x' * 40, 'not valid zstd'),
-], ids=['truncated', 'trailing bytes', 'two frames', 'garbage after the magic number'])
+    (circuits.pack(circuits.pack(toy.kmb(toy.GOOD))), 'compressed twice'),
+], ids=['truncated', 'trailing bytes', 'two frames', 'garbage after the magic number', 'compressed twice'])
 def test_malformed_compressed_files_are_rejected(data, fragment):
     with pytest.raises(circuits.Rejected, match=fragment) as caught:
         circuits.decompress(data)
