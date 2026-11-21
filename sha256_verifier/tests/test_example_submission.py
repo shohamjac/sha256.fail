@@ -20,9 +20,14 @@ EXAMPLE = ROOT / 'submissions' / 'example'
 PROBLEM = problems.SHA256_COMPRESS_V1
 
 
+def committed(name: str) -> bytes:
+    """A committed submission's circuit file, decompressed if it is stored compressed."""
+    return circuits.decompress(submission.circuit_path(ROOT / 'submissions' / name).read_bytes())
+
+
 @pytest.fixture(scope='module')
 def circuit_bytes() -> bytes:
-    return (EXAMPLE / 'circuit.kmb').read_bytes()
+    return committed('example')
 
 
 @pytest.fixture(scope='module')
@@ -80,13 +85,13 @@ def test_generator_reproduces_the_committed_circuit(name, builder, qubits, toffo
     spec.loader.exec_module(module)
     buffer = io.BytesIO()
     getattr(module, builder)().build().to_file(buffer, format='kmb')
-    assert buffer.getvalue() == (directory / 'circuit.kmb').read_bytes()
+    assert buffer.getvalue() == committed(name)
 
 
 @pytest.mark.parametrize('name,builder,qubits,toffolis', SUBMISSIONS)
 def test_committed_receipt_matches_the_submission(name, builder, qubits, toffolis):
     directory = ROOT / 'submissions' / name
-    sha256 = circuits.load((directory / 'circuit.kmb').read_bytes()).sha256
+    sha256 = circuits.load(committed(name)).sha256
     receipt = json.loads((ROOT / 'results' / PROBLEM.name / f'{sha256}.json').read_text())
     meta = json.loads((directory / 'meta.json').read_text())
     assert meta['path'] == f'submissions/{name}' and meta['problem'] == PROBLEM.name
@@ -116,7 +121,7 @@ def test_literature_reconstruction_matches_its_published_counts():
 
 
 def test_literature_reconstruction_uses_no_measurement():
-    loaded = circuits.load((ROOT / 'submissions' / 'literature-qsha256' / 'circuit.kmb').read_bytes())
+    loaded = circuits.load(committed('literature-qsha256'))
     assert set(loaded.summary.counts) == {'X', 'CX', 'CCX'}
 
 
@@ -133,7 +138,7 @@ def test_measured_literature_reconstruction_matches_its_published_counts():
 
 
 def test_measured_literature_reconstruction_removes_every_and_by_measurement():
-    loaded = circuits.load((ROOT / 'submissions' / 'literature-qsha256-measured' / 'circuit.kmb').read_bytes())
+    loaded = circuits.load(committed('literature-qsha256-measured'))
     counts = loaded.summary.counts
     assert set(counts) == {'X', 'CX', 'CCX', 'HMR', 'CZ'}
     # Each AND is computed once (CCX) and removed once (HMR, then a conditional CZ).
@@ -151,7 +156,7 @@ def test_grouped_submissions_share_a_reference():
 
 @pytest.mark.parametrize('name', [name for name, *_ in SUBMISSIONS if name != 'example'])
 def test_variants_pass(name):
-    data = (ROOT / 'submissions' / name / 'circuit.kmb').read_bytes()
+    data = committed(name)
     receipt = verify.verify(data, PROBLEM, random_shots=4096, salt='test')
     assert receipt['status'] == 'PASS', receipt['failure']
 

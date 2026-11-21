@@ -8,7 +8,7 @@ import pathlib
 import secrets
 import sys
 
-from sha_verifier import __version__, environment, problems, selftest, submission, verify
+from sha_verifier import __version__, circuits, environment, problems, selftest, submission, verify
 
 INDEX_NAME = 'index.json'
 
@@ -40,7 +40,10 @@ def _cmd_run(args: argparse.Namespace) -> int:
 def _cmd_replay(args: argparse.Namespace) -> int:
     recorded = json.loads(pathlib.Path(args.receipt).read_text())
     problem = problems.get(recorded['problem'])
-    data = pathlib.Path(args.circuit).read_bytes()
+    circuit = pathlib.Path(args.circuit)
+    if circuit.is_dir():
+        circuit = submission.circuit_path(circuit)
+    data = circuit.read_bytes()
     replayed = verify.verify(data, problem, salt=recorded['verification']['salt'],
                              random_shots=recorded['verification']['random_shots'],
                              workers=args.workers, submission=recorded['submission'])
@@ -57,6 +60,23 @@ def _cmd_replay(args: argparse.Namespace) -> int:
         return 1
     print(f"MATCH: {replayed['status']}, {replayed['verification']['random_shots']} random shots, "
           f"circuit {replayed['circuit']['file_sha256'][:16]}")
+    return 0
+
+
+def _cmd_pack(args: argparse.Namespace) -> int:
+    source = pathlib.Path(args.circuit)
+    data = source.read_bytes()
+    if data.startswith(circuits.ZSTD_MAGIC):
+        raise SystemExit(f'{source} is already zstd-compressed.')
+    packed = circuits.pack(data)
+    if circuits.decompress(packed) != data:
+        raise SystemExit(f'Compressing {source} did not round-trip; nothing was written.')
+    target = source.with_name(source.name + '.zst')
+    target.write_bytes(packed)
+    if args.rm:
+        source.unlink()
+    print(f'Wrote {target}: {len(data):,} bytes -> {len(packed):,} bytes'
+          + (f', removed {source.name}' if args.rm else '') + '.', file=sys.stderr)
     return 0
 
 
@@ -177,7 +197,7 @@ def main(argv: list[str] | None = None) -> int:
         'run', help='Verify a circuit file and print its receipt.',
         description='Verify a circuit file against a problem. Prints the receipt as JSON; '
                     'exits 0 if the circuit passed and 1 if it failed.')
-    p.add_argument('circuit', help='Path to a .kmb or .kmx circuit file.')
+    p.add_argument('circuit', help='Path to a .kmb or .kmx circuit file, optionally zstd-compressed (.zst).')
     p.add_argument('--problem', default=problems.SHA256_COMPRESS_V1.name,
                    choices=sorted(problems.PROBLEMS), help='Problem to verify against (default: %(default)s).')
     salt = p.add_mutually_exclusive_group()
@@ -198,9 +218,18 @@ def main(argv: list[str] | None = None) -> int:
         description='Verify a circuit again with the salt and shot count recorded in a receipt, and '
                     'check that the result is identical. Exits 0 on a match and 1 otherwise.')
     p.add_argument('receipt', help='Path to a receipt JSON file.')
-    p.add_argument('circuit', help='Path to the circuit file the receipt is for.')
+    p.add_argument('circuit', help='The circuit file the receipt is for, or the submission directory holding it.')
     p.add_argument('--workers', type=int, default=None, help='Worker processes (default: all cores).')
     p.set_defaults(func=_cmd_replay)
+
+    p = commands.add_parser(
+        'pack', help='Compress a circuit file with zstd for submission.',
+        description='Write CIRCUIT.zst next to CIRCUIT, compressed with zstd. Submissions commit circuit files '
+                    f'over {submission.MAX_UNCOMPRESSED_BYTES // 2**20} MiB in this form. Every command that reads a '
+                    'circuit accepts it.')
+    p.add_argument('circuit', help='Path to a .kmb or .kmx circuit file.')
+    p.add_argument('--rm', action='store_true', help='Remove the uncompressed file afterwards.')
+    p.set_defaults(func=_cmd_pack)
 
     p = commands.add_parser('check-submission', help='Check a submission directory\'s layout and meta.json.')
     p.add_argument('directory', help='A directory under submissions/.')

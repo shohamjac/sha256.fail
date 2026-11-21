@@ -6,6 +6,7 @@ readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.10"
 dependencies = [
+    "backports-zstd>=1.0 ; python_full_version < '3.14'",
     "kickmix==1.0.0",
     "numpy>=1.26",
 ]

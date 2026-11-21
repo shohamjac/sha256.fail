@@ -17,7 +17,7 @@ receipt is in `../../results/sha256-compress-v1/`.
 
 | File | What |
 |---|---|
-| `circuit.kmb` | The circuit that is verified |
+| `circuit.kmb.zst` | The circuit that is verified, zstd-compressed |
 | `meta.json` | Name, authors, kind, problem and description, carried into the receipt |
 | `build.py` | How the circuit was generated. Never run by the verifier. |
 
@@ -49,7 +49,7 @@ uv run --project ../../sha256_verifier python build.py
 ```
 
 ```bash
-uv run --project ../../sha256_verifier sha-verify run circuit.kmb
+uv run --project ../../sha256_verifier sha-verify run circuit.kmb.zst
 ```
 
 `build.py` checks the circuit against `hashlib.sha256` and does not import the verifier, so

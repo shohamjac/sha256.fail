@@ -11,6 +11,12 @@ uv sync --locked
 uv run sha-verify run circuit.kmb
 ```
 
+The circuit file is a Kickmix `.kmb` or `.kmx`, either as is or zstd-compressed
+(`circuit.kmb.zst`). `sha-verify pack circuit.kmb` compresses one; submissions over 1 MiB
+must be committed that way. A compressed file must be a single zstd frame, and it is
+decompressed only up to the same size limit as an uncompressed one. The receipt's
+`file_sha256` is the hash of the decompressed file, so it does not depend on compression.
+
 This checks the circuit against `sha256-compress-v1` (the contract is
 [docs/sha256-compress-v1.md](docs/sha256-compress-v1.md)), prints a receipt as JSON, and
 exits 0 if the circuit passed and 1 if it did not. A full run is 1,179 directed tests and

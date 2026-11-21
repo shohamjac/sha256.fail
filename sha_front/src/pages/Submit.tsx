@@ -23,11 +23,13 @@ export function Submit(): ReactElement {
       <pre><code>{`git clone ${REPO_URL}
 cd sha256.fail/sha256_verifier
 uv sync --locked
-uv run sha-verify run path/to/circuit.kmb`}</code></pre>
+uv run sha-verify run path/to/circuit.kmb
+uv run sha-verify pack path/to/circuit.kmb --rm`}</code></pre>
       <p>
         It prints a receipt and exits with status 0 if the circuit passed. On a failure the receipt names the
         check that failed and the input that broke it. While developing, <code>--shots 4096</code> gives a quick
-        answer.
+        answer. The last line compresses the circuit to <code>circuit.kmb.zst</code>, often 50 to 200 times smaller,
+        which is how it is submitted; every verifier command reads the compressed file directly.
       </p>
 
       <h2>3. Open a pull request</h2>
@@ -36,7 +38,7 @@ uv run sha-verify run path/to/circuit.kmb`}</code></pre>
         <table>
           <thead><tr><th>File</th><th>What</th></tr></thead>
           <tbody>
-            <tr><td><code>circuit.kmb</code></td><td>The circuit to verify</td></tr>
+            <tr><td><code>circuit.kmb.zst</code></td><td>The circuit to verify, zstd-compressed (required over 1 MiB)</td></tr>
             <tr>
               <td><code>meta.json</code></td>
               <td>

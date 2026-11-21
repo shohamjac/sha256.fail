@@ -13,7 +13,10 @@ import secrets
 
 from sha_verifier import circuits, problems, verify
 
-CIRCUIT_FILES = ('circuit.kmb', 'circuit.kmx')
+CIRCUIT_FILES = ('circuit.kmb.zst', 'circuit.kmx.zst', 'circuit.kmb', 'circuit.kmx')
+# An uncompressed circuit file may be at most this large; anything bigger is committed
+# zstd-compressed (`sha-verify pack`), which keeps the repository small.
+MAX_UNCOMPRESSED_BYTES = 1024 * 1024
 META_FILE = 'meta.json'
 MAX_META_BYTES = 16 * 1024
 KINDS = ('submission', 'baseline', 'literature')
@@ -105,7 +108,12 @@ def circuit_path(directory: pathlib.Path) -> pathlib.Path:
     found = [directory / f for f in CIRCUIT_FILES if (directory / f).is_file()]
     if len(found) != 1:
         raise Invalid(f'The directory must contain exactly one of {" or ".join(f"`{f}`" for f in CIRCUIT_FILES)}.')
-    return found[0]
+    path = found[0]
+    if path.suffix != '.zst' and path.stat().st_size > MAX_UNCOMPRESSED_BYTES:
+        raise Invalid(f'`{path.name}` is {path.stat().st_size / 2**20:.1f} MiB. A circuit file over '
+                      f'{MAX_UNCOMPRESSED_BYTES // 2**20} MiB must be compressed: run '
+                      f'`sha-verify pack {path.name} --rm` and submit `{path.name}.zst` instead.')
+    return path
 
 
 def load_meta(directory: pathlib.Path, *, external: bool = False) -> dict:

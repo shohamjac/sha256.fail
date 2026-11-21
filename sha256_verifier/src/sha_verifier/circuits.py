@@ -13,6 +13,11 @@ import io
 
 import kickmix as km
 
+try:
+    from compression import zstd  # Python 3.14 and later.
+except ImportError:
+    from backports import zstd
+
 from sha_verifier import kmx
 from sha_verifier.problems import TOFFOLI_LIKE, ProblemSpec
 
@@ -46,7 +51,7 @@ class Loaded:
         text: The circuit as Kickmix text.
         sha256: SHA-256 of the canonical `.kmb` serialization. Identifies the circuit
             whichever format it was submitted in.
-        file_sha256: SHA-256 of the submitted bytes.
+        file_sha256: SHA-256 of the circuit file, after decompression if it was compressed.
         summary: Instruction counts and registers, counted independently of Kickmix.
     """
     circuit: km.Circuit
@@ -73,14 +78,54 @@ def _serialize(circuit: km.Circuit, fmt: str) -> bytes:
     return buffer.getvalue()
 
 
-def load(data: bytes, limits: Limits = LIMITS) -> Loaded:
-    """Parses a `.kmb` or `.kmx` file and cross-checks Kickmix's reading of it."""
+ZSTD_MAGIC = b'\x28\xb5\x2f\xfd'
+PACK_LEVEL = 19
+
+
+def decompress(data: bytes, limits: Limits = LIMITS) -> bytes:
+    """The circuit file in `data`: decompressed if it is zstd, otherwise `data` unchanged.
+
+    A compressed file must be exactly one zstd frame. Its decompressed size is held to the
+    same limit as an uncompressed file, without ever producing more than that.
+    """
 
     def reject(code: str, message: str) -> Rejected:
         return Rejected('load', code, message)
 
-    if len(data) > limits.max_file_bytes:
-        raise reject('file_too_large', f'File is {len(data)} bytes; the limit is {limits.max_file_bytes}.')
+    limit = limits.max_file_bytes
+    if len(data) > limit:
+        raise reject('file_too_large', f'File is {len(data)} bytes; the limit is {limit}.')
+    if not data.startswith(ZSTD_MAGIC):
+        return data
+    decompressor = zstd.ZstdDecompressor()
+    try:
+        out = decompressor.decompress(data, max_length=limit + 1)
+    except zstd.ZstdError as ex:
+        raise reject('unreadable', f'The file is not valid zstd: {str(ex)[:300]}') from None
+    if len(out) > limit:
+        raise reject('file_too_large', f'The file decompresses to more than {limit} bytes, the limit.')
+    if not decompressor.eof:
+        raise reject('unreadable', 'The zstd file is truncated.')
+    if decompressor.unused_data:
+        raise reject('unreadable', 'The zstd file has data after its end; it must be a single zstd frame.')
+    # Otherwise load() would decompress again and the receipt would hash the inner frame.
+    if out.startswith(ZSTD_MAGIC):
+        raise reject('unreadable', 'The file is zstd-compressed twice; compress it once.')
+    return out
+
+
+def pack(data: bytes) -> bytes:
+    """Compresses a circuit file with zstd, as `decompress` reads it."""
+    return zstd.compress(data, level=PACK_LEVEL)
+
+
+def load(data: bytes, limits: Limits = LIMITS) -> Loaded:
+    """Parses a `.kmb` or `.kmx` file, optionally zstd-compressed, and cross-checks Kickmix's reading of it."""
+
+    def reject(code: str, message: str) -> Rejected:
+        return Rejected('load', code, message)
+
+    data = decompress(data, limits)
     try:
         first = km.Circuit.from_file(io.BytesIO(data), format='auto')
     except Exception as ex:

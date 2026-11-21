@@ -19,7 +19,7 @@
       "additionalProperties": false,
       "required": ["file_sha256", "sha256", "qubits", "bits", "operations", "toffoli_static", "instruction_counts", "reaction_depth"],
       "properties": {
-        "file_sha256": {"$ref": "#/$defs/sha256", "description": "SHA-256 of the submitted file."},
+        "file_sha256": {"$ref": "#/$defs/sha256", "description": "SHA-256 of the submitted file, after decompression if it was zstd-compressed."},
         "sha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/sha256"}], "description": "SHA-256 of the circuit's canonical .kmb form; identifies the circuit. Null if the file did not load."},
         "qubits": {"type": ["integer", "null"], "minimum": 0, "description": "Highest qubit index plus one."},
         "bits": {"type": ["integer", "null"], "minimum": 0},

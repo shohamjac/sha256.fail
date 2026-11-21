@@ -6,11 +6,22 @@ One directory per circuit. To submit, open a pull request that adds a new direct
 
 | File | Required | What |
 |---|---|---|
-| `circuit.kmb` or `circuit.kmx` | yes, exactly one | The Kickmix circuit to verify |
+| `circuit.kmb.zst` (or `circuit.kmx.zst`, `circuit.kmb`, `circuit.kmx`) | yes, exactly one | The Kickmix circuit to verify. A file over 1 MiB must be zstd-compressed (below). |
 | `meta.json` | yes | Who made it and what it is (below) |
 | `README.md`, `build.py`, anything else | no | How the circuit was made. Welcome, and never executed. |
 
 The directory name is 1 to 64 lower-case letters, digits and hyphens.
+
+Circuit files compress very well (a 32 MB `.kmb` becomes about 0.5 MB), so circuits are
+committed compressed to keep the repository small. The verifier does it for you, no other
+tool needed:
+
+```bash
+uv run sha-verify pack circuit.kmb --rm   # writes circuit.kmb.zst and removes circuit.kmb
+```
+
+The plain `zstd -19 circuit.kmb` command works too. Every verifier command reads the
+compressed file directly.
 
 ### `meta.json`
 
@@ -61,7 +72,7 @@ Nothing in a submission is ever executed. The verifier reads the circuit file an
 cd sha256_verifier
 uv sync --locked
 uv run sha-verify check-submission ../submissions/your-directory --external
-uv run sha-verify run ../submissions/your-directory/circuit.kmb
+uv run sha-verify run ../submissions/your-directory/circuit.kmb.zst
 ```
 
 ## What is here

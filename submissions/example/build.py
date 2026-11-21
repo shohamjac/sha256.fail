@@ -13,7 +13,8 @@ A plain, readable construction, meant as a starting point rather than a good sco
   through `Sha256Builder.add`, so a variant can swap the adder by overriding one method.
 - One 32-qubit temporary holds whichever of Sigma, Ch or Maj is being added.
 
-This file uses only Kickmix, numpy and the standard library. It deliberately does not
+This file uses only Kickmix, numpy, the standard library and zstd (standard library from
+Python 3.14, `backports.zstd` before that) to compress its output. It deliberately does not
 import the verifier: `check` compares the circuit against `hashlib` instead, so the
 circuit and the verifier's reference function are written and checked independently.
 
@@ -25,10 +26,16 @@ Usage, from this directory:
 from __future__ import annotations
 
 import hashlib
+import io
 import pathlib
 
 import kickmix as km
 import numpy as np
+
+try:
+    from compression import zstd  # Python 3.14 and later.
+except ImportError:
+    from backports import zstd
 
 WORD = 32
 
@@ -209,14 +216,17 @@ def check(circuit: km.Circuit, shots: int = 1024) -> None:
 
 
 def main(builder: type[Sha256Builder] = Sha256Builder, script: str = __file__) -> None:
-    """Builds with `builder`, checks against hashlib, and writes circuit.kmb next to `script`."""
+    """Builds with `builder`, checks against hashlib, and writes circuit.kmb.zst next to `script`."""
     circuit = builder().build()
     check(circuit)
-    path = pathlib.Path(script).with_name('circuit.kmb')
-    circuit.to_file(path, format='kmb')
+    buffer = io.BytesIO()
+    circuit.to_file(buffer, format='kmb')
+    path = pathlib.Path(script).with_name('circuit.kmb.zst')
+    path.write_bytes(zstd.compress(buffer.getvalue(), level=19))
     stats = circuit.operation_statistics()
     print(f'Wrote {path.name}: {circuit.num_qubits} qubits, {stats.num_toffoli_like} Toffolis, '
-          f'{len(circuit)} operations, {path.stat().st_size} bytes. Matches hashlib on 1024 messages.')
+          f'{len(circuit)} operations, {len(buffer.getvalue())} bytes ({path.stat().st_size} compressed). '
+          'Matches hashlib on 1024 messages.')
 
 
 if __name__ == '__main__':

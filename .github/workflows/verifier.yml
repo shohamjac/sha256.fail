@@ -29,8 +29,8 @@ jobs:
         run: |
           for receipt in ../results/*/*.json; do
             dir=$(jq -er .submission.path "$receipt")
-            uv run sha-verify replay "$receipt" "../$dir/circuit.kmb"
+            uv run sha-verify replay "$receipt" "../$dir"
           done
       # And the baseline must pass again on random tests nobody has seen.
       - name: Verify the baseline with a fresh salt
-        run: uv run sha-verify run ../submissions/example/circuit.kmb --random-salt > /dev/null
+        run: uv run sha-verify run ../submissions/example/circuit.kmb.zst --random-salt > /dev/null
