@@ -80,5 +80,6 @@ uv run sha-verify run ../submissions/your-directory/circuit.kmb.zst
 | Directory | What |
 |---|---|
 | `example/` | The baseline: a plain, readable construction and a starting point |
+| `bitcoin-mining-baseline/` | The baseline for the problem `bitcoin-mining-v1`, a Bitcoin mining oracle |
 | `low-qubit-adder/`, `compute-copy-uncompute/` | Variants of the baseline by the project |
 | `literature-*/` | Reconstructions of published circuits by the project |

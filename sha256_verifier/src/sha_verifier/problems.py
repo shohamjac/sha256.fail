@@ -4,7 +4,7 @@ A problem fixes what a circuit must do: its registers, the function it must comp
 instructions it may use, and a fixed set of directed test inputs. Problems are versioned
 by name; a change to any of these is a new problem with a new name, never an edit.
 
-Adding a hash function means adding one `ProblemSpec` here.
+Adding a problem means adding one `ProblemSpec` here.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from typing import Callable, Literal
 
 import numpy as np
 
-from sha_verifier import bits, sha2
+from sha_verifier import bitcoin, bits, sha2
 
 # Register bit arrays by register name; each is boolean with shape `(size, n_shots)`.
 RegisterBits = dict[str, np.ndarray]
@@ -39,12 +39,22 @@ class RegisterSpec:
     """A named register a circuit must declare.
 
     Roles:
-        input: Holds a test input. Must hold the same value when the circuit ends.
+        input: Holds a test input. A register of qubits must hold the same value when the
+            circuit ends; a register of classical bits may end in any state.
         output: Starts as all zeros. Must hold the reference value when the circuit ends.
+
+    Kinds:
+        qubit: The register is made of qubits.
+        bit: The register is made of classical bits. Only an input can be.
     """
     name: str
     size: int
     role: Literal['input', 'output']
+    kind: Literal['qubit', 'bit'] = 'qubit'
+
+    def __post_init__(self) -> None:
+        if self.kind == 'bit' and self.role != 'input':
+            raise ValueError(f'Register {self.name!r}: a register of classical bits must be an input.')
 
 
 @dataclasses.dataclass(frozen=True)
@@ -59,6 +69,12 @@ class ProblemSpec:
         directed_inputs: Returns the fixed directed test inputs, as input register bits.
         allowed_instructions: Kickmix instruction names a circuit may contain.
         random_shots: Random test inputs in a full-strength verification run.
+        phase: Maps input register bits to a boolean per shot: whether the shot must end
+            with its phase flipped. None means no shot may.
+        random_inputs: Builds the random test inputs from the shots' random bytes, shape
+            `(n_shots, random_bytes_per_shot)`, and the index of the first of these shots
+            in the run. None means every input register is uniformly random.
+        random_bytes_per_shot: How many random bytes `random_inputs` takes per shot.
     """
     name: str
     title: str
@@ -67,6 +83,9 @@ class ProblemSpec:
     directed_inputs: Callable[[], RegisterBits]
     allowed_instructions: frozenset[str] = INSTRUCTIONS_WITHOUT_ROTATIONS
     random_shots: int = 1 << 20
+    phase: Callable[[RegisterBits], np.ndarray] | None = None
+    random_inputs: Callable[[np.ndarray, int], RegisterBits] | None = None
+    random_bytes_per_shot: int = 0
 
     @property
     def inputs(self) -> tuple[RegisterSpec, ...]:
@@ -139,7 +158,21 @@ SHA256_COMPRESS_V1 = ProblemSpec(
     directed_inputs=_sha256_compress_directed_inputs,
 )
 
-PROBLEMS: dict[str, ProblemSpec] = {p.name: p for p in (SHA256_COMPRESS_V1,)}
+# bitcoin-mining-v1: a phase oracle for Bitcoin's proof of work on a coinbase-only block.
+# See docs/bitcoin-mining-v1.md; the function and its tests are in bitcoin.py.
+
+BITCOIN_MINING_V1 = ProblemSpec(
+    name='bitcoin-mining-v1',
+    title='Bitcoin mining oracle for a coinbase-only block',
+    registers=tuple(RegisterSpec(name, size, 'input', kind) for name, size, kind in bitcoin.REGISTERS),
+    reference=lambda inputs: {},
+    directed_inputs=bitcoin.directed_inputs,
+    phase=bitcoin.phase,
+    random_inputs=bitcoin.random_inputs,
+    random_bytes_per_shot=bitcoin.RANDOM_BYTES_PER_SHOT,
+)
+
+PROBLEMS: dict[str, ProblemSpec] = {p.name: p for p in (SHA256_COMPRESS_V1, BITCOIN_MINING_V1)}
 
 
 def get(name: str) -> ProblemSpec:

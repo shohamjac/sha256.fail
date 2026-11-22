@@ -67,7 +67,7 @@ class Loaded:
 
 @dataclasses.dataclass(frozen=True)
 class Layout:
-    """Where a problem's registers and the scratch qubits are in a circuit."""
+    """Where a problem's registers (of qubits or of classical bits) and the scratch qubits are in a circuit."""
     registers: dict[str, km.array]
     scratch: km.array
 
@@ -187,20 +187,23 @@ def check_structure(loaded: Loaded, problem: ProblemSpec) -> Layout:
         raise reject('wrong_registers',
                      f'Expected registers {expected} in that order, got {names}.')
 
-    used: set[int] = set()
+    used: dict[str, set[int]] = {'q': set(), 'b': set()}  # Qubit and bit indices already in a register.
     registers: dict[str, km.array] = {}
     for spec, register in zip(problem.registers, declared):
-        if any(kind != 'q' for kind, _ in register.elements):
-            raise reject('register_has_bits', f'Register {spec.name!r} must contain only qubits.')
+        letter, noun = ('q', 'qubit') if spec.kind == 'qubit' else ('b', 'bit')
+        if any(kind != letter for kind, _ in register.elements):
+            if spec.kind == 'qubit':
+                raise reject('register_has_bits', f'Register {spec.name!r} must contain only qubits.')
+            raise reject('register_has_qubits', f'Register {spec.name!r} must contain only classical bits.')
         if len(register.elements) != spec.size:
             raise reject('wrong_register_size',
-                         f'Register {spec.name!r} must have {spec.size} qubits, has {len(register.elements)}.')
+                         f'Register {spec.name!r} must have {spec.size} {noun}s, has {len(register.elements)}.')
         indices = [index for _, index in register.elements]
-        if len(set(indices)) != len(indices) or used & set(indices):
+        if len(set(indices)) != len(indices) or used[letter] & set(indices):
             raise reject('register_overlap',
-                         f'Register {spec.name!r} repeats a qubit or shares one with another register.')
-        used |= set(indices)
-        registers[spec.name] = km.array([km.q(i) for i in indices])
+                         f'Register {spec.name!r} repeats a {noun} or shares one with another register.')
+        used[letter] |= set(indices)
+        registers[spec.name] = km.array([(km.q if letter == 'q' else km.b)(i) for i in indices])
 
-    scratch = km.array([km.q(i) for i in range(loaded.summary.num_qubits) if i not in used])
+    scratch = km.array([km.q(i) for i in range(loaded.summary.num_qubits) if i not in used['q']])
     return Layout(registers=registers, scratch=scratch)

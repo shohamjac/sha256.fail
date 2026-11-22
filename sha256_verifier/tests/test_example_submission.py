@@ -61,17 +61,26 @@ SUBMISSIONS = [
 ]
 
 
+# The project's submissions for other problems, tested in their own files: directory name
+# to problem.
+OTHER_PROBLEMS = {'bitcoin-mining-baseline': 'bitcoin-mining-v1'}
+
+
 def test_every_submission_directory_is_well_formed():
     """Applies to every directory, whoever added it. Reads only meta.json and file names."""
     directories = sorted(p for p in (ROOT / 'submissions').iterdir() if p.is_dir())
     assert {name for name, *_ in SUBMISSIONS} <= {p.name for p in directories}
     for directory in directories:
         meta, circuit = submission.check(directory)
-        assert meta['problem'] == PROBLEM.name and circuit.is_file()
+        assert meta['problem'] in problems.PROBLEMS and circuit.is_file()
+        if directory.name in OTHER_PROBLEMS:
+            assert meta['problem'] == OTHER_PROBLEMS[directory.name]
+        else:
+            assert meta['problem'] == PROBLEM.name
 
 
 def test_only_the_project_has_maintainer_kinds():
-    ours = {name for name, *_ in SUBMISSIONS}
+    ours = {name for name, *_ in SUBMISSIONS} | set(OTHER_PROBLEMS)
     for directory in (ROOT / 'submissions').iterdir():
         if directory.is_dir() and directory.name not in ours:
             assert submission.load_meta(directory, external=True)['kind'] == 'submission'
@@ -104,7 +113,7 @@ def test_committed_receipt_matches_the_submission(name, builder, qubits, toffoli
 
 def test_index_lists_exactly_the_committed_receipts():
     index = json.loads((ROOT / 'results' / 'index.json').read_text())['receipts']
-    files = [json.loads(p.read_text()) for p in sorted((ROOT / 'results' / PROBLEM.name).glob('*.json'))]
+    files = [json.loads(p.read_text()) for p in sorted((ROOT / 'results').glob('*/*.json'))]
     assert sorted(index, key=lambda r: r['circuit']['sha256']) == sorted(files, key=lambda r: r['circuit']['sha256'])
     assert len(files) >= len(SUBMISSIONS)
 
