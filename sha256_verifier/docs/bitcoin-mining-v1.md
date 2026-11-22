@@ -15,6 +15,10 @@ tree. The search register is 80 qubits: 6 bytes of the coinbase and the 4-byte h
 The header's own free fields are too few for a search at today's difficulty, which is why
 the coinbase is inside the oracle.
 
+![In a usual block the transactions are hashed pairwise down to the merkle root. In a
+coinbase-only block the merkle root is the double SHA-256 of the
+coinbase.](img/bitcoin-mining-v1-merkle-root.svg)
+
 The oracle takes one input Bitcoin does not have, a classical `mask` that is XORed into the
 hash before the comparison. With a mask of zero the oracle is Bitcoin's check. The mask is
 what lets the tests reach hits and near misses at real difficulty on inputs nobody has seen.
@@ -37,6 +41,13 @@ masked = hash[0:20] ‖ (hash[20:32] XOR mask)                                H_
 `pad256` is the SHA-256 padding of a 32-byte message (`80`, 23 bytes of `00`, then
 `00 00 00 00 00 00 01 00`), and `pad640` that of an 80-byte message (`80`, 39 bytes of `00`,
 then `00 00 00 00 00 00 02 80`). Both are constants.
+
+The same five compressions as a picture. Each box on the left of a compression is part of
+its 64-byte block, in order from the top; the arrow from above is its starting state.
+
+![The five compressions: the coinbase's last block from the midstate, its second hash giving
+the merkle root, the header's two blocks, and the header's second hash giving the block
+hash, which is masked and compared to the target.](img/bitcoin-mining-v1-oracle.svg)
 
 Read `masked` as a 256-bit integer `v`, least significant byte first, as Bitcoin reads a
 block hash. The target comes from `bits` in Bitcoin's compact form, an exponent `e` and a
@@ -93,6 +104,12 @@ counted and may end in any state.
 
 The circuit reads classical registers through conditions (`X q5 if b3`,
 `PUSH_CONDITION if b3`). It may overwrite them and compute on them classically.
+
+Where the header's fields fall in the two SHA-256 blocks that hash it:
+
+![The 80-byte header over two 64-byte SHA-256 blocks: version, prev_hash and 28 bytes of the
+merkle root in the first; the root's last 4 bytes, time, bits, nonce and 48 bytes of padding
+in the second.](img/bitcoin-mining-v1-header.svg)
 
 ## Bit order
 
