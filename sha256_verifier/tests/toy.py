@@ -128,6 +128,43 @@ def kmb(text: str) -> bytes:
     return buffer.getvalue()
 
 
+# A small phase oracle with a classical input: flip the phase when
+# (x0 and t0) xor (x1 and x2 and t1), for qubits x and classical bits t.
+
+
+def _phase_oracle_flips(inputs: RegisterBits) -> np.ndarray:
+    x, t = inputs['x'], inputs['t']
+    return (x[0] & t[0]) ^ (x[1] & x[2] & t[1])
+
+
+def _phase_oracle_directed() -> RegisterBits:
+    shots = [(x, t) for t in range(4) for x in (0, 1, 6, 7)]
+    as_bits = lambda values, width: ((np.asarray(values)[None, :] >> np.arange(width)[:, None]) & 1).astype(bool)
+    return {'x': as_bits([x for x, _ in shots], 3), 't': as_bits([t for _, t in shots], 2)}
+
+
+PHASE_PROBLEM = ProblemSpec(
+    name='toy-phase-v0',
+    title='A phase oracle with a classical input',
+    registers=(RegisterSpec('x', 3, 'input'), RegisterSpec('t', 2, 'input', 'bit')),
+    reference=lambda inputs: {},
+    directed_inputs=_phase_oracle_directed,
+    random_shots=4096,
+    phase=_phase_oracle_flips,
+)
+
+PHASE_REGISTERS = """\
+APPEND_TO_REGISTER q0 r0
+APPEND_TO_REGISTER q1 r0
+APPEND_TO_REGISTER q2 r0
+REGISTER r0 "x"
+APPEND_TO_REGISTER b0 r1
+APPEND_TO_REGISTER b1 r1
+REGISTER r1 "t"
+"""
+PHASE_GOOD = PHASE_REGISTERS + 'Z q0 if b0\nCZ q1 q2 if b1\n'
+
+
 def sha256_do_nothing() -> str:
     """A circuit with the registers of sha256-compress-v1 and no operations."""
     lines = [f'APPEND_TO_REGISTER q{i} r0' for i in range(512)] + ['REGISTER r0 "block"']

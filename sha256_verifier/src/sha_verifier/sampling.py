@@ -39,11 +39,21 @@ def simulator_seed(seed: bytes, phase: str, chunk: int) -> int:
 
 
 def random_inputs(problem: ProblemSpec, seed: bytes, chunk: int, shots: int) -> RegisterBits:
-    """Uniformly random values for the input registers of `shots` shots of chunk `chunk`.
+    """Random values for the input registers of `shots` shots of chunk `chunk`.
 
-    Each shot takes `ceil(total_input_bits / 8)` bytes of the chunk's stream. Their bits,
-    least significant first, fill the input registers in the problem's register order.
+    For a problem with no `random_inputs` of its own they are uniformly random: each shot
+    takes `ceil(total_input_bits / 8)` bytes of the chunk's stream, and their bits, least
+    significant first, fill the input registers in the problem's register order.
+
+    Otherwise each shot takes `problem.random_bytes_per_shot` bytes of the stream, and the
+    problem builds its inputs from them and from the shot's index in the run.
     """
+    if problem.random_inputs is not None:
+        per_shot = problem.random_bytes_per_shot
+        stream = hashlib.shake_256(seed + b'inputs' + chunk.to_bytes(8, 'little')).digest(shots * per_shot)
+        rows = np.frombuffer(stream, dtype=np.uint8).reshape(shots, per_shot)
+        return problem.random_inputs(rows, chunk * CHUNK_SHOTS)
+
     total_bits = sum(r.size for r in problem.inputs)
     bytes_per_shot = -(-total_bits // 8)
     stream = hashlib.shake_256(seed + b'inputs' + chunk.to_bytes(8, 'little')).digest(shots * bytes_per_shot)
