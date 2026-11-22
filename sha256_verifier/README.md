@@ -116,5 +116,6 @@ uv run pytest
 The tests include a small 4-bit adder problem (`tests/toy.py`) with about thirty broken
 circuits that must each be rejected at a specific stage for a specific reason, and the
 baseline SHA-256 circuit from `../submissions/example`, which must pass and whose mutants
-must fail. For `bitcoin-mining-v1` they build a plain oracle circuit
-(`tests/bitcoin_oracle.py`), which must pass, and faulty variants of it, which must fail.
+must fail. For `bitcoin-mining-v1` they run the baseline oracle from
+`../submissions/bitcoin-mining-baseline`, which must pass, and faulty variants of its
+generator, which must fail.

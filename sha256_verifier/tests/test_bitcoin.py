@@ -1,23 +1,18 @@
-"""The problem `bitcoin-mining-v1`: its function, its tests, and a circuit run end to end.
+"""The problem `bitcoin-mining-v1`: its function and its tests.
 
 The reference function is checked here against `hashlib` and plain Python integers, which
-share no code with it.
+share no code with it. A circuit is run end to end in test_bitcoin_submission.py.
 """
 
 import hashlib
-import json
-import pathlib
 
-import jsonschema
 import numpy as np
 import pytest
 
-import bitcoin_oracle
-from sha_verifier import bitcoin, circuits, problems, sampling, simulate, verify
+from sha_verifier import bitcoin, problems, sampling
 from sha_verifier.bitcoin_blocks import BLOCKS, Block
 
 SPEC = problems.BITCOIN_MINING_V1
-SCHEMA = json.loads((pathlib.Path(__file__).parents[1] / 'schema' / 'receipt.schema.json').read_text())
 
 # Published in docs/bitcoin-mining-v1.md: height, bits as Bitcoin shows it, coinbase bytes,
 # leading zero bits of the hash, one-bit masks that keep the hit.
@@ -423,56 +418,3 @@ def test_the_mask_alone_does_not_give_the_answer_away():
     flips = SPEC.phase(inputs)
     for group in (inputs['mask'][:, flips], inputs['mask'][:, ~flips]):
         assert (np.abs(group.mean(axis=1) - 0.5) < 0.06).all()
-
-
-# A circuit, end to end.
-
-
-def run(data: bytes, **kwargs) -> dict:
-    kwargs.setdefault('workers', 2)
-    kwargs.setdefault('random_shots', 1024)
-    receipt = verify.verify(data, SPEC, salt='test', **kwargs)
-    jsonschema.validate(receipt, SCHEMA)
-    return receipt
-
-
-@pytest.fixture(scope='module')
-def oracle() -> bytes:
-    return bitcoin_oracle.build()
-
-
-def test_correct_oracle_passes(oracle):
-    receipt = run(oracle, random_shots=4096)
-    assert receipt['status'] == 'PASS', receipt['failure']
-    assert receipt['problem'] == 'bitcoin-mining-v1'
-    assert receipt['verification']['directed_shots'] == DIRECTED_COUNT
-    assert receipt['verification']['full_strength'] is False
-    cost, circuit = receipt['cost'], receipt['circuit']
-    assert cost['qubits'] == circuit['qubits'] >= 80
-    assert cost['toffoli'] == cost['toffoli_executed_total'] / 4096 <= circuit['toffoli_static']
-    assert cost['score'] == cost['qubits'] * cost['toffoli']
-
-
-def test_oracle_generator_does_not_use_the_verifier():
-    assert 'sha_verifier' not in pathlib.Path(bitcoin_oracle.__file__).read_text()
-
-
-@pytest.mark.parametrize('options,stage', [
-    ({'skip_phase': True}, 'directed'),     # Never flips: the first real block is missed.
-    ({'use_mask': False}, 'directed'),      # Ignores the mask: a real block's one-bit masks catch it.
-    ({'compared_bits': 95}, 'directed'),    # Ignores the top bit of the hash.
-    ({'or_equal': True}, 'random'),         # Bitcoin's own rule: differs only when the hash equals the target.
-], ids=['never flips', 'ignores mask', 'ignores top bit', 'accepts a tie'])
-def test_faulty_oracles_are_caught(options, stage):
-    receipt = run(bitcoin_oracle.build(**options))
-    assert receipt['status'] == 'FAIL'
-    assert (receipt['failure']['stage'], receipt['failure']['code']) == (stage, 'wrong_phase')
-    assert set(receipt['failure']['inputs']) == {name for name, _, _ in bitcoin.REGISTERS}
-
-
-def test_a_tie_passes_every_real_block():
-    """Real blocks cannot tell `<` from `<=`; only the random tests' ties can."""
-    loaded = circuits.load(bitcoin_oracle.build(or_equal=True))
-    layout = circuits.check_structure(loaded, SPEC)
-    count, failure = simulate.run_directed(loaded.circuit, layout, SPEC, b'\x01' * 32)
-    assert count == DIRECTED_COUNT and failure is None
