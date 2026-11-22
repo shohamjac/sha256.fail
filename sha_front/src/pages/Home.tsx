@@ -5,7 +5,7 @@ import { ParetoChart } from '../components/ParetoChart';
 import { Records } from '../components/Records';
 import { StatTiles } from '../components/StatTiles';
 import { SubmissionDialog } from '../components/SubmissionDialog';
-import { PROBLEM_MIN_QUBITS } from '../config';
+import { DEFAULT_HEADLINE, PROBLEM_HEADLINES, PROBLEM_MIN_QUBITS } from '../config';
 import { listed, problemsOf, type Entry } from '../data';
 import { chosenProblem } from '../problems';
 import { scoredOn, TRACKS, useTrack, type TrackId } from '../tracks';
@@ -34,7 +34,7 @@ export function Home({ entries, problem: named, onProblem }: Props): ReactElemen
   return (
     <>
       <div className="intro">
-        <h1>How cheaply can a quantum computer run SHA-256?</h1>
+        <h1>{PROBLEM_HEADLINES[problem] ?? DEFAULT_HEADLINE}</h1>
         <p>
           An open benchmark for quantum circuits built on SHA-256: the oracle a quantum computer would need to
           mine Bitcoin, and one compression of the hash function itself. Every circuit here was simulated on

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { PROBLEM_MIN_QUBITS, PROBLEM_TITLES } from './config';
+import { PROBLEM_HEADLINES, PROBLEM_MIN_QUBITS, PROBLEM_TITLES } from './config';
 import { listed, problemsOf, toEntries, type Entry, type Receipt } from './data';
 import { dominates, frontier } from './pareto';
 import { scoredOn, TRACKS } from './tracks';
@@ -146,8 +146,11 @@ describe('problemsOf', () => {
 });
 
 describe('the problems the site knows', () => {
-  it('have a title and a qubit minimum each', () => {
+  it('have a title, a headline and a qubit minimum each', () => {
     expect(Object.keys(PROBLEM_MIN_QUBITS).sort()).toEqual(Object.keys(PROBLEM_TITLES).sort());
+    expect(Object.keys(PROBLEM_HEADLINES).sort()).toEqual(Object.keys(PROBLEM_TITLES).sort());
+    expect(PROBLEM_HEADLINES['bitcoin-mining-v1']).toMatch(/mine Bitcoin\?$/);
+    expect(PROBLEM_HEADLINES['sha256-compress-v1']).toMatch(/run SHA-256\?$/);
     expect(PROBLEM_TITLES['bitcoin-mining-v1']).toBe('Bitcoin mining oracle');
     expect(PROBLEM_MIN_QUBITS['sha256-compress-v1']!.qubits).toBe(768);
     expect(PROBLEM_MIN_QUBITS['bitcoin-mining-v1']!.qubits).toBe(80);

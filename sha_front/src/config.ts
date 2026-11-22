@@ -46,6 +46,14 @@ export const PROBLEM_TITLES: Record<string, string> = {
   'sha256-compress-v1': 'SHA-256 compression',
 };
 
+/** The leaderboard page's headline while each problem is shown; `DEFAULT_HEADLINE` for any other. */
+export const PROBLEM_HEADLINES: Record<string, string> = {
+  'bitcoin-mining-v1': 'How cheaply can a quantum computer mine Bitcoin?',
+  'sha256-compress-v1': 'How cheaply can a quantum computer run SHA-256?',
+};
+
+export const DEFAULT_HEADLINE = 'How cheaply can a quantum computer run SHA-256?';
+
 /**
  * The fewest qubits a circuit for each problem can have: the qubits of the problem's own
  * registers, which every circuit must contain. The chart marks it; problems not listed here
