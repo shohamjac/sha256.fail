@@ -15,6 +15,7 @@ export function Home({ entries }: { entries: Entry[] }): ReactElement {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
   const track = TRACKS[trackId];
+  const minQubits = PROBLEM_MIN_QUBITS[problem];
   const shown = useMemo(
     () => listed(scoredOn(entries.filter((e) => e.problem === problem), track)),
     [entries, problem, track],
@@ -69,13 +70,13 @@ export function Home({ entries }: { entries: Entry[] }): ReactElement {
               Each mark is a verified circuit. Left is fewer qubits, down is {trackId === 'toffoli'
                 ? 'fewer Toffolis'
                 : 'less reaction depth'}. A circuit is on the front when no other circuit is at least as good on both.
-              {PROBLEM_MIN_QUBITS[problem] !== undefined && (
-                <> The dashed line is the fewest qubits a circuit can have: the input and output themselves.</>
+              {minQubits !== undefined && (
+                <> The dashed line is the fewest qubits a circuit can have: {minQubits.what}.</>
               )}
             </p>
             <div className="card">
               <ParetoChart entries={shown} track={track} selectedId={selectedId} onSelect={setSelectedId}
-                minQubits={PROBLEM_MIN_QUBITS[problem]} />
+                minQubits={minQubits?.qubits} />
             </div>
           </section>
 
