@@ -119,10 +119,10 @@ describe('problemsOf', () => {
   const entriesOf = (...problems: string[]): Entry[] =>
     toEntries(problems.map((problem, i) => receipt({ problem, id: String(i % 10).repeat(64) })));
 
-  it('puts SHA-256 compression first, so it is the view the page opens on', () => {
-    expect(problemsOf(entriesOf('bitcoin-mining-v1', 'sha256-compress-v1'))).toEqual([
-      'sha256-compress-v1', 'bitcoin-mining-v1']);
-    expect(Object.keys(PROBLEM_TITLES)[0]).toBe('sha256-compress-v1');
+  it('puts the Bitcoin mining oracle first, so it is the view the page opens on', () => {
+    expect(problemsOf(entriesOf('sha256-compress-v1', 'bitcoin-mining-v1'))).toEqual([
+      'bitcoin-mining-v1', 'sha256-compress-v1']);
+    expect(Object.keys(PROBLEM_TITLES)[0]).toBe('bitcoin-mining-v1');
   });
 
   it('lists the problems the site knows in the order of their titles, whatever order the receipts come in', () => {
@@ -132,14 +132,15 @@ describe('problemsOf', () => {
   });
 
   it('puts problems it does not know after the known ones, by id', () => {
-    expect(problemsOf(entriesOf('zeta-v1', 'bitcoin-mining-v1', 'alpha-v1', 'sha256-compress-v1'))).toEqual([
-      'sha256-compress-v1', 'bitcoin-mining-v1', 'alpha-v1', 'zeta-v1']);
+    expect(problemsOf(entriesOf('zeta-v1', 'sha256-compress-v1', 'alpha-v1', 'bitcoin-mining-v1'))).toEqual([
+      'bitcoin-mining-v1', 'sha256-compress-v1', 'alpha-v1', 'zeta-v1']);
     expect(problemsOf(entriesOf('zeta-v1', 'alpha-v1'))).toEqual(['alpha-v1', 'zeta-v1']);
   });
 
   it('lists each problem once, and only those that have entries', () => {
     expect(problemsOf(entriesOf('sha256-compress-v1', 'sha256-compress-v1'))).toEqual(['sha256-compress-v1']);
     expect(problemsOf(entriesOf('bitcoin-mining-v1'))).toEqual(['bitcoin-mining-v1']);
+    expect(problemsOf(entriesOf('sha256-compress-v1'))).toEqual(['sha256-compress-v1']);
     expect(problemsOf([])).toEqual([]);
   });
 });

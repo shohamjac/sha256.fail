@@ -1,16 +1,25 @@
 import { useMemo, useState, type ReactElement } from 'react';
 import { Leaderboard } from '../components/Leaderboard';
+import { ProblemToggle } from '../components/ProblemToggle';
 import { ParetoChart } from '../components/ParetoChart';
 import { Records } from '../components/Records';
 import { StatTiles } from '../components/StatTiles';
 import { SubmissionDialog } from '../components/SubmissionDialog';
-import { PROBLEM_MIN_QUBITS, PROBLEM_TITLES } from '../config';
+import { PROBLEM_MIN_QUBITS } from '../config';
 import { listed, problemsOf, type Entry } from '../data';
+import { chosenProblem } from '../problems';
 import { scoredOn, TRACKS, useTrack, type TrackId } from '../tracks';
 
-export function Home({ entries }: { entries: Entry[] }): ReactElement {
+interface Props {
+  entries: Entry[];
+  /** The problem the visitor chose. Shown if it has circuits; otherwise the first that has. */
+  problem: string;
+  onProblem: (problem: string) => void;
+}
+
+export function Home({ entries, problem: named, onProblem }: Props): ReactElement {
   const problems = problemsOf(entries);
-  const [problem, setProblem] = useState(problems[0] ?? '');
+  const problem = chosenProblem(named, problems);
   const [trackId, setTrackId] = useTrack();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
@@ -27,13 +36,19 @@ export function Home({ entries }: { entries: Entry[] }): ReactElement {
       <div className="intro">
         <h1>How cheaply can a quantum computer run SHA-256?</h1>
         <p>
-          An open benchmark for quantum circuits that compute the SHA-256 compression function. Every circuit
-          here was simulated on more than a million random inputs and got every one right. Circuits are ranked on
+          An open benchmark for quantum circuits built on SHA-256: the oracle a quantum computer would need to
+          mine Bitcoin, and one compression of the hash function itself. Every circuit here was simulated on
+          more than a million random inputs and got every one right. Circuits are ranked on
           two tracks. Both count the qubits a circuit needs. The Toffoli track also counts how many Toffoli gates
           it runs; the reaction-depth track counts the longest chain of measurements a fault-tolerant computer must
           wait for, one after another, while running it.
         </p>
       </div>
+
+      {problems.length > 1 && (
+        <ProblemToggle problems={problems} value={problem}
+          onChange={(next) => { onProblem(next); setSelectedId(null); }} />
+      )}
 
       <div className="filters">
         <span className="filter-label" id="track-label">Rank by</span>
@@ -45,14 +60,6 @@ export function Home({ entries }: { entries: Entry[] }): ReactElement {
             </button>
           ))}
         </div>
-        {problems.length > 1 && (
-          <>
-            <label htmlFor="problem">Problem</label>
-            <select id="problem" value={problem} onChange={(event) => { setProblem(event.target.value); setSelectedId(null); }}>
-              {problems.map((p) => <option key={p} value={p}>{PROBLEM_TITLES[p] ?? p}</option>)}
-            </select>
-          </>
-        )}
       </div>
 
       <SubmissionDialog entry={shown.find((e) => e.id === openId) ?? null} entries={shown} track={track}

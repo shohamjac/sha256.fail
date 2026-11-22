@@ -1,6 +1,7 @@
 // Copies the site's data out of the repository into its static files:
 //   data/index.json            the verifier's receipts
 //   data/notes/<directory>.md  each submission's README.md, shown as its notes
+//   data/img/<figure>.svg      the figures of the Bitcoin mining contract
 // The site reads these and nothing else.
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -31,4 +32,12 @@ for (const receipt of receipts) {
     notes += 1;
   }
 }
-console.log(`Copied ${receipts.length} receipts and ${notes} notes into ${out}`);
+
+// The page that explains the Bitcoin mining problem shows the contract's own figures. They
+// are copied from beside the contract rather than kept twice. A missing one stops the build.
+const FIGURES = ['merkle-root', 'oracle', 'header'].map((name) => `bitcoin-mining-v1-${name}.svg`);
+mkdirSync(resolve(out, 'img'), { recursive: true });
+for (const figure of FIGURES) {
+  copyFileSync(resolve(repo, 'sha256_verifier/docs/img', figure), resolve(out, 'img', figure));
+}
+console.log(`Copied ${receipts.length} receipts, ${notes} notes and ${FIGURES.length} figures into ${out}`);

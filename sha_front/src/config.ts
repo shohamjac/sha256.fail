@@ -42,8 +42,8 @@ export function noteLink(href: string, submissionPath: string): string | null {
  * is the order the problems are offered in, and the first one is shown when the page opens.
  */
 export const PROBLEM_TITLES: Record<string, string> = {
-  'sha256-compress-v1': 'SHA-256 compression',
   'bitcoin-mining-v1': 'Bitcoin mining oracle',
+  'sha256-compress-v1': 'SHA-256 compression',
 };
 
 /**

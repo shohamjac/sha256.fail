@@ -48,10 +48,16 @@ describe('the track in the URL', () => {
   });
 
   it('round-trips, with the default left out', () => {
-    expect(hashForTrack('toffoli')).toBe('#/');
-    expect(hashForTrack('depth')).toBe('#/?track=depth');
+    expect(hashForTrack('#/', 'toffoli')).toBe('#/');
+    expect(hashForTrack('#/', 'depth')).toBe('#/?track=depth');
+    expect(hashForTrack('#/?track=depth', 'toffoli')).toBe('#/');
     for (const id of ['toffoli', 'depth'] as const) {
-      expect(trackFromHash(hashForTrack(id))).toBe(id);
+      expect(trackFromHash(hashForTrack('#/', id))).toBe(id);
     }
+  });
+
+  it('keeps the problem the hash names', () => {
+    expect(hashForTrack('#/?problem=sha256-compress-v1', 'depth')).toBe('#/?problem=sha256-compress-v1&track=depth');
+    expect(hashForTrack('#/?problem=sha256-compress-v1&track=depth', 'toffoli')).toBe('#/?problem=sha256-compress-v1');
   });
 });

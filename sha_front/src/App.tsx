@@ -2,21 +2,24 @@ import { useEffect, useState, type ReactElement } from 'react';
 import { ThemeToggle } from './components/ThemeToggle';
 import { REPO_URL } from './config';
 import { loadReceipts, toEntries, type Entry } from './data';
+import { Bitcoin } from './pages/Bitcoin';
 import { Home } from './pages/Home';
+import { hashForProblem, useProblem } from './problems';
 import { Rules } from './pages/Rules';
 import { Submit } from './pages/Submit';
 import { Verification } from './pages/Verification';
 
 const PAGES = [
   { hash: '#/', label: 'Leaderboard' },
-  { hash: '#/rules', label: 'The task' },
+  { hash: '#/rules', label: 'The tasks' },
+  { hash: '#/bitcoin', label: 'Quantum Bitcoin mining' },
   { hash: '#/submit', label: 'Submit' },
   { hash: '#/verification', label: 'Verification' },
 ] as const;
 
 type Route = (typeof PAGES)[number]['hash'];
 
-/** The page a hash names. A query after the page, as in `#/?track=depth`, is the page's own. */
+/** The page a hash names. A query after the page, as in `#/?track=depth`, holds the visitor's choices. */
 function currentRoute(): Route {
   const hash = window.location.hash.split('?')[0];
   return PAGES.find((page) => page.hash === hash)?.hash ?? '#/';
@@ -27,6 +30,8 @@ type Data = { state: 'loading' } | { state: 'error'; message: string } | { state
 export function App(): ReactElement {
   const [route, setRoute] = useState<Route>(currentRoute);
   const [data, setData] = useState<Data>({ state: 'loading' });
+  // Owned here, so that the choice made on one page is the one the next page opens on.
+  const [problem, setProblem] = useProblem();
 
   useEffect(() => {
     const onHashChange = (): void => {
@@ -47,10 +52,11 @@ export function App(): ReactElement {
   return (
     <div className="shell">
       <header className="site-header">
-        <a className="site-name" href="#/">sha256.fail</a>
+        <a className="site-name" href={hashForProblem('#/', problem)}>sha256.fail</a>
         <nav className="site-nav" aria-label="Pages">
           {PAGES.map((page) => (
-            <a key={page.hash} href={page.hash} aria-current={route === page.hash ? 'page' : undefined}>
+            <a key={page.hash} href={hashForProblem(page.hash, problem)}
+              aria-current={route === page.hash ? 'page' : undefined}>
               {page.label}
             </a>
           ))}
@@ -62,14 +68,15 @@ export function App(): ReactElement {
       </header>
 
       <main>
-        {route === '#/rules' && <Rules />}
+        {route === '#/rules' && <Rules problem={problem} onProblem={setProblem} />}
+        {route === '#/bitcoin' && <Bitcoin />}
         {route === '#/submit' && <Submit />}
         {route === '#/verification' && <Verification />}
         {route === '#/' && (
           <>
             {data.state === 'loading' && <p className="notice">Loading results…</p>}
             {data.state === 'error' && <p className="notice" role="alert">{data.message}</p>}
-            {data.state === 'ready' && <Home entries={data.entries} />}
+            {data.state === 'ready' && <Home entries={data.entries} problem={problem} onProblem={setProblem} />}
           </>
         )}
       </main>
