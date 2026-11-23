@@ -1,0 +1,12 @@
+{
+  "name": "Kept carries",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "github_user_id": 51854221,
+  "kind": "submission",
+  "problem": "bitcoin-mining-v1",
+  "path": "submissions/bitcoin-mining-low-toffoli",
+  "description": "Built for the fewest Toffolis, on every qubit the problem allows. An addition whose carries are left in qubits of their own is undone by CNOTs and measurements, with no Toffoli, so each spare qubit saves one Toffoli of the backward pass. 62,369 of the 101,985 ANDs of the forward pass are kept this way and the rest are computed twice. Classical inputs stay classical: their sums are worked out on classical bits and enter as one addend, Ch and Maj with classical arguments need no AND, and nine rounds of the header's first block see no qubit. The last compression computes only the three compared words, and skips the rounds an easy exponent does not need. 65,536 qubits and 140,592 Toffolis per shot, against the baseline's 2,000 and 262,158.",
+  "source": "build.py"
+}
