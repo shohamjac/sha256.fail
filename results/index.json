@@ -2,6 +2,85 @@
   "receipts": [
     {
       "receipt_version": 1,
+      "problem": "bitcoin-mining-v1",
+      "status": "PASS",
+      "failure": null,
+      "circuit": {
+        "file_sha256": "45775e3601e1142613b1d7ae91944e6dad51ef269c848b30a827faaf8d9a4703",
+        "sha256": "45775e3601e1142613b1d7ae91944e6dad51ef269c848b30a827faaf8d9a4703",
+        "qubits": 2000,
+        "bits": 1274,
+        "operations": 3526903,
+        "toffoli_static": 262158,
+        "instruction_counts": {
+          "BIT_INVERT": 248,
+          "BIT_STORE0": 176,
+          "BIT_STORE1": 18,
+          "CCX": 262158,
+          "CX": 2145994,
+          "CZ": 255004,
+          "HMR": 256414,
+          "INFO_TAG": 16420,
+          "NEG": 10770,
+          "POP_CONDITION": 21320,
+          "PUSH_CONDITION": 21320,
+          "R": 256414,
+          "X": 279376,
+          "Z": 1271
+        },
+        "reaction_depth": 108224
+      },
+      "cost": {
+        "qubits": 2000,
+        "toffoli": 262158.0,
+        "score": 524316000.0,
+        "toffoli_executed_total": 274892587008,
+        "shots": 1048576
+      },
+      "verification": {
+        "sampling": "v1",
+        "salt": "e53c14a19ccbe95521f636577114e4b043eeb66547175027bf950bd9eeb4eb5e",
+        "seed": "92a4b7740a2b9cb235976fdd5c8e56b538bd8c21d7eb4ae51ab0e9467c597528",
+        "directed_shots": 2848,
+        "random_shots": 1048576,
+        "full_strength": true,
+        "batch_size": 256,
+        "chunk_shots": 4096,
+        "limits": {
+          "max_file_bytes": 536870912,
+          "max_operations": 20000000,
+          "max_qubits": 65536,
+          "max_bits": 1048576
+        }
+      },
+      "verifier": {
+        "sha_verifier_version": "0.1.0",
+        "kickmix_version": "1.0.0"
+      },
+      "submission": {
+        "name": "Baseline",
+        "authors": [
+          "sha256.fail"
+        ],
+        "kind": "baseline",
+        "problem": "bitcoin-mining-v1",
+        "path": "submissions/bitcoin-mining-baseline",
+        "description": "Plain reference construction: the five compressions built like the SHA-256 compression baseline, each with its own state register and all sharing one block register; classical inputs copied into qubits; the hash masked and compared to the target; then everything run backwards.",
+        "source": "build.py"
+      },
+      "run": {
+        "started_at": "2026-11-23T07:51:59+00:00",
+        "elapsed_seconds": 122.499,
+        "workers": 4,
+        "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+        "python_version": "3.13.18",
+        "numpy_version": "2.5.4",
+        "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "machine": "x86_64"
+      }
+    },
+    {
+      "receipt_version": 1,
       "problem": "sha256-compress-v1",
       "status": "PASS",
       "failure": null,
