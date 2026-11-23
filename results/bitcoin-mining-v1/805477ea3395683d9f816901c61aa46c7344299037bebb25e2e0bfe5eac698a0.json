@@ -1,0 +1,76 @@
+{
+  "receipt_version": 1,
+  "problem": "bitcoin-mining-v1",
+  "status": "PASS",
+  "failure": null,
+  "circuit": {
+    "file_sha256": "805477ea3395683d9f816901c61aa46c7344299037bebb25e2e0bfe5eac698a0",
+    "sha256": "805477ea3395683d9f816901c61aa46c7344299037bebb25e2e0bfe5eac698a0",
+    "qubits": 32768,
+    "bits": 17143,
+    "operations": 2082700,
+    "toffoli_static": 174019,
+    "instruction_counts": {
+      "BIT_INVERT": 34905,
+      "BIT_STORE0": 80,
+      "CCX": 174019,
+      "CX": 1448738,
+      "CZ": 174020,
+      "HMR": 174019,
+      "POP_CONDITION": 7387,
+      "PUSH_CONDITION": 7387,
+      "X": 62144,
+      "Z": 1
+    },
+    "reaction_depth": 17062
+  },
+  "cost": {
+    "qubits": 32768,
+    "toffoli": 173359.12787246704,
+    "score": 5680631902.125,
+    "toffoli_executed_total": 181780220868,
+    "shots": 1048576
+  },
+  "verification": {
+    "sampling": "v1",
+    "salt": "992bf6e32589b2f6090bae84614966ea9f5430ccb043a8e69e5942f8c793d5c3",
+    "seed": "4d403a5984d055a59524605883ff4761b45f940eaa26f36321bf05f554dc286d",
+    "directed_shots": 2848,
+    "random_shots": 1048576,
+    "full_strength": true,
+    "batch_size": 256,
+    "chunk_shots": 4096,
+    "limits": {
+      "max_file_bytes": 536870912,
+      "max_operations": 20000000,
+      "max_qubits": 65536,
+      "max_bits": 1048576
+    }
+  },
+  "verifier": {
+    "sha_verifier_version": "0.1.0",
+    "kickmix_version": "1.0.0"
+  },
+  "submission": {
+    "name": "Kept carries, 32,768 qubits",
+    "authors": [
+      "Shoham Jacoby"
+    ],
+    "github_user_id": 51854221,
+    "kind": "submission",
+    "problem": "bitcoin-mining-v1",
+    "path": "submissions/bitcoin-mining-low-toffoli-32768",
+    "description": "Kept carries built on 32,768 qubits instead of 65,536. An addition whose carries are left in qubits of their own is undone by CNOTs and measurements, with no Toffoli, so each spare qubit saves one Toffoli of the backward pass. With 32,768 qubits, 29,601 of the 101,985 ANDs of the forward pass are kept and the rest are computed twice. The forward pass is the same: classical inputs stay classical, and the last compression computes only the three compared words. 173,360 Toffolis per shot, against 140,592 on 65,536 qubits and the baseline's 262,158 on 2,000.",
+    "source": "build.py"
+  },
+  "run": {
+    "started_at": "2026-11-23T14:00:15+00:00",
+    "elapsed_seconds": 68.183,
+    "workers": 4,
+    "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+    "python_version": "3.13.18",
+    "numpy_version": "2.5.4",
+    "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+    "machine": "x86_64"
+  }
+}
