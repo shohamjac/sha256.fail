@@ -69,9 +69,20 @@ export function Bitcoin(): ReactElement {
         Those runs come one after another, with a small reflection on the search register between them, so the
         cost of mining is very nearly the cost of one run of the oracle times their number. This benchmark
         measures the first factor: how few qubits and how few Toffoli gates one run can take. It does not say
-        whether a quantum miner would beat classical ones. That depends on the hardware, and on the fact that
-        the runs cannot be shared out as classical mining is: <em>k</em> quantum computers finish only{' '}
-        √<em>k</em> times sooner than one.
+        whether a quantum miner would beat classical ones. That depends on the hardware.
+      </p>
+      <p>
+        The hardware would have to be very fast. Bitcoin's miners together find a block about every ten
+        minutes, and a search that is still running when someone else finds one has to start again on the next
+        block. So a single quantum computer has about ten minutes for its 2<sup>40</sup> runs:{' '}
+        <strong>about half a nanosecond for each run of the oracle</strong>. That is far beyond any quantum
+        hardware proposed so far, which needs much longer than that for a single Toffoli gate, and the oracle
+        is hundreds of thousands of them.
+      </p>
+      <p>
+        More computers help little. Classical mining is parallel: <em>k</em> miners find a block <em>k</em>{' '}
+        times sooner than one. Quantum mining is embarrassingly not parallel: <em>k</em> quantum computers
+        that share out the search finish only √<em>k</em> times sooner than one.
       </p>
 
       <h2>What the oracle computes</h2>
@@ -199,6 +210,25 @@ export function Bitcoin(): ReactElement {
       <p>
         The oracle checks the hash against the target and nothing else. Whether the coinbase is a valid
         transaction, and every other rule a block must meet, is outside it.
+      </p>
+
+      <h2>Quantum mining would break Bitcoin</h2>
+      <p>
+        To keep the oracle small, the block it mines holds no transaction but the coinbase. A quantum miner
+        running it would produce blocks that confirm nothing, and if every block were mined that way, Bitcoin's
+        transactions would stop.
+      </p>
+      <p>
+        That is where quantum mining would settle. When two quantum miners race for the same block, the one
+        that finishes first takes the reward. A miner that includes transactions has a merkle tree to hash, so
+        each run of its oracle takes longer. On the same hardware it finishes second, and the empty block wins.
+      </p>
+      <p>
+        The chain would also fork more often. A quantum miner does not have to fix the length of its search in
+        advance: when a rival's block arrives it can stop and measure, with some chance of holding a valid
+        block of its own. If every quantum miner does that, several blocks appear at about the same moment, as
+        Or Sattath argues in{' '}
+        <a href="https://arxiv.org/abs/1804.08118">On the insecurity of quantum Bitcoin mining</a>.
       </p>
 
       <h2>What passing does not show</h2>
