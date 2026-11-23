@@ -1,0 +1,12 @@
+{
+  "name": "Classical inputs kept classical",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "github_user_id": 51854221,
+  "kind": "submission",
+  "problem": "bitcoin-mining-v1",
+  "path": "submissions/bitcoin-mining-low-toffoli-3167",
+  "description": "Kept carries with no spare qubit: 3,167 qubits, the fewest that design can use. No AND is kept, so the backward pass computes each one again, and what is left is a forward pass of 101,985 ANDs. Only the 80 searched bits are qubits: sums of classical words are worked out on classical bits and enter as one addend, Ch and Maj with classical arguments need no AND, and nine rounds of the header's first block see no qubit. The last compression computes only the three compared words. No register is rewound between compressions, which is why it uses more qubits than the baseline. 202,961 Toffolis per shot, against the baseline's 262,158 on 2,000 qubits.",
+  "source": "build.py"
+}
