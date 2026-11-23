@@ -1,0 +1,78 @@
+{
+  "receipt_version": 1,
+  "problem": "bitcoin-mining-v1",
+  "status": "PASS",
+  "failure": null,
+  "circuit": {
+    "file_sha256": "042216a5f64c4a527dd034e3faae23f9702c40f96ef9babb033b6c577abfacf7",
+    "sha256": "042216a5f64c4a527dd034e3faae23f9702c40f96ef9babb033b6c577abfacf7",
+    "qubits": 1130,
+    "bits": 83930,
+    "operations": 16113536,
+    "toffoli_static": 6516029,
+    "instruction_counts": {
+      "BIT_INVERT": 248,
+      "BIT_STORE0": 176,
+      "BIT_STORE1": 18,
+      "CCX": 6516029,
+      "CX": 3658131,
+      "CZ": 1938030,
+      "HMR": 2020686,
+      "POP_CONDITION": 10,
+      "PUSH_CONDITION": 10,
+      "R": 697208,
+      "X": 1200333,
+      "Z": 82657
+    },
+    "reaction_depth": 4331
+  },
+  "cost": {
+    "qubits": 1130,
+    "toffoli": 6516029.0,
+    "score": 7363112770.0,
+    "toffoli_executed_total": 6832551624704,
+    "shots": 1048576
+  },
+  "verification": {
+    "sampling": "v1",
+    "salt": "b73933a0a15ead47699e00a123ef94acd4d57ae2e692352768a2fb4e046d8d4d",
+    "seed": "0b0e99bc423e5afdd6141c7e033b4b1510012dfe43e23d3c3c0ed710be2056a4",
+    "directed_shots": 2848,
+    "random_shots": 1048576,
+    "full_strength": true,
+    "batch_size": 256,
+    "chunk_shots": 4096,
+    "limits": {
+      "max_file_bytes": 536870912,
+      "max_operations": 20000000,
+      "max_qubits": 65536,
+      "max_bits": 1048576
+    }
+  },
+  "verifier": {
+    "sha_verifier_version": "0.1.0",
+    "kickmix_version": "1.0.0"
+  },
+  "submission": {
+    "name": "Lookahead rounds, everything computed again",
+    "authors": [
+      "Shoham Jacoby"
+    ],
+    "github_user_id": 51854221,
+    "kind": "submission",
+    "problem": "bitcoin-mining-v1",
+    "path": "submissions/bitcoin-mining-low-depth-1130",
+    "description": "Built for the reaction-depth track, from Lookahead rounds, states measured away. Forward rounds clear nothing: the registers a round is done with are measured away in the X basis, and the round that undoes it, which forms those values anyway, corrects their phase. That more than halves the operations of a forward round, and the circuit spends them on computing more often and holding less: to undo a compression, the output of the one before is computed again from the search register, with nothing else held. A value computed again is no deeper than the first time, so this costs no depth. The most the circuit holds is what the header's second block needs by itself, with its schedule in place over the nonce. A round keeps one register beyond the state, not two. 1,130 qubits at reaction depth 4,331, against 1,249 at 4,435.",
+    "source": "build.py"
+  },
+  "run": {
+    "started_at": "2026-11-23T12:25:43+00:00",
+    "elapsed_seconds": 555.977,
+    "workers": 4,
+    "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+    "python_version": "3.13.18",
+    "numpy_version": "2.5.4",
+    "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+    "machine": "x86_64"
+  }
+}

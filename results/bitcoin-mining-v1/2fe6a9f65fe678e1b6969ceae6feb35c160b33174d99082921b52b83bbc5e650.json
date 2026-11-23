@@ -1,0 +1,81 @@
+{
+  "receipt_version": 1,
+  "problem": "bitcoin-mining-v1",
+  "status": "PASS",
+  "failure": null,
+  "circuit": {
+    "file_sha256": "2fe6a9f65fe678e1b6969ceae6feb35c160b33174d99082921b52b83bbc5e650",
+    "sha256": "2fe6a9f65fe678e1b6969ceae6feb35c160b33174d99082921b52b83bbc5e650",
+    "qubits": 1074,
+    "bits": 3354,
+    "operations": 5486555,
+    "toffoli_static": 473501,
+    "instruction_counts": {
+      "BIT_INVERT": 248,
+      "BIT_STORE0": 176,
+      "BIT_STORE1": 18,
+      "CCX": 473501,
+      "CX": 3453712,
+      "CZ": 378932,
+      "HMR": 389930,
+      "INFO_TAG": 23814,
+      "NEG": 19182,
+      "POP_CONDITION": 38660,
+      "PUSH_CONDITION": 38660,
+      "R": 381498,
+      "X": 274915,
+      "Z": 13309
+    },
+    "reaction_depth": 130657
+  },
+  "cost": {
+    "qubits": 1074,
+    "toffoli": 473501.0,
+    "score": 508540074.0,
+    "toffoli_executed_total": 496501784576,
+    "shots": 1048576
+  },
+  "verification": {
+    "sampling": "v1",
+    "salt": "e6545f6febe4378638c22b14ab262e33401f99a1faed2b199e3bfb00bea1ba80",
+    "seed": "a3234d2fa61f94a4cd72f99ef7e46da87c58d81604455d282c1ef2565a0d871e",
+    "directed_shots": 2848,
+    "random_shots": 1048576,
+    "full_strength": true,
+    "batch_size": 256,
+    "chunk_shots": 4096,
+    "limits": {
+      "max_file_bytes": 536870912,
+      "max_operations": 20000000,
+      "max_qubits": 65536,
+      "max_bits": 1048576
+    }
+  },
+  "verifier": {
+    "sha_verifier_version": "0.1.0",
+    "kickmix_version": "1.0.0"
+  },
+  "submission": {
+    "name": "Measured-away states, 1,074 qubits",
+    "authors": [
+      "Shoham Jacoby"
+    ],
+    "github_user_id": 51854221,
+    "kind": "submission",
+    "problem": "bitcoin-mining-v1",
+    "path": "submissions/bitcoin-mining-low-qubit-1074",
+    "description": "The 1,072-qubit oracle with two more qubits. Intermediate hashes are measured away and their phases removed later, so the circuit holds one compression at a time. In the 34 rounds of the header's second block that have no scratch, the two extra qubits carry Gidney's constant adder: carries are measured as they are used, and the phases are removed by XORing the carries twice into borrowed busy qubits. A round constant there costs 89 Toffolis at most instead of 558 on average.",
+    "source": "build.py",
+    "reference": "https://arxiv.org/abs/2507.23079"
+  },
+  "run": {
+    "started_at": "2026-11-23T12:35:24+00:00",
+    "elapsed_seconds": 173.075,
+    "workers": 4,
+    "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+    "python_version": "3.13.18",
+    "numpy_version": "2.5.4",
+    "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+    "machine": "x86_64"
+  }
+}
