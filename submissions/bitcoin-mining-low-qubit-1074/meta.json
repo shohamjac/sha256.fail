@@ -1,0 +1,13 @@
+{
+  "name": "Measured-away states, 1,074 qubits",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "github_user_id": 51854221,
+  "kind": "submission",
+  "problem": "bitcoin-mining-v1",
+  "path": "submissions/bitcoin-mining-low-qubit-1074",
+  "description": "The 1,072-qubit oracle with two more qubits. Intermediate hashes are measured away and their phases removed later, so the circuit holds one compression at a time. In the 34 rounds of the header's second block that have no scratch, the two extra qubits carry Gidney's constant adder: carries are measured as they are used, and the phases are removed by XORing the carries twice into borrowed busy qubits. A round constant there costs 89 Toffolis at most instead of 558 on average.",
+  "source": "build.py",
+  "reference": "https://arxiv.org/abs/2507.23079"
+}
