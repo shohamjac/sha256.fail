@@ -1,0 +1,79 @@
+{
+  "receipt_version": 1,
+  "problem": "bitcoin-mining-v1",
+  "status": "PASS",
+  "failure": null,
+  "circuit": {
+    "file_sha256": "71d7c9b9e92fa194a039093b4a1b54c6b0804ffee77b1d4f86ef6b46bbf526f2",
+    "sha256": "71d7c9b9e92fa194a039093b4a1b54c6b0804ffee77b1d4f86ef6b46bbf526f2",
+    "qubits": 1072,
+    "bits": 3354,
+    "operations": 5688103,
+    "toffoli_static": 522269,
+    "instruction_counts": {
+      "BIT_INVERT": 248,
+      "BIT_STORE0": 176,
+      "BIT_STORE1": 18,
+      "CCX": 522269,
+      "CX": 3586059,
+      "CZ": 378932,
+      "HMR": 387194,
+      "INFO_TAG": 23814,
+      "NEG": 19182,
+      "POP_CONDITION": 38660,
+      "PUSH_CONDITION": 38660,
+      "R": 381498,
+      "X": 303556,
+      "Z": 7837
+    },
+    "reaction_depth": 130657
+  },
+  "cost": {
+    "qubits": 1072,
+    "toffoli": 522269.0,
+    "score": 559872368.0,
+    "toffoli_executed_total": 547638738944,
+    "shots": 1048576
+  },
+  "verification": {
+    "sampling": "v1",
+    "salt": "066c6d39d95a5636c9b8394b4003c612b5e34585356683bf385fc4c77063b81e",
+    "seed": "7fa13a7d47d6d8534abbc91032be06016c7f7dc105bb35c4b45f9631aa9d95cc",
+    "directed_shots": 2848,
+    "random_shots": 1048576,
+    "full_strength": true,
+    "batch_size": 256,
+    "chunk_shots": 4096,
+    "limits": {
+      "max_file_bytes": 536870912,
+      "max_operations": 20000000,
+      "max_qubits": 65536,
+      "max_bits": 1048576
+    }
+  },
+  "verifier": {
+    "sha_verifier_version": "0.1.0",
+    "kickmix_version": "1.0.0"
+  },
+  "submission": {
+    "name": "Measured-away states",
+    "authors": [
+      "sha256.fail"
+    ],
+    "kind": "submission",
+    "problem": "bitcoin-mining-v1",
+    "path": "submissions/bitcoin-mining-low-qubit",
+    "description": "The oracle on 1,072 qubits. Each intermediate hash is measured away in the X basis as soon as the next one exists, and the phase that leaves is removed later by computing the value again, so the circuit holds one compression and its inputs at a time. The header's second block sets the count: 48 idle extranonce qubits, the kept starting state, the working state and the 16-word schedule. Its last 34 rounds have no free qubit and use additions that keep their carries in the operand; everything else uses the baseline's arithmetic.",
+    "source": "build.py"
+  },
+  "run": {
+    "started_at": "2026-11-23T10:01:33+00:00",
+    "elapsed_seconds": 220.185,
+    "workers": 4,
+    "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+    "python_version": "3.13.18",
+    "numpy_version": "2.5.4",
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+    "machine": "x86_64"
+  }
+}
