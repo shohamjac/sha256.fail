@@ -1,0 +1,12 @@
+{
+  "name": "Recomputed schedule",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "github_user_id": 51854221,
+  "kind": "submission",
+  "problem": "bitcoin-mining-v1",
+  "path": "submissions/bitcoin-mining-low-qubit-914",
+  "description": "The oracle on 914 qubits. As in the 1,072-qubit entry, each intermediate hash is measured away and its phase removed later. The header's second block, which set that count, no longer holds 16 schedule words: only two of its message words are quantum, so it holds seven words in progress and computes the older ones again from those two when a step needs them, in two spare registers. Its uncomputation subtracts and measures away the kept state first, which leaves room for an ordinary schedule. Four times the baseline's Toffolis.",
+  "source": "build.py"
+}
