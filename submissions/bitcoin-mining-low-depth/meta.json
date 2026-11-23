@@ -1,0 +1,12 @@
+{
+  "name": "Lookahead rounds, states measured away",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "github_user_id": 51854221,
+  "kind": "submission",
+  "problem": "bitcoin-mining-v1",
+  "path": "submissions/bitcoin-mining-low-depth",
+  "description": "Built for the reaction-depth track. The five compressions use the rounds of Lean lookahead rounds (log-depth adders, new state words in fresh registers, dropped registers cleared by subtraction), which cost 7 reactions per round forward and 7 backward. A chaining value that is no longer needed is measured away in the X basis and its phase is corrected with Z gates when the value is computed again; a value computed again is no deeper than the first time, so this costs operations and no depth, and the circuit never holds more than two chaining values next to the compression it is working on. To fit twelve passes of 64 rounds into 20,000,000 operations, the adder keeps its propagate products in qubits and every carry-save row is written once. 1,249 qubits at reaction depth 4,435, against the baseline's 2,000 at 108,224.",
+  "source": "build.py"
+}
