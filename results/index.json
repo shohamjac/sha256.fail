@@ -160,6 +160,84 @@
     },
     {
       "receipt_version": 1,
+      "problem": "bitcoin-mining-v1",
+      "status": "PASS",
+      "failure": null,
+      "circuit": {
+        "file_sha256": "770c7ea1f6e514cf3f4fcbdf87bf9d869c9ead3c95b0c1450b774eb5712cfcec",
+        "sha256": "770c7ea1f6e514cf3f4fcbdf87bf9d869c9ead3c95b0c1450b774eb5712cfcec",
+        "qubits": 1249,
+        "bits": 2810,
+        "operations": 17484731,
+        "toffoli_static": 7575806,
+        "instruction_counts": {
+          "BIT_INVERT": 248,
+          "BIT_STORE0": 176,
+          "BIT_STORE1": 18,
+          "CCX": 7575806,
+          "CX": 4695970,
+          "CZ": 1370832,
+          "HMR": 1372368,
+          "POP_CONDITION": 10,
+          "PUSH_CONDITION": 10,
+          "R": 838264,
+          "X": 1629492,
+          "Z": 1537
+        },
+        "reaction_depth": 4435
+      },
+      "cost": {
+        "qubits": 1249,
+        "toffoli": 7575806.0,
+        "score": 9462181694.0,
+        "toffoli_executed_total": 7943808352256,
+        "shots": 1048576
+      },
+      "verification": {
+        "sampling": "v1",
+        "salt": "f1bfa08e0cc4819872323170d4281b314118c7714f13accc64ba029edc32c779",
+        "seed": "86f627304fc43e444b2d45a2ab35b861ee437e08cd93ec7c622cb75267248fc0",
+        "directed_shots": 2848,
+        "random_shots": 1048576,
+        "full_strength": true,
+        "batch_size": 256,
+        "chunk_shots": 4096,
+        "limits": {
+          "max_file_bytes": 536870912,
+          "max_operations": 20000000,
+          "max_qubits": 65536,
+          "max_bits": 1048576
+        }
+      },
+      "verifier": {
+        "sha_verifier_version": "0.1.0",
+        "kickmix_version": "1.0.0"
+      },
+      "submission": {
+        "name": "Lookahead rounds, states measured away",
+        "authors": [
+          "Shoham Jacoby"
+        ],
+        "github_user_id": 51854221,
+        "kind": "submission",
+        "problem": "bitcoin-mining-v1",
+        "path": "submissions/bitcoin-mining-low-depth",
+        "description": "Built for the reaction-depth track. The five compressions use the rounds of Lean lookahead rounds (log-depth adders, new state words in fresh registers, dropped registers cleared by subtraction), which cost 7 reactions per round forward and 7 backward. A chaining value that is no longer needed is measured away in the X basis and its phase is corrected with Z gates when the value is computed again; a value computed again is no deeper than the first time, so this costs operations and no depth, and the circuit never holds more than two chaining values next to the compression it is working on. To fit twelve passes of 64 rounds into 20,000,000 operations, the adder keeps its propagate products in qubits and every carry-save row is written once. 1,249 qubits at reaction depth 4,435, against the baseline's 2,000 at 108,224.",
+        "source": "build.py"
+      },
+      "run": {
+        "started_at": "2026-11-23T10:47:03+00:00",
+        "elapsed_seconds": 674.151,
+        "workers": 4,
+        "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+        "python_version": "3.13.18",
+        "numpy_version": "2.5.4",
+        "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "machine": "x86_64"
+      }
+    },
+    {
+      "receipt_version": 1,
       "problem": "sha256-compress-v1",
       "status": "PASS",
       "failure": null,
