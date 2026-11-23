@@ -6,6 +6,87 @@
       "status": "PASS",
       "failure": null,
       "circuit": {
+        "file_sha256": "20140a0226ec8b442116b2ece22a5a63850b5451b983f11ae6c2d9f8fe217aa4",
+        "sha256": "20140a0226ec8b442116b2ece22a5a63850b5451b983f11ae6c2d9f8fe217aa4",
+        "qubits": 914,
+        "bits": 4773,
+        "operations": 12429973,
+        "toffoli_static": 1068547,
+        "instruction_counts": {
+          "BIT_INVERT": 33839,
+          "BIT_STORE0": 1587,
+          "BIT_STORE1": 19,
+          "CCX": 1068543,
+          "CCZ": 4,
+          "CX": 7713617,
+          "CZ": 334114,
+          "HMR": 487506,
+          "INFO_TAG": 25878,
+          "NEG": 20637,
+          "POP_CONDITION": 133740,
+          "PUSH_CONDITION": 133740,
+          "R": 336906,
+          "X": 1906658,
+          "Z": 233185
+        },
+        "reaction_depth": 237143
+      },
+      "cost": {
+        "qubits": 914,
+        "toffoli": 1068545.000989914,
+        "score": 976650130.9047813,
+        "toffoli_executed_total": 1120450642958,
+        "shots": 1048576
+      },
+      "verification": {
+        "sampling": "v1",
+        "salt": "b57a98500622ccfc3bb12c5cdff671a83421c710208238d50871567bf8729b20",
+        "seed": "f23c6ffb3587bbbebbaac48e95ca62883e5ba800452bbff32c10227a13d3a356",
+        "directed_shots": 2848,
+        "random_shots": 1048576,
+        "full_strength": true,
+        "batch_size": 256,
+        "chunk_shots": 4096,
+        "limits": {
+          "max_file_bytes": 536870912,
+          "max_operations": 20000000,
+          "max_qubits": 65536,
+          "max_bits": 1048576
+        }
+      },
+      "verifier": {
+        "sha_verifier_version": "0.1.0",
+        "kickmix_version": "1.0.0"
+      },
+      "submission": {
+        "name": "Recomputed schedule",
+        "authors": [
+          "Shoham Jacoby"
+        ],
+        "github_user_id": 51854221,
+        "kind": "submission",
+        "problem": "bitcoin-mining-v1",
+        "path": "submissions/bitcoin-mining-low-qubit-914",
+        "description": "The oracle on 914 qubits. As in the 1,072-qubit entry, each intermediate hash is measured away and its phase removed later. The header's second block, which set that count, no longer holds 16 schedule words: only two of its message words are quantum, so it holds seven words in progress and computes the older ones again from those two when a step needs them, in two spare registers. Its uncomputation subtracts and measures away the kept state first, which leaves room for an ordinary schedule. Four times the baseline's Toffolis.",
+        "source": "build.py"
+      },
+      "run": {
+        "started_at": "2026-11-23T12:16:37+00:00",
+        "elapsed_seconds": 290.954,
+        "workers": 4,
+        "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+        "python_version": "3.13.18",
+        "numpy_version": "2.5.4",
+        "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+        "machine": "x86_64"
+      }
+    },
+    {
+      "receipt_version": 1,
+      "problem": "bitcoin-mining-v1",
+      "status": "PASS",
+      "failure": null,
+      "circuit": {
         "file_sha256": "45775e3601e1142613b1d7ae91944e6dad51ef269c848b30a827faaf8d9a4703",
         "sha256": "45775e3601e1142613b1d7ae91944e6dad51ef269c848b30a827faaf8d9a4703",
         "qubits": 2000,
