@@ -146,14 +146,14 @@ describe('problemsOf', () => {
 });
 
 describe('the problems the site knows', () => {
-  it('have a title, a headline and a qubit minimum each', () => {
-    expect(Object.keys(PROBLEM_MIN_QUBITS).sort()).toEqual(Object.keys(PROBLEM_TITLES).sort());
+  it('have a title and a headline each, and a qubit minimum where one is marked', () => {
+    expect(Object.keys(PROBLEM_TITLES)).toEqual(expect.arrayContaining(Object.keys(PROBLEM_MIN_QUBITS)));
     expect(Object.keys(PROBLEM_HEADLINES).sort()).toEqual(Object.keys(PROBLEM_TITLES).sort());
     expect(PROBLEM_HEADLINES['bitcoin-mining-v1']).toMatch(/mine Bitcoin\?$/);
     expect(PROBLEM_HEADLINES['sha256-compress-v1']).toMatch(/run SHA-256\?$/);
     expect(PROBLEM_TITLES['bitcoin-mining-v1']).toBe('Bitcoin mining oracle');
     expect(PROBLEM_MIN_QUBITS['sha256-compress-v1']!.qubits).toBe(768);
-    expect(PROBLEM_MIN_QUBITS['bitcoin-mining-v1']!.qubits).toBe(80);
+    expect(PROBLEM_MIN_QUBITS['bitcoin-mining-v1']).toBeUndefined();
   });
 });
 
