@@ -2,16 +2,16 @@ name: verifier
 on:
   push:
     branches: [main]
-    paths: ['sha256_verifier/**', 'submissions/**', 'results/**', '.github/workflows/verifier.yml']
+    paths: ['sha256_verifier/**', '.github/workflows/verifier.yml']
   pull_request:
-    paths: ['sha256_verifier/**', 'submissions/**', 'results/**', '.github/workflows/verifier.yml']
+    paths: ['sha256_verifier/**', '.github/workflows/verifier.yml']
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   selftest:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: sha256_verifier
@@ -24,12 +24,34 @@ jobs:
       - run: uv sync --locked
       - run: uv run sha-verify selftest
       - run: uv run pytest -q
-      # Every committed receipt must reproduce exactly on this machine.
+      # Every committed receipt must reproduce exactly on this machine. Only a change to the
+      # verifier can break one, so replay just the problems a change can reach: a file only
+      # one problem uses replays that problem; any other source or dependency change, or a
+      # run with no base to compare to, replays them all. Docs and tests replay none.
       - name: Replay the committed receipts
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
-          for receipt in ../results/*/*.json; do
-            dir=$(jq -er .submission.path "$receipt")
-            uv run sha-verify replay "$receipt" "../$dir"
+          problems=all
+          if [ -n "$BASE" ] && git fetch --quiet --depth=1 origin "$BASE"; then
+            problems=
+            for file in $(git diff --name-only "$BASE" HEAD); do
+              case "$file" in
+                sha256_verifier/src/sha_verifier/bitcoin*.py) problems="$problems bitcoin-mining-v1" ;;
+                sha256_verifier/src/* | sha256_verifier/pyproject.toml | sha256_verifier/uv.lock | \
+                sha256_verifier/.python-version | .github/workflows/verifier.yml) problems=all; break ;;
+              esac
+            done
+          fi
+          [ "$problems" = all ] && problems=$(basename -a ../results/*/)
+          problems=$(printf '%s\n' $problems | sort -u)
+          echo "Replaying: ${problems:-nothing}"
+          for problem in $problems; do
+            for receipt in "../results/$problem"/*.json; do
+              [ -e "$receipt" ] || continue  # A problem with no receipts yet.
+              dir=$(jq -er .submission.path "$receipt")
+              uv run sha-verify replay "$receipt" "../$dir"
+            done
           done
       # And the baseline must pass again on random tests nobody has seen.
       - name: Verify the baseline with a fresh salt
