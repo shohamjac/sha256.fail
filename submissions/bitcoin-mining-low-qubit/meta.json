@@ -1,0 +1,11 @@
+{
+  "name": "Measured-away states",
+  "authors": [
+    "sha256.fail"
+  ],
+  "kind": "submission",
+  "problem": "bitcoin-mining-v1",
+  "path": "submissions/bitcoin-mining-low-qubit",
+  "description": "The oracle on 1,072 qubits. Each intermediate hash is measured away in the X basis as soon as the next one exists, and the phase that leaves is removed later by computing the value again, so the circuit holds one compression and its inputs at a time. The header's second block sets the count: 48 idle extranonce qubits, the kept starting state, the working state and the 16-word schedule. Its last 34 rounds have no free qubit and use additions that keep their carries in the operand; everything else uses the baseline's arithmetic.",
+  "source": "build.py"
+}
