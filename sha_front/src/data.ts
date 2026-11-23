@@ -89,7 +89,7 @@ export interface Entry {
 }
 
 export async function loadReceipts(): Promise<Receipt[]> {
-  const response = await fetch(new URL('data/index.json', document.baseURI));
+  const response = await fetch(new URL('data/index.json', document.baseURI), { cache: 'no-cache' });
   if (!response.ok) {
     throw new Error(`Could not load results (HTTP ${response.status}).`);
   }
@@ -109,7 +109,7 @@ export async function loadNote(entry: Entry): Promise<string | null> {
   if (match === null) {
     return null;
   }
-  const response = await fetch(new URL(`data/notes/${match[1]}.md`, document.baseURI));
+  const response = await fetch(new URL(`data/notes/${match[1]}.md`, document.baseURI), { cache: 'no-cache' });
   // A missing note may come back as the site's own HTML page rather than a 404.
   if (!response.ok || (response.headers.get('content-type') ?? '').includes('text/html')) {
     return null;
