@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 676" width="680" height="676" role="img">
+<title>The five SHA-256 compressions of the Bitcoin mining oracle</title>
+<desc>Compression 1 starts from the classical midstate and hashes the coinbase's last block: the extranonce and the tail. Compression 2 hashes that result again from the IV, giving the merkle root. The root's first 28 bytes join the version and previous hash in compression 3. Its last 4 bytes join the time, bits, the nonce and padding in compression 4, which starts from the output of compression 3. Compression 5 hashes that result again from the IV, giving the block hash. The mask is XORed into the hash, and the phase is flipped when the result is below the target that bits gives.</desc>
+<style>
+text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;fill:#444441}
+.th{font-size:14px;font-weight:600}
+.ts{font-size:12px}
+.tl{font-size:12px;fill:#5f5e5a}
+.search rect{fill:#e1f5ee;stroke:#0f6e56}.search text{fill:#04342c}
+.quantum rect{fill:#eeedfe;stroke:#534ab7}.quantum text{fill:#26215c}
+.classical rect{fill:#f1efe8;stroke:#5f5e5a}.classical text{fill:#2c2c2a}
+.constant rect{fill:#ffffff;stroke:#888780;stroke-dasharray:4 3}.constant text{fill:#444441}
+.result rect{fill:#faeeda;stroke:#854f0b}.result text{fill:#412402}
+rect{stroke-width:1}
+.arr{stroke:#5f5e5a;stroke-width:1.5;fill:none}
+.leader{stroke:#888780;stroke-width:1;fill:none}
+.rule{stroke:#d3d1c7;stroke-width:1}
+</style>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5f5e5a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect x="0.5" y="0.5" width="679" height="675" rx="10" fill="#ffffff" stroke="#d3d1c7"/>
+<g class="classical"><rect x="225" y="24" width="120" height="28" rx="4"/><text class="ts" x="285.0" y="38.0" text-anchor="middle" dominant-baseline="central">midstate</text></g>
+<path d="M285 52 L285 74" class="arr" marker-end="url(#arrow)"/>
+<g class="search"><rect x="52" y="74" width="150" height="28" rx="4"/><text class="ts" x="127.0" y="88.0" text-anchor="middle" dominant-baseline="central">extranonce, 6 bytes</text></g>
+<g class="classical"><rect x="52" y="102" width="150" height="28" rx="4"/><text class="ts" x="127.0" y="116.0" text-anchor="middle" dominant-baseline="central">tail, 58 bytes</text></g>
+<path d="M202 102 L224 102" class="arr" marker-end="url(#arrow)"/>
+<g class="quantum"><rect x="230" y="80" width="110" height="44" rx="8"/><text class="th" x="285.0" y="102.0" text-anchor="middle" dominant-baseline="central">Compress 1</text></g>
+<path d="M340 102 L366 102" class="arr" marker-end="url(#arrow)"/>
+<g class="quantum"><rect x="372" y="88" width="134" height="28" rx="4"/><text class="ts" x="439.0" y="102.0" text-anchor="middle" dominant-baseline="central">inner1, 32 bytes</text></g>
+<g class="constant"><rect x="372" y="116" width="134" height="28" rx="4"/><text class="ts" x="439.0" y="130.0" text-anchor="middle" dominant-baseline="central">pad256</text></g>
+<path d="M506 116 L524 116" class="arr" marker-end="url(#arrow)"/>
+<g class="constant"><rect x="555" y="40" width="60" height="28" rx="4"/><text class="ts" x="585.0" y="54.0" text-anchor="middle" dominant-baseline="central">IV</text></g>
+<path d="M585 68 L585 88" class="arr" marker-end="url(#arrow)"/>
+<g class="quantum"><rect x="530" y="94" width="110" height="44" rx="8"/><text class="th" x="585.0" y="116.0" text-anchor="middle" dominant-baseline="central">Compress 2</text></g>
+<path d="M585 138 L585 172 L30 172 L30 356 L46 356" class="arr" marker-end="url(#arrow)"/>
+<path d="M30 302 L46 302" class="arr" marker-end="url(#arrow)"/>
+<text class="tl" x="400" y="160" text-anchor="middle" dominant-baseline="central">root: the merkle root, 32 bytes</text>
+<g class="constant"><rect x="255" y="198" width="60" height="28" rx="4"/><text class="ts" x="285.0" y="212.0" text-anchor="middle" dominant-baseline="central">IV</text></g>
+<path d="M285 226 L285 246" class="arr" marker-end="url(#arrow)"/>
+<g class="classical"><rect x="52" y="232" width="150" height="28" rx="4"/><text class="ts" x="127.0" y="246.0" text-anchor="middle" dominant-baseline="central">version, 4 bytes</text></g>
+<g class="classical"><rect x="52" y="260" width="150" height="28" rx="4"/><text class="ts" x="127.0" y="274.0" text-anchor="middle" dominant-baseline="central">prev_hash, 32 bytes</text></g>
+<g class="quantum"><rect x="52" y="288" width="150" height="28" rx="4"/><text class="ts" x="127.0" y="302.0" text-anchor="middle" dominant-baseline="central">root, bytes 0–27</text></g>
+<path d="M202 274 L224 274" class="arr" marker-end="url(#arrow)"/>
+<g class="quantum"><rect x="230" y="252" width="110" height="44" rx="8"/><text class="th" x="285.0" y="274.0" text-anchor="middle" dominant-baseline="central">Compress 3</text></g>
+<path d="M285 296 L285 384" class="arr" marker-end="url(#arrow)"/>
+<text class="tl" x="293" y="340" text-anchor="start" dominant-baseline="central">mid</text>
+<g class="quantum"><rect x="52" y="342" width="150" height="28" rx="4"/><text class="ts" x="127.0" y="356.0" text-anchor="middle" dominant-baseline="central">root, bytes 28–31</text></g>
+<g class="classical"><rect x="52" y="370" width="150" height="28" rx="4"/><text class="ts" x="127.0" y="384.0" text-anchor="middle" dominant-baseline="central">time, 4 bytes</text></g>
+<g class="classical"><rect x="52" y="398" width="150" height="28" rx="4"/><text class="ts" x="127.0" y="412.0" text-anchor="middle" dominant-baseline="central">bits, 4 bytes</text></g>
+<g class="search"><rect x="52" y="426" width="150" height="28" rx="4"/><text class="ts" x="127.0" y="440.0" text-anchor="middle" dominant-baseline="central">nonce, 4 bytes</text></g>
+<g class="constant"><rect x="52" y="454" width="150" height="28" rx="4"/><text class="ts" x="127.0" y="468.0" text-anchor="middle" dominant-baseline="central">pad640</text></g>
+<path d="M202 412 L224 412" class="arr" marker-end="url(#arrow)"/>
+<g class="quantum"><rect x="230" y="390" width="110" height="44" rx="8"/><text class="th" x="285.0" y="412.0" text-anchor="middle" dominant-baseline="central">Compress 4</text></g>
+<path d="M340 412 L366 412" class="arr" marker-end="url(#arrow)"/>
+<g class="quantum"><rect x="372" y="398" width="134" height="28" rx="4"/><text class="ts" x="439.0" y="412.0" text-anchor="middle" dominant-baseline="central">inner2, 32 bytes</text></g>
+<g class="constant"><rect x="372" y="426" width="134" height="28" rx="4"/><text class="ts" x="439.0" y="440.0" text-anchor="middle" dominant-baseline="central">pad256</text></g>
+<path d="M506 426 L524 426" class="arr" marker-end="url(#arrow)"/>
+<g class="constant"><rect x="555" y="350" width="60" height="28" rx="4"/><text class="ts" x="585.0" y="364.0" text-anchor="middle" dominant-baseline="central">IV</text></g>
+<path d="M585 378 L585 398" class="arr" marker-end="url(#arrow)"/>
+<g class="quantum"><rect x="530" y="404" width="110" height="44" rx="8"/><text class="th" x="585.0" y="426.0" text-anchor="middle" dominant-baseline="central">Compress 5</text></g>
+<path d="M585 448 L585 496" class="arr" marker-end="url(#arrow)"/>
+<text class="tl" x="593" y="472" text-anchor="start" dominant-baseline="central">hash</text>
+<g class="classical"><rect x="372" y="516" width="112" height="28" rx="4"/><text class="ts" x="428.0" y="530.0" text-anchor="middle" dominant-baseline="central">mask, 12 bytes</text></g>
+<path d="M484 530 L504 530" class="arr" marker-end="url(#arrow)"/>
+<g class="quantum"><rect x="510" y="502" width="150" height="56" rx="8"/><text class="th" x="585.0" y="521.0" text-anchor="middle" dominant-baseline="central">Masked hash</text><text class="ts" x="585.0" y="539.0" text-anchor="middle" dominant-baseline="central">XOR into H5, H6, H7</text></g>
+<path d="M585 558 L585 590" class="arr" marker-end="url(#arrow)"/>
+<g class="classical"><rect x="372" y="610" width="112" height="28" rx="4"/><text class="ts" x="428.0" y="624.0" text-anchor="middle" dominant-baseline="central">target, from bits</text></g>
+<path d="M484 624 L504 624" class="arr" marker-end="url(#arrow)"/>
+<g class="result"><rect x="510" y="596" width="150" height="56" rx="8"/><text class="th" x="585.0" y="615.0" text-anchor="middle" dominant-baseline="central">Below the target?</text><text class="ts" x="585.0" y="633.0" text-anchor="middle" dominant-baseline="central">then flip the phase</text></g>
+<g class="search"><rect x="52" y="548" width="14" height="14" rx="2"/></g>
+<text class="tl" x="74" y="555" text-anchor="start" dominant-baseline="central">Search register: 80 qubits</text>
+<g class="quantum"><rect x="52" y="570" width="14" height="14" rx="2"/></g>
+<text class="tl" x="74" y="577" text-anchor="start" dominant-baseline="central">Depends on the search register</text>
+<g class="classical"><rect x="52" y="592" width="14" height="14" rx="2"/></g>
+<text class="tl" x="74" y="599" text-anchor="start" dominant-baseline="central">Classical input</text>
+<g class="constant"><rect x="52" y="614" width="14" height="14" rx="2"/></g>
+<text class="tl" x="74" y="621" text-anchor="start" dominant-baseline="central">Constant</text>
+<g class="result"><rect x="52" y="636" width="14" height="14" rx="2"/></g>
+<text class="tl" x="74" y="643" text-anchor="start" dominant-baseline="central">The answer, as a phase</text>
+</svg>

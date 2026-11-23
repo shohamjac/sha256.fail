@@ -1,0 +1,11 @@
+{
+  "name": "Baseline",
+  "authors": [
+    "sha256.fail"
+  ],
+  "kind": "baseline",
+  "problem": "bitcoin-mining-v1",
+  "path": "submissions/bitcoin-mining-baseline",
+  "description": "Plain reference construction: the five compressions built like the SHA-256 compression baseline, each with its own state register and all sharing one block register; classical inputs copied into qubits; the hash masked and compared to the target; then everything run backwards.",
+  "source": "build.py"
+}

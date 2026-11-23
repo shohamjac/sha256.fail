@@ -1,7 +1,8 @@
 """Running a circuit on test inputs and checking every shot.
 
-A shot passes when the output registers hold the reference value, the input registers are
-unchanged, every scratch qubit is zero and the phase is not flipped.
+A shot passes when the output registers hold the reference value, the input registers made
+of qubits are unchanged, every scratch qubit is zero and the phase is right: not flipped,
+or for a problem that defines a phase, flipped exactly when the problem says so.
 """
 
 from __future__ import annotations
@@ -19,15 +20,23 @@ from sha_verifier import sampling
 from sha_verifier.circuits import Layout
 from sha_verifier.problems import TOFFOLI_LIKE, ProblemSpec, RegisterBits
 
-# In the order they are reported when one shot fails several.
+# In the order they are reported when one shot fails several. The last check is
+# `phase_flipped` for a problem with no phase of its own and `wrong_phase` for one with.
 CHECKS = ('wrong_output', 'input_changed', 'dirty_scratch', 'phase_flipped')
+PHASE_ORACLE_CHECKS = CHECKS[:3] + ('wrong_phase',)
 
 _MESSAGES = {
     'wrong_output': 'An output register does not hold the reference value.',
     'input_changed': 'An input register was not restored.',
     'dirty_scratch': 'A scratch qubit did not return to zero.',
     'phase_flipped': 'The shot ended with a flipped phase.',
+    'wrong_phase': 'The phase was flipped when it must not be, or not flipped when it must be.',
 }
+
+
+def checks(problem: ProblemSpec) -> tuple[str, ...]:
+    """The checks every shot of `problem` goes through, in reporting order."""
+    return CHECKS if problem.phase is None else PHASE_ORACLE_CHECKS
 
 
 @dataclasses.dataclass(frozen=True)
@@ -35,7 +44,7 @@ class Failure:
     """The first failing shot of a run.
 
     Attributes:
-        check: Which check failed, one of `CHECKS`.
+        check: Which check failed, one of the problem's `checks`.
         shot: Index of the shot within its phase (directed or random).
         failing_shots: For each check, how many shots of the same batch failed it.
         inputs: The failing shot's input registers, as hex of the register bits packed
@@ -60,6 +69,8 @@ def run_shots(circuit: km.Circuit, layout: Layout, problem: ProblemSpec, inputs:
               expected: RegisterBits, sim_seed: int) -> tuple[int, Failure | None]:
     """Simulates one shot per input column, in batches, stopping at the first failing batch.
 
+    The expected phase of each shot comes from `problem.phase`, when the problem has one.
+
     Returns:
         The number of Toffoli-like instructions executed, summed over the shots run, and
         the first failure if there was one.
@@ -69,6 +80,8 @@ def run_shots(circuit: km.Circuit, layout: Layout, problem: ProblemSpec, inputs:
         raise ValueError(f'Shot count {shots} is not a multiple of {sampling.BATCH_SIZE}.')
     sim = km.Simulator(batch_size=sampling.BATCH_SIZE, debug_print=False,
                        counting_operations=True, seed=sim_seed)
+    names = checks(problem)
+    must_flip = None if problem.phase is None else np.asarray(problem.phase(inputs), dtype=bool)
 
     for start in range(0, shots, sampling.BATCH_SIZE):
         batch = slice(start, start + sampling.BATCH_SIZE)
@@ -77,24 +90,29 @@ def run_shots(circuit: km.Circuit, layout: Layout, problem: ProblemSpec, inputs:
             sim.write_across_shots(layout.registers[register.name], inputs[register.name][:, batch])
         sim.do(circuit)
 
-        bad = {check: np.zeros(sampling.BATCH_SIZE, dtype=bool) for check in CHECKS}
+        bad = {check: np.zeros(sampling.BATCH_SIZE, dtype=bool) for check in names}
         for register in problem.outputs:
             got = sim.read_across_shots(layout.registers[register.name])
             bad['wrong_output'] |= (got != expected[register.name][:, batch]).any(axis=0)
         for register in problem.inputs:
-            got = sim.read_across_shots(layout.registers[register.name])
-            bad['input_changed'] |= (got != inputs[register.name][:, batch]).any(axis=0)
+            if register.kind == 'qubit':  # Classical bits may end in any state.
+                got = sim.read_across_shots(layout.registers[register.name])
+                bad['input_changed'] |= (got != inputs[register.name][:, batch]).any(axis=0)
         if len(layout.scratch):
             bad['dirty_scratch'] |= sim.read_across_shots(layout.scratch).any(axis=0)
-        bad['phase_flipped'] |= np.asarray(sim.read_phase_flipped_across_shots(), dtype=bool)
+        flipped = np.asarray(sim.read_phase_flipped_across_shots(), dtype=bool)
+        if must_flip is None:
+            bad['phase_flipped'] |= flipped
+        else:
+            bad['wrong_phase'] |= flipped != must_flip[batch]
 
         any_bad = np.logical_or.reduce(list(bad.values()))
         if any_bad.any():
             first = int(np.argmax(any_bad))
             return _toffolis_executed(sim), Failure(
-                check=next(check for check in CHECKS if bad[check][first]),
+                check=next(check for check in names if bad[check][first]),
                 shot=start + first,
-                failing_shots={check: int(bad[check].sum()) for check in CHECKS},
+                failing_shots={check: int(bad[check].sum()) for check in names},
                 inputs={r.name: np.packbits(inputs[r.name][:, start + first], bitorder='little').tobytes().hex()
                         for r in problem.inputs},
             )

@@ -22,8 +22,12 @@ This checks the circuit against `sha256-compress-v1` (the contract is
 exits 0 if the circuit passed and 1 if it did not. A full run is 1,179 directed tests and
 2^20 random ones; on a 300,000-gate circuit that takes about 40 s on one core.
 
+`--problem bitcoin-mining-v1` checks a circuit against the Bitcoin mining oracle instead.
+Its contract, [docs/bitcoin-mining-v1.md](docs/bitcoin-mining-v1.md), is still a draft.
+
 | Option | Meaning |
 |---|---|
+| `--problem NAME` | The problem to verify against. Default: `sha256-compress-v1`. |
 | `--shots N` | Fewer random tests, for development. The receipt is marked `full_strength: false`. |
 | `--salt S` | Salt mixed into the seed that picks the random tests. Default: empty. |
 | `--random-salt` | Draw a fresh salt and record it. Use this when others must trust the result. |
@@ -50,9 +54,12 @@ Other commands:
    again by an independent parser (`kmx.py`). The two must agree on every count, and only
    a circuit rebuilt from the text is simulated.
 2. **Structure.** Exactly the problem's registers, of the right sizes, made of distinct
-   qubits; only allowed instructions; within the size limits.
+   qubits, or of distinct classical bits where the problem gives an input classically;
+   only allowed instructions; within the size limits.
 3. **Directed tests**, then **random tests.** Every shot must end with the right output,
-   inputs unchanged, scratch at zero and phase not flipped.
+   qubit inputs unchanged, scratch at zero and phase not flipped. For a phase oracle such
+   as `bitcoin-mining-v1` the phase must instead be flipped exactly when the problem's
+   function says so.
 4. **Accounting.** The executed Toffoli count must be possible for the circuit's static count.
 
 The first failure stops the run. The receipt names the stage, the check, and the failing
@@ -87,7 +94,8 @@ but the run: a throwaway CI job with no secrets, as the workflow here does.
 | `sampling.py` | Seed derivation and random inputs |
 | `simulate.py` | Batched simulation and the per-shot checks |
 | `submission.py` | Rules for submission directories and pull requests, recording receipts, comment text |
-| `problems.py` | Registry of benchmark problems. Adding a hash function is one entry here. |
+| `problems.py` | Registry of benchmark problems. Adding a problem is one entry here. |
+| `bitcoin.py`, `bitcoin_blocks.py` | The function and tests of `bitcoin-mining-v1`; the real blocks it is tested on |
 | `sha2.py` | Reference SHA-2 compression. Circuit generators must not import it. |
 | `bits.py` | Conversion between words and register bit arrays |
 | `selftest.py`, `environment.py` | Simulator self-test; Kickmix version and binary hash |
@@ -108,4 +116,6 @@ uv run pytest
 The tests include a small 4-bit adder problem (`tests/toy.py`) with about thirty broken
 circuits that must each be rejected at a specific stage for a specific reason, and the
 baseline SHA-256 circuit from `../submissions/example`, which must pass and whose mutants
-must fail.
+must fail. For `bitcoin-mining-v1` they run the baseline oracle from
+`../submissions/bitcoin-mining-baseline`, which must pass, and faulty variants of its
+generator, which must fail.
