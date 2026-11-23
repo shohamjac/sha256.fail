@@ -60,11 +60,10 @@ export const DEFAULT_HEADLINE = 'How cheaply can a quantum computer run SHA-256?
  * get no mark. `what` names those qubits, to finish the sentence "the fewest qubits a circuit
  * can have: ...".
  *
- * For SHA-256 compression they are the 512-bit block plus the 256-bit digest. For the Bitcoin
- * mining oracle they are the 80-qubit search register alone: its other registers are
- * classical bits, which are not counted, and a phase oracle has no output register.
+ * For SHA-256 compression they are the 512-bit block plus the 256-bit digest. The Bitcoin
+ * mining oracle is left out for now: its floor, the 80-qubit search register, is far below
+ * every submission and would only squash the chart.
  */
 export const PROBLEM_MIN_QUBITS: Record<string, { qubits: number; what: string }> = {
   'sha256-compress-v1': { qubits: 768, what: 'the input and output themselves' },
-  'bitcoin-mining-v1': { qubits: 80, what: 'the search register itself' },
 };
