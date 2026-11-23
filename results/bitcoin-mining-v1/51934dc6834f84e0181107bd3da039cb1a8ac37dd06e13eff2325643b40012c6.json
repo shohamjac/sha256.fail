@@ -1,0 +1,76 @@
+{
+  "receipt_version": 1,
+  "problem": "bitcoin-mining-v1",
+  "status": "PASS",
+  "failure": null,
+  "circuit": {
+    "file_sha256": "51934dc6834f84e0181107bd3da039cb1a8ac37dd06e13eff2325643b40012c6",
+    "sha256": "51934dc6834f84e0181107bd3da039cb1a8ac37dd06e13eff2325643b40012c6",
+    "qubits": 3167,
+    "bits": 17143,
+    "operations": 2244227,
+    "toffoli_static": 203620,
+    "instruction_counts": {
+      "BIT_INVERT": 34905,
+      "BIT_STORE0": 80,
+      "CCX": 203620,
+      "CX": 1510964,
+      "CZ": 203621,
+      "HMR": 203620,
+      "POP_CONDITION": 7387,
+      "PUSH_CONDITION": 7387,
+      "X": 72642,
+      "Z": 1
+    },
+    "reaction_depth": 16622
+  },
+  "cost": {
+    "qubits": 3167,
+    "toffoli": 202962.4520587921,
+    "score": 642782085.6701946,
+    "toffoli_executed_total": 212821556130,
+    "shots": 1048576
+  },
+  "verification": {
+    "sampling": "v1",
+    "salt": "5f09782f9d675e916688163f8e9dda61acefba05f9c64a9743d18654bb054a93",
+    "seed": "5e6ca07b0a22cb22c1e0faf091e52bf12cc70b40ccea49cb1f0fa42c5dd85817",
+    "directed_shots": 2848,
+    "random_shots": 1048576,
+    "full_strength": true,
+    "batch_size": 256,
+    "chunk_shots": 4096,
+    "limits": {
+      "max_file_bytes": 536870912,
+      "max_operations": 20000000,
+      "max_qubits": 65536,
+      "max_bits": 1048576
+    }
+  },
+  "verifier": {
+    "sha_verifier_version": "0.1.0",
+    "kickmix_version": "1.0.0"
+  },
+  "submission": {
+    "name": "Classical inputs kept classical",
+    "authors": [
+      "Shoham Jacoby"
+    ],
+    "github_user_id": 51854221,
+    "kind": "submission",
+    "problem": "bitcoin-mining-v1",
+    "path": "submissions/bitcoin-mining-low-toffoli-3167",
+    "description": "Kept carries with no spare qubit: 3,167 qubits, the fewest that design can use. No AND is kept, so the backward pass computes each one again, and what is left is a forward pass of 101,985 ANDs. Only the 80 searched bits are qubits: sums of classical words are worked out on classical bits and enter as one addend, Ch and Maj with classical arguments need no AND, and nine rounds of the header's first block see no qubit. The last compression computes only the three compared words. No register is rewound between compressions, which is why it uses more qubits than the baseline. 202,961 Toffolis per shot, against the baseline's 262,158 on 2,000 qubits.",
+    "source": "build.py"
+  },
+  "run": {
+    "started_at": "2026-11-23T14:09:20+00:00",
+    "elapsed_seconds": 86.149,
+    "workers": 4,
+    "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+    "python_version": "3.13.18",
+    "numpy_version": "2.5.4",
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+    "machine": "x86_64"
+  }
+}
