@@ -1,0 +1,12 @@
+{
+  "name": "Kept carries, 16,384 qubits",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "github_user_id": 51854221,
+  "kind": "submission",
+  "problem": "bitcoin-mining-v1",
+  "path": "submissions/bitcoin-mining-low-toffoli-16384",
+  "description": "Kept carries built on 16,384 qubits instead of 65,536. An addition whose carries are left in qubits of their own is undone by CNOTs and measurements, with no Toffoli, so each spare qubit saves one Toffoli of the backward pass. With 16,384 qubits, 13,217 of the 101,985 ANDs of the forward pass are kept and the rest are computed twice. The forward pass is the same: classical inputs stay classical, and the last compression computes only the three compared words. 189,744 Toffolis per shot, against 140,592 on 65,536 qubits and the baseline's 262,158 on 2,000.",
+  "source": "build.py"
+}
