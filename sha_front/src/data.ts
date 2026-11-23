@@ -9,6 +9,8 @@
  * fields the site uses are typed here.
  */
 
+import { PROBLEM_TITLES } from './config';
+
 export interface Receipt {
   receipt_version: number;
   problem: string;
@@ -198,6 +200,15 @@ export function listed<T extends Entry>(entries: T[]): T[] {
   return out;
 }
 
+/**
+ * The problems that have entries, in the order the site offers them: the problems it knows
+ * in the order of `PROBLEM_TITLES`, then any others by id. The first is the default view.
+ */
 export function problemsOf(entries: Entry[]): string[] {
-  return [...new Set(entries.map((e) => e.problem))].sort();
+  const known = Object.keys(PROBLEM_TITLES);
+  const place = (problem: string): number => {
+    const index = known.indexOf(problem);
+    return index === -1 ? known.length : index;
+  };
+  return [...new Set(entries.map((e) => e.problem))].sort((a, b) => place(a) - place(b) || (a < b ? -1 : 1));
 }

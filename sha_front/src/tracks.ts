@@ -6,6 +6,7 @@
 
 import { useEffect, useState } from 'react';
 import type { Entry } from './data';
+import { hashParam, withHashParam } from './problems';
 
 export type TrackId = 'toffoli' | 'depth';
 
@@ -76,14 +77,13 @@ export function scoredOn(entries: readonly Entry[], track: Track): Scored[] {
 
 /** The track named in a location hash such as `#/?track=depth`; the default if none is. */
 export function trackFromHash(hash: string): TrackId {
-  const query = hash.split('?')[1] ?? '';
-  const named = new URLSearchParams(query).get('track');
+  const named = hashParam(hash, 'track');
   return named === 'depth' || named === 'toffoli' ? named : DEFAULT_TRACK;
 }
 
-/** The hash of the leaderboard page showing `track`. */
-export function hashForTrack(track: TrackId): string {
-  return track === DEFAULT_TRACK ? '#/' : `#/?track=${track}`;
+/** `hash`, changed to name `track` and nothing else. */
+export function hashForTrack(hash: string, track: TrackId): string {
+  return withHashParam(hash, 'track', track === DEFAULT_TRACK ? null : track);
 }
 
 /**
@@ -98,7 +98,7 @@ export function useTrack(): [TrackId, (track: TrackId) => void] {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
   return [track, (next) => {
-    window.history.replaceState(window.history.state, '', hashForTrack(next));
+    window.history.replaceState(window.history.state, '', hashForTrack(window.location.hash, next));
     setTrack(next);
   }];
 }

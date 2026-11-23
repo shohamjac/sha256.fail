@@ -233,30 +233,28 @@ p {
   padding: 40px 0;
 }
 
-/* Problem switcher: one row above everything it scopes. */
+/* The choices that scope a page, one to a row: the problem, then the track. */
 
 .filters {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin-top: 24px;
 }
 
-.filters {
-  flex-wrap: wrap;
+.filters + .filters {
+  margin-top: 10px;
 }
 
-.filters label,
+/* The labels share a width, so that the controls of both rows start at the same place. */
 .filters .filter-label {
   color: var(--text-secondary);
   font-size: 14px;
+  min-width: 58px;
 }
 
-.filters .segmented + label {
-  margin-left: 14px;
-}
-
-/* Track toggle: two buttons joined into one control; the pressed one is filled. */
+/* Problem and track toggles: buttons joined into one control; the pressed one is filled. */
 
 .segmented {
   background: var(--surface);
@@ -290,15 +288,6 @@ p {
 .segmented button:focus-visible {
   outline: 2px solid var(--series-1);
   outline-offset: 1px;
-}
-
-.filters select {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text-primary);
-  font: inherit;
-  padding: 6px 10px;
 }
 
 /* Stat tiles. */
@@ -915,6 +904,39 @@ dialog.submission .muted {
 
 .prose tbody tr:hover {
   background: none;
+}
+
+/* The toggle under a prose page's title sits closer to it than the leaderboard's does. */
+.prose > .filters {
+  margin: 14px 0 22px;
+}
+
+.prose h3 {
+  margin: 22px 0 6px;
+}
+
+.prose li > ul {
+  margin: 4px 0 0;
+}
+
+/*
+ * Figures from a contract. They are drawn in fixed colours on a white card of their own, so
+ * they look the same in both themes.
+ */
+.figure {
+  margin: 18px 0 20px;
+}
+
+.figure img {
+  display: block;
+  height: auto;
+  max-width: 100%;
+}
+
+.figure figcaption {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-top: 8px;
 }
 
 .site-footer {
