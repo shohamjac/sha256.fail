@@ -1,0 +1,12 @@
+{
+  "name": "Lookahead rounds, everything computed again",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "github_user_id": 51854221,
+  "kind": "submission",
+  "problem": "bitcoin-mining-v1",
+  "path": "submissions/bitcoin-mining-low-depth-1130",
+  "description": "Built for the reaction-depth track, from Lookahead rounds, states measured away. Forward rounds clear nothing: the registers a round is done with are measured away in the X basis, and the round that undoes it, which forms those values anyway, corrects their phase. That more than halves the operations of a forward round, and the circuit spends them on computing more often and holding less: to undo a compression, the output of the one before is computed again from the search register, with nothing else held. A value computed again is no deeper than the first time, so this costs no depth. The most the circuit holds is what the header's second block needs by itself, with its schedule in place over the nonce. A round keeps one register beyond the state, not two. 1,130 qubits at reaction depth 4,331, against 1,249 at 4,435.",
+  "source": "build.py"
+}
