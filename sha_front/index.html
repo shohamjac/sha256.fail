@@ -26,6 +26,32 @@
         system.addEventListener('change', apply);
       })();
     </script>
+    <script>
+      // Google Analytics. Every page is a hash route (#/rules, #/submit, ...), and GA drops
+      // everything after the #, so the automatic page view is off and each route is sent as a
+      // path instead: #/rules becomes /sha256.fail/rules. Local dev servers are not tracked.
+      (function () {
+        var id = 'G-SCW3D0RQND';
+        var host = location.hostname;
+        if (host === 'localhost' || host === '127.0.0.1' || host === '') return;
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { dataLayer.push(arguments); };
+        gtag('js', new Date());
+        gtag('config', id, { send_page_view: false });
+        function sendPage() {
+          var page = location.hash.split('?')[0].replace(/^#/, '') || '/';
+          gtag('event', 'page_view', {
+            page_location: location.origin + location.pathname.replace(/\/(index\.html)?$/, '') + page,
+          });
+        }
+        sendPage();
+        window.addEventListener('hashchange', sendPage);
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=' + id;
+        document.head.appendChild(script);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
