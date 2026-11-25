@@ -477,6 +477,87 @@
       "status": "PASS",
       "failure": null,
       "circuit": {
+        "file_sha256": "7051c28853071337ccf753eec0cbd2e995d2d2e411e576ce79d13988ea028f29",
+        "sha256": "7051c28853071337ccf753eec0cbd2e995d2d2e411e576ce79d13988ea028f29",
+        "qubits": 914,
+        "bits": 28549,
+        "operations": 8618158,
+        "toffoli_static": 514397,
+        "instruction_counts": {
+          "BIT_INVERT": 116147,
+          "BIT_STORE0": 58996,
+          "BIT_STORE1": 19,
+          "CCX": 514393,
+          "CCZ": 4,
+          "CX": 5727236,
+          "CZ": 459005,
+          "HMR": 478813,
+          "INFO_TAG": 33652,
+          "NEG": 49180,
+          "POP_CONDITION": 103390,
+          "PUSH_CONDITION": 103390,
+          "R": 464095,
+          "X": 491216,
+          "Z": 18622
+        },
+        "reaction_depth": 167687
+      },
+      "cost": {
+        "qubits": 914,
+        "toffoli": 514395.0011768341,
+        "score": 470157031.0756264,
+        "toffoli_executed_total": 539382252754,
+        "shots": 1048576
+      },
+      "verification": {
+        "sampling": "v1",
+        "salt": "9599d1049dc7202f0b865e2d46ebe91bf2c6e6f1557b7615bbc711c9a7d40ddb",
+        "seed": "469c90900c0ea7a678f3f5a3539b42293b0bcb37a9c7be902781cc3d40ca1132",
+        "directed_shots": 2848,
+        "random_shots": 1048576,
+        "full_strength": true,
+        "batch_size": 256,
+        "chunk_shots": 4096,
+        "limits": {
+          "max_file_bytes": 536870912,
+          "max_operations": 20000000,
+          "max_qubits": 65536,
+          "max_bits": 1048576
+        }
+      },
+      "verifier": {
+        "sha_verifier_version": "0.1.0",
+        "kickmix_version": "1.0.0"
+      },
+      "submission": {
+        "name": "Recomputed schedule, half the Toffolis",
+        "authors": [
+          "Shoham Jacoby"
+        ],
+        "github_user_id": 51854221,
+        "kind": "submission",
+        "problem": "bitcoin-mining-v1",
+        "path": "submissions/bitcoin-mining-low-qubit-914-v2",
+        "description": "The 914-qubit oracle of bitcoin-mining-low-qubit-914 with half its Toffolis. The header's second block still holds 11 schedule registers and computes older words again. Now additions, Ch and Maj use whatever qubits are free at the moment, the classical parts of a word are summed by classical instructions and added once, an old word that stays in its register is turned into the word two after it instead of being rebuilt, and both base registers move so that even and odd words are at hand together. In every compression, classical message words get no qubits until the schedule overwrites them. Twice the baseline's Toffolis.",
+        "source": "build.py"
+      },
+      "run": {
+        "started_at": "2026-11-25T09:00:06+00:00",
+        "elapsed_seconds": 239.537,
+        "workers": 4,
+        "kickmix_binary_sha256": "3f505732bb3a6427079ef8e2ba9f51bc22a986d3bf02a364f6c033eefd3c37d2",
+        "python_version": "3.13.18",
+        "numpy_version": "2.5.4",
+        "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+        "machine": "x86_64"
+      }
+    },
+    {
+      "receipt_version": 1,
+      "problem": "bitcoin-mining-v1",
+      "status": "PASS",
+      "failure": null,
+      "circuit": {
         "file_sha256": "71d7c9b9e92fa194a039093b4a1b54c6b0804ffee77b1d4f86ef6b46bbf526f2",
         "sha256": "71d7c9b9e92fa194a039093b4a1b54c6b0804ffee77b1d4f86ef6b46bbf526f2",
         "qubits": 1072,
