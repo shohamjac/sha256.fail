@@ -27,9 +27,9 @@
       })();
     </script>
     <script>
-      // Google Analytics. Every page is a hash route (#/rules, #/submit, ...), and GA drops
-      // everything after the #, so the automatic page view is off and each route is sent as a
-      // path instead: #/rules becomes /sha256.fail/rules. Local dev servers are not tracked.
+      // Google Analytics. The automatic page view is off: the app sends one per route, with the
+      // route as a path and the page's own title (see src/analytics.ts). Local dev servers are
+      // not tracked.
       (function () {
         var id = 'G-SCW3D0RQND';
         var host = location.hostname;
@@ -38,14 +38,6 @@
         window.gtag = function () { dataLayer.push(arguments); };
         gtag('js', new Date());
         gtag('config', id, { send_page_view: false });
-        function sendPage() {
-          var page = location.hash.split('?')[0].replace(/^#/, '') || '/';
-          gtag('event', 'page_view', {
-            page_location: location.origin + location.pathname.replace(/\/(index\.html)?$/, '') + page,
-          });
-        }
-        sendPage();
-        window.addEventListener('hashchange', sendPage);
         var script = document.createElement('script');
         script.async = true;
         script.src = 'https://www.googletagmanager.com/gtag/js?id=' + id;

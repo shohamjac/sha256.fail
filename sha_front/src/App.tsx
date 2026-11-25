@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactElement } from 'react';
+import { trackPageView } from './analytics';
 import { ThemeToggle } from './components/ThemeToggle';
 import { REPO_URL } from './config';
 import { loadReceipts, toEntries, type Entry } from './data';
@@ -41,6 +42,14 @@ export function App(): ReactElement {
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
+
+  // The tab title names the page, and the page view is sent after it is set so GA records the
+  // new title. Keyed on the route alone, so changing a choice in the hash query is not a view.
+  useEffect(() => {
+    const page = PAGES.find((p) => p.hash === route);
+    document.title = route === '#/' || !page ? 'sha256.fail' : `${page.label} · sha256.fail`;
+    trackPageView(route);
+  }, [route]);
 
   useEffect(() => {
     loadReceipts()
