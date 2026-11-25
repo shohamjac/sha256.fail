@@ -1,0 +1,12 @@
+{
+  "name": "Recomputed schedule, half the Toffolis",
+  "authors": [
+    "Shoham Jacoby"
+  ],
+  "github_user_id": 51854221,
+  "kind": "submission",
+  "problem": "bitcoin-mining-v1",
+  "path": "submissions/bitcoin-mining-low-qubit-914-v2",
+  "description": "The 914-qubit oracle of bitcoin-mining-low-qubit-914 with half its Toffolis. The header's second block still holds 11 schedule registers and computes older words again. Now additions, Ch and Maj use whatever qubits are free at the moment, the classical parts of a word are summed by classical instructions and added once, an old word that stays in its register is turned into the word two after it instead of being rebuilt, and both base registers move so that even and odd words are at hand together. In every compression, classical message words get no qubits until the schedule overwrites them. Twice the baseline's Toffolis.",
+  "source": "build.py"
+}
